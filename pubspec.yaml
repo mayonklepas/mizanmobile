@@ -36,11 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   geolocator: ^9.0.1
   intl : ^0.17.0
-  shared_preferences: ^2.0.15
+  shared_preferences: ^2.1.2
   url_launcher: ^6.0.0
   cached_network_image: ^3.0.0
   flutter_barcode_scanner: ^2.0.0
   carousel_slider: ^4.2.1
+  image_picker: ^0.8.7
 
 dev_dependencies:
   flutter_test:

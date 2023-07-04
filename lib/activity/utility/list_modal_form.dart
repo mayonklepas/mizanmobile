@@ -43,6 +43,12 @@ class _ListModalFormState extends State<ListModalForm> {
       mainUrlString = "${Utils.mainUrl}datapopup/dept?cari";
     } else if (type == "golongan") {
       mainUrlString = "${Utils.mainUrl}datapopup/golongan?cari=";
+    } else if (type == "golongansuplier") {
+      mainUrlString = "${Utils.mainUrl}datapopup/golongansuplier?cari=";
+    } else if (type == "golonganpelanggan") {
+      mainUrlString = "${Utils.mainUrl}datapopup/golonganpelanggan?cari=";
+    } else if (type == "klasifikasi") {
+      mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
     } else if (type == "satuanbarang") {
       mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
     } else if (type == "akun") {

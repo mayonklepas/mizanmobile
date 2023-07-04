@@ -24,7 +24,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
   TextEditingController gudangCtrl = TextEditingController();
   String idGudang = Utils.idGudang;
   String namaGudang = Utils.namaGudang;
-  String tanggalTransaksi = "";
+  String tanggalTransaksi = Utils.currentDateString();
   String idTransaksiGlobal = "";
   String norefGlobal = "";
   String keterangan = "";
@@ -384,11 +384,13 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            List<dynamic> detail = globalResultData["detail"];
-                            for (var d in detail) {
-                              if (d["IDBARANG"] == idBarang) {
-                                Utils.showMessage("Barang Sudah ada di daftar", context);
-                                return;
+                            if (globalResultData["detail"] != null) {
+                              List<dynamic> detail = globalResultData["detail"];
+                              for (var d in detail) {
+                                if (d["IDBARANG"] == idBarang) {
+                                  Utils.showMessage("Barang Sudah ada di daftar", context);
+                                  return;
+                                }
                               }
                             }
 

@@ -24,7 +24,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
   TextEditingController keCtrl = TextEditingController();
   String idGudangDari = "";
   String idGudangKe = "";
-  String tanggalTransaksi = "";
+  String tanggalTransaksi = Utils.currentDateString();
   String namaGudangDari = "";
   String namaGudangKe = "";
   String idTransaksiGlobal = "";
@@ -74,10 +74,10 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
       }
       idTransaksiGlobal = idTransaksi;
       resultData = await _getTransferBarang(idTransaksi);
-      globalResultData = resultData;
+      globalResultData = await resultData;
     } else {
       resultData = defaultResult;
-      globalResultData = resultData;
+      globalResultData = await resultData;
     }
 
     dynamic header = resultData["header"];
@@ -243,7 +243,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
 
                             if (popUpResult == null) return;
 
-                            print(popUpResult);
+                            //print(popUpResult);
                             setState(() {
                               kodeBarangCtrl.text = popUpResult["KODE"];
                               namaBarangCtrl.text = popUpResult["NAMA"];
@@ -347,11 +347,15 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            List<dynamic> detail = globalResultData["detail"];
-                            for (var d in detail) {
-                              if (d["IDBARANG"] == idBarang) {
-                                Utils.showMessage("Barang Sudah ada di daftar", context);
-                                return;
+                            print(globalResultData);
+
+                            if (globalResultData["detail"] != null) {
+                              List<dynamic> detail = globalResultData["detail"];
+                              for (var d in detail) {
+                                if (d["IDBARANG"] == idBarang) {
+                                  Utils.showMessage("Barang Sudah ada di daftar", context);
+                                  return;
+                                }
                               }
                             }
 

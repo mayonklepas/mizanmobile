@@ -53,6 +53,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
+    print(jsonData);
     Navigator.pop(context);
     return jsonData;
   }
@@ -107,16 +108,16 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
       _kodeCtrl.text = dataInfo["KODE"];
       _namaCtrl.text = dataInfo["NAMA"];
       _kelompokCtrl.text = dataInfo["NAMA_KELOMPOK"];
-      _idKelompok = dataInfo["KELOMPOK"];
+      _idKelompok = dataInfo["IDKELOMPOK"];
       _suplierCtrl.text = dataInfo["NAMA_SUPLIER_UTAMA"].toString();
       _idSuplier = dataInfo["IDSUPLIERUTAMA"].toString();
       _keteranganCtrl.text = dataInfo["KETERANGAN"].toString();
       _merkCtrl.text = dataInfo["NAMA_MEREK"].toString();
       _idMerk = dataInfo["IDMEREK"].toString();
       _satuanCtrl.text = dataInfo["KODE_SATUAN"];
-      _idSatuan = dataInfo["SATUAN"];
+      _idSatuan = dataInfo["IDSATUAN"];
       _gudangCtrl.text = dataInfo["NAMA_GUDANG"];
-      _idGudang = dataInfo["GUDANG"];
+      _idGudang = dataInfo["IDGUDANG"];
       _lokasiCtrl.text = dataInfo["NAMA_LOKASI"];
       _idLokasi = dataInfo["IDLOKASI"];
       _deptCtrl.text = dataInfo["NAMA_DEPT"];

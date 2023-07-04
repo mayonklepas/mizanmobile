@@ -55,6 +55,24 @@ class Utils {
     return nf.format(value);
   }
 
+  static String currentDateString() {
+    DateTime dt = DateTime.now();
+    String day = dt.day.toString();
+    String month = dt.month.toString();
+    String year = dt.year.toString();
+
+    if (day.length == 1) {
+      day = "0" + day;
+    }
+
+    if (month.length == 1) {
+      month = "0" + month;
+    }
+
+    String formattedDate = year + "-" + month + "-" + day;
+    return formattedDate;
+  }
+
   static String formatDate(String value) {
     DateTime dt;
     if (value == null || value as String == "") {
@@ -63,7 +81,19 @@ class Utils {
       dt = DateTime.parse(value);
     }
 
-    String formattedDate = dt.day.toString() + "/" + dt.month.toString() + "/" + dt.year.toString();
+    String day = dt.day.toString();
+    String month = dt.month.toString();
+    String year = dt.year.toString();
+
+    if (day.length == 1) {
+      day = "0" + day;
+    }
+
+    if (month.length == 1) {
+      month = "0" + month;
+    }
+
+    String formattedDate = day + "/" + month + "/" + year;
     return formattedDate;
   }
 
@@ -114,12 +144,11 @@ class Utils {
   }
 
   static Future<void> goToUrl(String url) async {
-    Uri urlWeb = Uri.parse(url);
-    if (!await launchUrl(urlWeb)) {
+    if (!await launch(url)) {
       throw 'Could not launch $url';
     } else {
-      await launchUrl(urlWeb, mode: LaunchMode.externalApplication);
-      await closeInAppWebView();
+      await launch(url);
+      await closeWebView();
     }
   }
 
@@ -354,6 +383,14 @@ class Utils {
     Map<String, String> header = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      'Authorization': 'Bearer ' + Utils.token,
+    };
+    return header;
+  }
+
+  static Map<String, String> setHeaderMultiPart() {
+    Map<String, String> header = <String, String>{
+      'Content-Type': 'multipart/form-data',
       'Authorization': 'Bearer ' + Utils.token,
     };
     return header;

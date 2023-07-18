@@ -27,7 +27,7 @@ class HomeActivity extends StatefulWidget {
 
 class _HomeActivityState extends State<HomeActivity> {
   Future<dynamic> _getHome() async {
-    String urlString = "${Utils.mainUrl}home/daftar";
+    String urlString = "${Utils.mainUrl}home/daftar?tgl=${Utils.currentDateString()}";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];

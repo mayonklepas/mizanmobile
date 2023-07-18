@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:mizanmobile/activity/component/date_range_bottom_modal.dart';
+import 'package:mizanmobile/activity/component/bottom_modal_filter.dart';
 import 'package:mizanmobile/activity/stokopname/input_stokopname.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
@@ -295,7 +295,7 @@ class _ListStokOpnameState extends State<ListStokOpname> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return DateRangeBottomModal(
+          return BottomModalFilter(
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
               action: () {

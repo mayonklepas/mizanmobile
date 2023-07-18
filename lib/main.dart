@@ -8,7 +8,6 @@ import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:http/http.dart';
 
 void main() {
@@ -17,7 +16,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   // This widget is the root of your application.
 
   @override
@@ -72,15 +70,31 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       Utils.mainUrl = sp.getString("defaultConnection").toString();
       Utils.imageUrl = sp.getString("defaultImageUrl").toString();
+
       Utils.idDept = sp.getString("defaultIdDept").toString();
       Utils.namaDept = sp.getString("defaultNamaDept").toString();
+
+      Utils.idDeptTemp = sp.getString("defaultIdDept").toString();
+      Utils.namaDeptTemp = sp.getString("defaultNamaDept").toString();
+
       Utils.idAkunStokOpname = sp.getString("defaultIdAkunStokOpname").toString();
       Utils.namaAkunStokOpname = sp.getString("defaultNamaAkunStokOpname").toString();
       Utils.idGudang = sp.getString("defaultIdGudang").toString();
       Utils.namaGudang = sp.getString("defaultNamaGudang").toString();
+
+      Utils.idGudangTemp = sp.getString("defaultIdGudang").toString();
+      Utils.namaGudangTemp = sp.getString("defaultNamaGudang").toString();
+
       Utils.idUser = sp.getString("defaultIdUser").toString();
       Utils.token = sp.getString("token").toString();
       Utils.namaUser = sp.getString("namaUser").toString();
+
+      Utils.idPenggunaTemp = "-1";
+      Utils.namaPenggunaTemp = "SEMUA";
+
+      Utils.idPelanggan = sp.getString("defaultIdPelanggan").toString();
+      Utils.namaPelanggan = sp.getString("defaultNamaPelanggan").toString();
+      Utils.idGolonganPelanggan = sp.getString("defaultIdGolonganPelanggan").toString();
     });
   }
 

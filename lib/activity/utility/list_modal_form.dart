@@ -11,7 +11,9 @@ class ListModalForm extends StatefulWidget {
   final String type;
   final String idBarang;
   final String keyword;
-  const ListModalForm({Key? key, required this.type, this.idBarang = "", this.keyword = ""});
+  final bool isExtra;
+  const ListModalForm(
+      {Key? key, required this.type, this.idBarang = "", this.keyword = "", this.isExtra = false});
 
   @override
   State<ListModalForm> createState() => _ListModalFormState();
@@ -53,12 +55,20 @@ class _ListModalFormState extends State<ListModalForm> {
       mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
     } else if (type == "akun") {
       mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
+    } else if (type == "pengguna") {
+      mainUrlString = "${Utils.mainUrl}datapopup/pengguna?cari=";
+    } else if (type == "pelanggan") {
+      mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
+    } else if (type == "top") {
+      mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
     }
 
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());
-    print(jsonDecode(response.body));
-    var jsonData = jsonDecode(response.body)["data"];
+    List<dynamic> jsonData = jsonDecode(response.body)["data"];
+    Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
+    jsonData.insert(0, map);
+
     return jsonData;
   }
 
@@ -103,8 +113,8 @@ class _ListModalFormState extends State<ListModalForm> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(dataList["NAMA"], bold: true),
-                                    Utils.labelSetter(dataList["KODE"])
+                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
+                                    Utils.labelSetter(dataList["KODE"].toString())
                                   ],
                                 ),
                               ),

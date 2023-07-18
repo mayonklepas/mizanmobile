@@ -9,7 +9,8 @@ import 'package:http/http.dart';
 
 class ListModalBarang extends StatefulWidget {
   final String keyword;
-  const ListModalBarang({Key? key, this.keyword = ""}) : super(key: key);
+  final String barangList;
+  const ListModalBarang({Key? key, this.keyword = "", this.barangList = ""}) : super(key: key);
 
   @override
   State<ListModalBarang> createState() => _ListModalBarangState();
@@ -19,12 +20,16 @@ class _ListModalBarangState extends State<ListModalBarang> {
   Future<List<dynamic>>? _dataBarang;
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
-    String mainUrlString = "${Utils.mainUrl}datapopup/daftarbarang?idgudang=1-1&cari=" + keyword;
+    if (widget.barangList != "") {
+      return jsonDecode(widget.barangList);
+    }
+    String mainUrlString =
+        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(mainUrlString);
     Response response = await get(url, headers: Utils.setHeader());
     print(mainUrlString);
     print(jsonDecode(response.body));
-    var jsonData = jsonDecode(response.body)["data"];
+    var jsonData = jsonDecode(response.body)["data"]["item"];
     return jsonData;
   }
 

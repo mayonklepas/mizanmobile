@@ -19,6 +19,10 @@ class _SetupProgramState extends State<SetupProgram> {
   String idDept = "";
   TextEditingController akunStokOpnameCtrl = TextEditingController();
   String idAkunStokOpname = "";
+  TextEditingController namaPelangganCtrl = TextEditingController();
+  String idPelanggan = "";
+  String idGolonganPelanggan = "";
+  String idGolongan2Pelanggan = "";
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -29,6 +33,10 @@ class _SetupProgramState extends State<SetupProgram> {
       akunStokOpnameCtrl.text = sp.getString("defaultNamaAkunStokOpname").toString();
       idGudang = sp.getString("defaultIdGudang").toString();
       gudangCtrl.text = sp.getString("defaultNamaGudang").toString();
+      idPelanggan = sp.getString("defaultIdPelanggan").toString();
+      idGolonganPelanggan = sp.getString("defaultIdGolonganPelanggan").toString();
+      idGolongan2Pelanggan = sp.getString("defaultIdGolongan2Pelanggan").toString();
+      namaPelangganCtrl.text = sp.getString("defaultNamaPelanggan").toString();
     });
   }
 
@@ -141,6 +149,38 @@ class _SetupProgramState extends State<SetupProgram> {
                   ),
                 ],
               ),
+              Utils.labelForm("Pelanggan Umum"),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 10,
+                      child: TextField(
+                        controller: namaPelangganCtrl,
+                        enabled: false,
+                      )),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "pelanggan",
+                            );
+                          },
+                        ));
+
+                        if (popUpResult == null) return;
+
+                        idPelanggan = popUpResult["NOINDEX"];
+                        idGolonganPelanggan = popUpResult["IDGOLONGAN"];
+                        idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
+                        namaPelangganCtrl.text = popUpResult["NAMA"];
+                      },
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -152,6 +192,11 @@ class _SetupProgramState extends State<SetupProgram> {
                       sp.setString("defaultNamaGudang", gudangCtrl.text);
                       sp.setString("defaultIdAkunStokOpname", idAkunStokOpname);
                       sp.setString("defaultNamaAkunStokOpname", akunStokOpnameCtrl.text);
+                      sp.setString("defaultIdPelanggan", idPelanggan);
+                      sp.setString("defaultNamaPelanggan", namaPelangganCtrl.text);
+                      sp.setString("defaultIdGolonganPelanggan", idGolonganPelanggan);
+                      sp.setString("defaultIdGolongan2Pelanggan", idGolonganPelanggan);
+
                       setState(() {
                         Utils.idDept = idDept;
                         Utils.namaDept = deptCtrl.text;
@@ -159,6 +204,10 @@ class _SetupProgramState extends State<SetupProgram> {
                         Utils.namaGudang = gudangCtrl.text;
                         Utils.idAkunStokOpname = idAkunStokOpname;
                         Utils.namaAkunStokOpname = akunStokOpnameCtrl.text;
+                        Utils.idPelanggan = idPelanggan;
+                        Utils.idGolonganPelanggan = idGolonganPelanggan;
+                        Utils.idGolongan2Pelanggan = idGolongan2Pelanggan;
+                        Utils.namaPelanggan = namaPelangganCtrl.text;
                       });
                       sp.reload();
                       ScaffoldMessenger.of(context)

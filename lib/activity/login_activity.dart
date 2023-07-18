@@ -97,7 +97,6 @@ class _LoginState extends State<Login> {
                                 Utils.showMessage(result["message"], context);
                               } else {
                                 dynamic data = result["data"];
-
                                 Utils.idUser = data["iduser"];
                                 Utils.token = data["token"];
                                 Utils.namaUser = data["username"];

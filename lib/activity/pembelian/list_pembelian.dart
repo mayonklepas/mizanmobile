@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
-import '../component/date_range_bottom_modal.dart';
+import '../component/bottom_modal_filter.dart';
 
 class ListPembelian extends StatefulWidget {
   const ListPembelian({Key? key}) : super(key: key);
@@ -187,7 +187,7 @@ class _ListPembelianState extends State<ListPembelian> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return DateRangeBottomModal(
+          return BottomModalFilter(
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
               action: () {

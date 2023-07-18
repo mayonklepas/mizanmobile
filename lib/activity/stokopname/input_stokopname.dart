@@ -215,6 +215,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
     String idSatuanPengali = "";
     double qtySatuanPengali = 1;
     String noIndex = "";
+    String inputType = "Tambah Barang";
 
     if (param != null) {
       noIndex = param["NOINDEX"];
@@ -228,6 +229,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
       stokFisikCtrl.text = param["STOK_FISIK"].toString();
       stokProgramCtrl.text = param["STOK_PROGRAM"].toString();
       selisihStokCtrl.text = param["JUMLAH"].toString();
+      inputType = "Edit Barang";
     }
     return showModalBottomSheet(
         isScrollControlled: true,
@@ -240,7 +242,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Utils.labelSetter("Tambah Barang", size: 25),
+                  Utils.labelSetter(inputType, size: 25),
                   Padding(padding: EdgeInsets.all(10)),
                   Text("Kode Barang"),
                   Row(
@@ -384,20 +386,23 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            if (globalResultData["detail"] != null) {
-                              List<dynamic> detail = globalResultData["detail"];
-                              for (var d in detail) {
-                                if (d["IDBARANG"] == idBarang) {
-                                  Utils.showMessage("Barang Sudah ada di daftar", context);
-                                  return;
-                                }
-                              }
-                            }
-
                             if (stokFisikCtrl.text == "") {
                               Utils.showMessage("Stok fisik tidak boleh kosong", context);
                               return;
                             }
+
+                            if (param == null) {
+                              if (globalResultData["detail"] != null) {
+                                List<dynamic> detail = globalResultData["detail"];
+                                for (var d in detail) {
+                                  if (d["IDBARANG"] == idBarang) {
+                                    Utils.showMessage("Barang Sudah ada di daftar", context);
+                                    return;
+                                  }
+                                }
+                              }
+                            }
+
                             Map<String, Object> mapData = {};
                             dynamic result;
                             if (param != null) {

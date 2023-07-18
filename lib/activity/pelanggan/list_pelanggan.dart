@@ -91,7 +91,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                         IconButton(
                                             onPressed: () async {
                                               bool isConfirm = await Utils.showConfirmMessage(
-                                                  context, "Yakin ingin menghapus dara ini ?");
+                                                  context, "Yakin ingin menghapus daa ini ?");
 
                                               if (isConfirm) {
                                                 Map<String, Object> mapData = {

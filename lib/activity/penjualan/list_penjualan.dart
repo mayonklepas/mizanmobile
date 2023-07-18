@@ -9,7 +9,7 @@ import 'package:mizanmobile/activity/penjualan/input_penjualan.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
-import '../component/date_range_bottom_modal.dart';
+import '../component/bottom_modal_filter.dart';
 
 class ListPenjualan extends StatefulWidget {
   const ListPenjualan({Key? key}) : super(key: key);
@@ -20,11 +20,16 @@ class ListPenjualan extends StatefulWidget {
 
 class _ListPenjualanState extends State<ListPenjualan> {
   Future<List<dynamic>>? _dataPenjualan;
+  dynamic _dataMastePenjualan;
   TextEditingController tanggalDariCtrl = TextEditingController();
   TextEditingController tanggalHinggaCtrl = TextEditingController();
 
   Future<List<dynamic>> _getDataPenjualan(
-      {String keyword = "", String tglDari = "", String tglHingga = ""}) async {
+      {String keyword = "",
+      String tglDari = "",
+      String tglHingga = "",
+      String idDept = "",
+      String idPengguna = ""}) async {
     if (tglDari == "") {
       tglDari = Utils.formatStdDate(DateTime.now());
     }
@@ -33,17 +38,25 @@ class _ListPenjualanState extends State<ListPenjualan> {
       tglHingga = Utils.formatStdDate(DateTime.now());
     }
 
+    if (idDept == "") {
+      idDept = Utils.idDept;
+    }
+
+    if (idPengguna == "") {
+      idPengguna = "-1";
+    }
+
     Uri url = Uri.parse(
-        "${Utils.mainUrl}penjualan/daftar?iddept=1&tgldari=$tglDari&tglhingga=$tglHingga");
+        "${Utils.mainUrl}penjualan/daftar?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     if (keyword != null && keyword != "") {
       url = Uri.parse(
-          "${Utils.mainUrl}penjualan/cari?iddept=1&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
+          "${Utils.mainUrl}penjualan/cari?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(url);
     print(jsonData);
-    return jsonData;
+    _dataMastePenjualan = await jsonData["header"];
+    return jsonData["detail"];
   }
 
   @override
@@ -67,15 +80,21 @@ class _ListPenjualanState extends State<ListPenjualan> {
                   flex: 0,
                   child: Container(
                     padding: EdgeInsets.all(10),
-                    child: Row(
+                    child: Table(
+                      defaultColumnWidth: FlexColumnWidth(),
                       children: [
-                        Icon(
-                          Icons.date_range,
-                          color: Colors.black54,
-                          size: 20,
-                        ),
-                        Text(
-                            "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}"),
+                        Utils.labelDuoSetter("Periode",
+                            "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}",
+                            isRight: true),
+                        Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
+                        Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
+                            isRight: true),
+                        Utils.labelDuoSetter("Total Penjualan Tunai",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
+                            isRight: true),
+                        Utils.labelDuoSetter("Total Penjualan Kredit",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
+                            isRight: true)
                       ],
                     ),
                   )),
@@ -105,9 +124,15 @@ class _ListPenjualanState extends State<ListPenjualan> {
                                           bold: true,
                                         ),
                                         Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
+                                        Utils.labelSetter(dataList["KETERANGAN"]),
                                         Utils.labelSetter(
                                             Utils.formatRp(dataList["TOTAL_PENJUALAN"]),
                                             bold: true),
+                                        Container(
+                                          alignment: Alignment.bottomRight,
+                                          child: Utils.labelSetter(dataList["BAGIAN_PENJUALAN"],
+                                              size: 12),
+                                        ),
                                         Container(
                                           alignment: Alignment.bottomRight,
                                           child: Utils.labelSetter(
@@ -175,7 +200,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
               onPressed: () {
                 dateBottomModal(context);
               },
-              icon: Icon(Icons.date_range))
+              icon: Icon(Icons.filter_list_alt))
         ],
       ),
       body: RefreshIndicator(
@@ -202,15 +227,20 @@ class _ListPenjualanState extends State<ListPenjualan> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return DateRangeBottomModal(
+          return BottomModalFilter(
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
+              isDept: true,
+              isPengguna: true,
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));
                 setState(() {
                   _dataPenjualan = _getDataPenjualan(
-                      tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
+                      tglDari: tanggalDariCtrl.text,
+                      tglHingga: tanggalHinggaCtrl.text,
+                      idDept: Utils.idDeptTemp,
+                      idPengguna: Utils.idPenggunaTemp);
                 });
               });
         });

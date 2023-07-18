@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 import 'package:mizanmobile/utils.dart';
@@ -272,7 +273,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                           onPressed: () async {
                             popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
-                                return ListModalForm(type: "golongan");
+                                return ListModalForm(type: "golonganpelanggan");
                               },
                             ));
 
@@ -641,8 +642,24 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
             child: ListView(
               children: [
                 Utils.labelForm("Kode Barang"),
-                TextField(
-                  controller: _kodeCtrl,
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextField(
+                      controller: _kodeCtrl,
+                    )),
+                    Expanded(
+                        flex: 0,
+                        child: IconButton(
+                            onPressed: () async {
+                              String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                                  "#ff6666", "Cancel", true, ScanMode.BARCODE);
+
+                              if (barcodeScanRes == "-1") return;
+                              _kodeCtrl.text = barcodeScanRes;
+                            },
+                            icon: Icon(Icons.qr_code_scanner)))
+                  ],
                 ),
                 Utils.labelForm("Nama Barang"),
                 TextField(

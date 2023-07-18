@@ -21,14 +21,15 @@ class ListBarang extends StatefulWidget {
 class _ListBarangState extends State<ListBarang> {
   Future<List<dynamic>>? _dataBarang;
 
-  String mainUrlString = "${Utils.mainUrl}barang/daftar?idgudang=1-1&halaman=0";
-  String cariUrlString = "${Utils.mainUrl}barang/cari?idgudang=1-1&cari=";
+  String mainUrlString = "${Utils.mainUrl}barang/daftar?idgudang=${Utils.idGudang}&halaman=0";
+  String cariUrlString = "${Utils.mainUrl}barang/cari?idgudang=${Utils.idGudang}&cari=";
   String gambarUrlString = "${Utils.mainUrl}barang/download/";
   String imagePreview = "";
   String buttonText = "Ganti Gambar";
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     Uri url = Uri.parse(mainUrlString);
+    print(url);
     if (keyword != null && keyword != "") {
       url = Uri.parse(cariUrlString + keyword);
     }
@@ -47,6 +48,18 @@ class _ListBarangState extends State<ListBarang> {
     http.StreamedResponse response = await request.send();
     Navigator.pop(context);
     return response.statusCode;
+  }
+
+  Future<dynamic> _postBarang(Map<String, Object> postBody, urlPath) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    String urlString = "${Utils.mainUrl}barang/" + urlPath;
+    Uri url = Uri.parse(urlString);
+    http.Response response =
+        await http.post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    var jsonData = jsonDecode(response.body);
+    print(jsonData);
+    Navigator.pop(context);
+    return jsonData;
   }
 
   @override
@@ -118,7 +131,25 @@ class _ListBarangState extends State<ListBarang> {
                                     Column(
                                       children: [
                                         IconButton(
-                                            onPressed: () {},
+                                            onPressed: () async {
+                                              bool isConfirm = await Utils.showConfirmMessage(
+                                                  context, "Yakin ingin menghapus data ini ?");
+
+                                              if (isConfirm) {
+                                                Map<String, Object> mapData = {
+                                                  "noindex": dataList["NOINDEX"].toString()
+                                                };
+                                                dynamic result =
+                                                    await _postBarang(mapData, "delete");
+                                                print(result);
+                                                setState(() {
+                                                  _dataBarang = _getDataBarang();
+                                                });
+                                                if (Navigator.canPop(context)) {
+                                                  Navigator.pop(context);
+                                                }
+                                              }
+                                            },
                                             icon: Icon(
                                               Icons.delete,
                                               color: Colors.black54,

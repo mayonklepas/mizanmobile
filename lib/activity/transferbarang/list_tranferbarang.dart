@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:mizanmobile/activity/component/date_range_bottom_modal.dart';
+import 'package:mizanmobile/activity/component/bottom_modal_filter.dart';
 import 'package:mizanmobile/activity/transferbarang/input_transfer_barang.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
@@ -291,7 +291,7 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return DateRangeBottomModal(
+          return BottomModalFilter(
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));

@@ -150,9 +150,25 @@ class _HomeActivityState extends State<HomeActivity> {
           padding: EdgeInsets.all(20),
           children: [
             Container(
-              child: Text(
-                "HALO " + Utils.namaUser,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "HALO " + Utils.namaUser,
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        dynamic data = await _getHome();
+                        setState(() {
+                          penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
+                          penjualanBulanan = data["PENJUALAN_BULANAN"] ?? 0;
+                          labaHarian = data["LABA_HARIAN"] ?? 0;
+                          labaBulanan = data["LABA_BULANAN"] ?? 0;
+                        });
+                      },
+                      child: Text("Refresh Summary"))
+                ],
               ),
               padding: EdgeInsets.all(5),
             ),

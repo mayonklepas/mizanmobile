@@ -15,15 +15,27 @@ class Utils {
 
   static String idDept = "";
 
+  static String idDeptTemp = "";
+
   static String namaDept = "";
+
+  static String namaDeptTemp = "";
 
   static String idGudang = "";
 
+  static String idGudangTemp = "";
+
   static String namaGudang = "";
+
+  static String namaGudangTemp = "";
 
   static String idAkunStokOpname = "";
 
   static String namaAkunStokOpname = "";
+
+  static String idAkunPenjualan = "";
+
+  static String namaAkunPenjualan = "";
 
   static String idUser = "";
 
@@ -32,6 +44,18 @@ class Utils {
   static String token = "";
 
   static String namaUser = "";
+
+  static String namaPenggunaTemp = "";
+
+  static String idPenggunaTemp = "";
+
+  static String idPelanggan = "";
+
+  static String namaPelanggan = "";
+
+  static String idGolonganPelanggan = "";
+
+  static String idGolongan2Pelanggan = "";
 
   static getPref(String key) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -51,7 +75,7 @@ class Utils {
   }
 
   static String formatNumber(var value) {
-    NumberFormat nf = NumberFormat.compact(locale: "id");
+    NumberFormat nf = NumberFormat.decimalPattern("id");
     return nf.format(value);
   }
 
@@ -102,7 +126,8 @@ class Utils {
     return formattedDate;
   }
 
-  static Widget appBarSearch(void Function(String keyword) search, {String hint = "Cari"}) {
+  static Widget appBarSearch(void Function(String keyword) search,
+      {String hint = "Cari", bool focus = true}) {
     return Container(
         height: 35,
         child: TextField(
@@ -120,6 +145,7 @@ class Utils {
                 prefixIcon: Icon(Icons.search),
                 hintStyle: TextStyle(color: Colors.black54)),
             textInputAction: TextInputAction.search,
+            autofocus: focus,
             onSubmitted: search));
   }
 

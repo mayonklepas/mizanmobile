@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
-import '../component/date_range_bottom_modal.dart';
+import '../component/bottom_modal_filter.dart';
 
 class ListMutasi extends StatefulWidget {
   final String idBarang;
@@ -20,15 +20,19 @@ class ListMutasi extends StatefulWidget {
 
 class _ListMutasiState extends State<ListMutasi> {
   String idBarangGlobal = "";
-  Future<dynamic>? _dataMutasi;
+  Future<List<dynamic>>? _dataMutasi;
   dynamic? _dataheader;
   Future<List<dynamic>>? _dataMutasiHeader;
   Future<List<dynamic>>? _dataMutasiDetail;
   TextEditingController tanggalDariCtrl = TextEditingController();
   TextEditingController tanggalHinggaCtrl = TextEditingController();
+  TextEditingController gudangCtrl = TextEditingController();
 
-  Future<dynamic> _getDataMutasi(
-      {String keyword = "", String tglDari = "", String tglHingga = ""}) async {
+  Future<List<dynamic>> _getDataMutasi(
+      {String keyword = "",
+      String tglDari = "",
+      String tglHingga = "",
+      String idGudang = ""}) async {
     if (tglDari == "") {
       tglDari = Utils.formatStdDate(DateTime.now());
     }
@@ -37,24 +41,21 @@ class _ListMutasiState extends State<ListMutasi> {
       tglHingga = Utils.formatStdDate(DateTime.now());
     }
 
+    if (idGudang == "") {
+      idGudang = Utils.idGudang;
+    }
+
     Uri url = Uri.parse(
-        "${Utils.mainUrl}barang/mutasi?idbarang=${widget.idBarang}&idgudang=1-1&tgldari=$tglDari&tglhingga=$tglHingga");
+        "${Utils.mainUrl}barang/mutasi?idbarang=${widget.idBarang}&idgudang=$idGudang&tgldari=$tglDari&tglhingga=$tglHingga");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    _dataheader = await jsonData["header"][0];
-    return jsonData;
-  }
-
-  Future<List<dynamic>> getDetail(
-      {String keyword = "", String tglDari = "", String tglHingga = ""}) async {
-    var data = await _getDataMutasi(keyword: keyword, tglDari: tglDari, tglHingga: tglHingga);
-    _dataheader = await data["header"][0];
-    return data["detail"];
+    _dataheader = await jsonData["header"];
+    return jsonData["detail"];
   }
 
   @override
   void initState() {
-    _dataMutasiDetail = getDetail();
+    _dataMutasiDetail = _getDataMutasi();
     super.initState();
   }
 
@@ -115,6 +116,13 @@ class _ListMutasiState extends State<ListMutasi> {
                     itemCount: snapshot.data!.length,
                     itemBuilder: (BuildContext contex, int index) {
                       dynamic dataList = snapshot.data![index];
+                      if (dataList == null) {
+                        return Container(
+                          child: Center(
+                            child: Text("Data tidak ada"),
+                          ),
+                        );
+                      }
                       return Container(
                         child: Card(
                           child: Padding(
@@ -191,7 +199,7 @@ class _ListMutasiState extends State<ListMutasi> {
               onPressed: () {
                 dateBottomModal(context);
               },
-              icon: Icon(Icons.date_range))
+              icon: Icon(Icons.date_range)),
         ],
       ),
       body: Container(
@@ -205,15 +213,18 @@ class _ListMutasiState extends State<ListMutasi> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return DateRangeBottomModal(
+          return BottomModalFilter(
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
+              isGudang: true,
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));
                 setState(() {
-                  _dataMutasiDetail =
-                      getDetail(tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
+                  _dataMutasiDetail = _getDataMutasi(
+                      tglDari: tanggalDariCtrl.text,
+                      tglHingga: tanggalHinggaCtrl.text,
+                      idGudang: Utils.idGudangTemp);
                 });
               });
         });

@@ -4,6 +4,8 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/list_barang.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
+import 'package:mizanmobile/activity/laporan/summary/list_penjualan_bulanan.dart';
+import 'package:mizanmobile/activity/laporan/summary/list_penjualan_harian.dart';
 import 'package:mizanmobile/activity/pelanggan/list_pelanggan.dart';
 import 'package:mizanmobile/activity/pembelian/list_pembelian.dart';
 import 'package:mizanmobile/activity/penerimaan/list_penerimaan.dart';
@@ -179,29 +181,38 @@ class _HomeActivityState extends State<HomeActivity> {
                   child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Container(
-                        padding: EdgeInsets.all(20),
-                        width: double.infinity,
-                        height: 120,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Total penjualan hari ini",
-                              style: TextStyle(fontSize: 17),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                "IDR " + Utils.formatNumber(penjualanHarian),
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ListPenjualanHarian();
+                            },
+                          ));
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          width: double.infinity,
+                          height: 120,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total penjualan hari ini",
+                                style: TextStyle(fontSize: 17),
                               ),
-                            )
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "IDR " + Utils.formatNumber(penjualanHarian),
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       )),
                 ),
@@ -209,29 +220,38 @@ class _HomeActivityState extends State<HomeActivity> {
                   child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      child: Container(
-                        padding: EdgeInsets.all(20),
-                        width: double.infinity,
-                        height: 120,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Total penjualan bulan ini",
-                              style: TextStyle(fontSize: 17),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                "IDR " + Utils.formatNumber(penjualanBulanan),
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ListPenjualanBulanan();
+                            },
+                          ));
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(20),
+                          width: double.infinity,
+                          height: 120,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total penjualan bulan ini",
+                                style: TextStyle(fontSize: 17),
                               ),
-                            )
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10),
+                                child: Text(
+                                  "IDR " + Utils.formatNumber(penjualanBulanan),
+                                  style: TextStyle(
+                                    fontSize: 25,
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       )),
                 ),

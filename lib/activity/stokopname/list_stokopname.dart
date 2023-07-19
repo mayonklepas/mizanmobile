@@ -45,10 +45,10 @@ class _ListStokOpnameState extends State<ListStokOpname> {
     }
 
     Uri url = Uri.parse(
-        "${Utils.mainUrl}stokopname/daftar?iddept=1&tgldari=$tglDari&tglhingga=$tglHingga");
+        "${Utils.mainUrl}stokopname/daftar?iddept=${Utils.idDept}&tgldari=$tglDari&tglhingga=$tglHingga");
     if (keyword != null && keyword != "") {
       url = Uri.parse(
-          "${Utils.mainUrl}stokopname/cari?iddept=1&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
+          "${Utils.mainUrl}stokopname/cari?iddept=${Utils.idDept}&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];

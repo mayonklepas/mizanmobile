@@ -7,11 +7,12 @@ import '../../utils.dart';
 
 class BottomModalFilter extends StatefulWidget {
   final Function action;
-  final TextEditingController tanggalDariCtrl;
+  TextEditingController tanggalDariCtrl;
   final TextEditingController tanggalHinggaCtrl;
   bool isGudang;
   bool isDept;
   bool isPengguna;
+  bool isSingleDate;
   BottomModalFilter(
       {super.key,
       required this.action,
@@ -19,15 +20,22 @@ class BottomModalFilter extends StatefulWidget {
       required this.tanggalHinggaCtrl,
       this.isGudang = false,
       this.isDept = false,
-      this.isPengguna = false});
+      this.isPengguna = false,
+      this.isSingleDate = false});
 
   @override
   State<BottomModalFilter> createState() => _BottomModalFilterState();
 }
 
 class _BottomModalFilterState extends State<BottomModalFilter> {
+  String tanggalDariLabel = "Tanggal Dari";
+
   @override
   Widget build(BuildContext context) {
+    if (widget.isSingleDate) {
+      tanggalDariLabel = "Tanggal";
+    }
+
     return SingleChildScrollView(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
@@ -47,7 +55,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                       controller: widget.tanggalDariCtrl,
                       keyboardType: TextInputType.datetime,
                       decoration: InputDecoration(
-                        hintText: "Tanggal Dari",
+                        hintText: tanggalDariLabel,
                       ),
                     ),
                   ),
@@ -63,31 +71,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                         )))
               ],
             ),
-            Padding(padding: EdgeInsets.only(top: 10)),
-            Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 28,
-                    child: TextField(
-                      controller: widget.tanggalHinggaCtrl,
-                      decoration: InputDecoration(
-                        hintText: "Tanggal Hingga",
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                    flex: 0,
-                    child: IconButton(
-                        onPressed: () {
-                          setTextDateRange(widget.tanggalHinggaCtrl);
-                        },
-                        icon: Icon(
-                          Icons.date_range,
-                        )))
-              ],
-            ),
+            tanggalHingga(),
             gudang(),
             department(),
             pengguna(),
@@ -109,6 +93,39 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget tanggalHingga() {
+    if (widget.isSingleDate) {
+      return Container();
+    }
+    return Container(
+      padding: EdgeInsets.only(top: 5),
+      child: Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 28,
+              child: TextField(
+                controller: widget.tanggalHinggaCtrl,
+                decoration: InputDecoration(
+                  hintText: "Tanggal Hingga",
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+              flex: 0,
+              child: IconButton(
+                  onPressed: () {
+                    setTextDateRange(widget.tanggalHinggaCtrl);
+                  },
+                  icon: Icon(
+                    Icons.date_range,
+                  )))
+        ],
       ),
     );
   }

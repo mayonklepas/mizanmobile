@@ -42,7 +42,7 @@ class _ListMutasiState extends State<ListMutasi> {
     }
 
     if (idGudang == "") {
-      idGudang = Utils.idGudang;
+      idGudang = Utils.idGudangTemp;
     }
 
     Uri url = Uri.parse(
@@ -55,6 +55,7 @@ class _ListMutasiState extends State<ListMutasi> {
 
   @override
   void initState() {
+    Utils.initAppParam();
     _dataMutasiDetail = _getDataMutasi();
     super.initState();
   }

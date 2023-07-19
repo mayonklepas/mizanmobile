@@ -97,6 +97,19 @@ class Utils {
     return formattedDate;
   }
 
+  static String fisrtDateOfMonthString() {
+    DateTime dt = DateTime.now();
+    String month = dt.month.toString();
+    String year = dt.year.toString();
+
+    if (month.length == 1) {
+      month = "0" + month;
+    }
+
+    String formattedDate = year + "-" + month + "-01";
+    return formattedDate;
+  }
+
   static String formatDate(String value) {
     DateTime dt;
     if (value == null || value as String == "") {
@@ -427,5 +440,14 @@ class Utils {
       return "0";
     }
     return param;
+  }
+
+  static void initAppParam() {
+    Utils.idPenggunaTemp = "-1";
+    Utils.namaPenggunaTemp = "SEMUA";
+    Utils.idDeptTemp = Utils.idDept;
+    Utils.namaDeptTemp = Utils.namaDept;
+    Utils.idGudangTemp = Utils.idGudang;
+    Utils.namaGudangTemp = Utils.namaGudang;
   }
 }

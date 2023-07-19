@@ -40,8 +40,8 @@ class _InputStokOpnameState extends State<InputStokOpname> {
   dynamic globalResultData = {};
 
   Future<dynamic> _getStokOpname(String idTransaksi) async {
-    String urlString = "${Utils.mainUrl}stokopname/rincian?idgenjur=";
-    Uri url = Uri.parse(urlString + idTransaksi);
+    String urlString = "${Utils.mainUrl}stokopname/rincian?idgenjur=$idTransaksi";
+    Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     print(jsonData);

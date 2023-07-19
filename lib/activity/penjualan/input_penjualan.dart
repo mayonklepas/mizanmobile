@@ -52,8 +52,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   Future<dynamic> _getBarang(String keyword) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
-        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" +
-            keyword;
+        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
@@ -66,8 +65,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penjualan/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response =
-        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
@@ -116,8 +114,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
             String tipe = resultData["tipe"];
             if (tipe == "daftar") {
               List<dynamic> itemList = resultData["item"];
-              dynamic popUpResult =
-                  await Navigator.push(context, MaterialPageRoute(
+              dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                 builder: (context) {
                   return ListModalBarang(barangList: jsonEncode(itemList));
                 },
@@ -152,11 +149,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
 
                 setState(() {
-                  dataListShow[index]["IDSATUANPENGALI"] =
-                      hargaUpdate["IDSATUANPENGALI"];
+                  dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                   dataListShow[index]["QTY"] = qty;
-                  dataListShow[index]["QTYSATUANPENGALI"] =
-                      hargaUpdate["QTYSATUANPENGALI"];
+                  dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
                   dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                   totalPenjualan = setTotalJual();
                 });
@@ -189,11 +184,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
 
                 setState(() {
-                  dataListShow[index]["IDSATUANPENGALI"] =
-                      hargaUpdate["IDSATUANPENGALI"];
+                  dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                   dataListShow[index]["QTY"] = qty;
-                  dataListShow[index]["QTYSATUANPENGALI"] =
-                      hargaUpdate["QTYSATUANPENGALI"];
+                  dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
                   dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                   totalPenjualan = setTotalJual();
                 });
@@ -203,9 +196,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  String barcodeScanRes =
-                      await FlutterBarcodeScanner.scanBarcode(
-                          "#ff6666", "Cancel", true, ScanMode.BARCODE);
+                  String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                      "#ff6666", "Cancel", true, ScanMode.BARCODE);
                   var resultData = await _getBarang(barcodeScanRes);
                   dynamic data = resultData["item"];
                   var db = data["detail_barang"][0];
@@ -233,11 +225,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
 
                     setState(() {
-                      dataListShow[index]["IDSATUANPENGALI"] =
-                          hargaUpdate["IDSATUANPENGALI"];
+                      dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                       dataListShow[index]["QTY"] = qty;
-                      dataListShow[index]["QTYSATUANPENGALI"] =
-                          hargaUpdate["QTYSATUANPENGALI"];
+                      dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
                       dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                       totalPenjualan = setTotalJual();
                     });
@@ -259,12 +249,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
         ),
         body: Column(
           children: [
-            Expanded(flex: 0, child: Container()),
-            Expanded(child: _listDataBarang()),
+            Expanded(flex: 1, child: _listDataBarang()),
             Expanded(
                 flex: 0,
                 child: Container(
-                  padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       border: Border(
                           top: BorderSide(
@@ -299,24 +287,21 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         child: Table(
                           defaultColumnWidth: FlexColumnWidth(),
                           children: [
-                            Utils.labelDuoSetter(
-                                "Total", Utils.formatRp(totalPenjualan),
+                            Utils.labelDuoSetter("Total", Utils.formatRp(totalPenjualan),
                                 size: 19, isRight: true, bold: true)
                           ],
                         ),
                       ),
-                      SizedBox(
+                      Container(
                         width: double.maxFinite,
-                        height: 40,
+                        height: 45,
                         child: ElevatedButton(
                           onPressed: () {
                             jumlahUangCtrl.text = "0";
                             double jumlahUang = jumlahUangSetter("0");
                             setState(() {
-                              jumlahUangCtrl.text =
-                                  jumlahUang.toStringAsFixed(0);
-                              kembalian =
-                                  calculateKembalian(jumlahUang.toString());
+                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
+                              kembalian = calculateKembalian(jumlahUang.toString());
                               if (kembalian < 0) {
                                 kembalianStatus = "KURANG";
                                 kembalian = -kembalian;
@@ -329,14 +314,13 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 isScrollControlled: true,
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return StatefulBuilder(builder:
-                                      (context, StateSetter setStateIn) {
+                                  return StatefulBuilder(
+                                      builder: (context, StateSetter setStateIn) {
                                     return modalBayar(setStateIn);
                                   });
                                 });
                           },
-                          child:
-                              Utils.labelSetter("BAYAR", color: Colors.white),
+                          child: Utils.labelSetter("BAYAR", color: Colors.white),
                         ),
                       ),
                     ],
@@ -378,16 +362,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             children: [
                               Utils.labelSetter(data["NAMA"], bold: true),
                               (Utils.labelSetter(data["KODE"])),
-                              Utils.labelSetter(Utils.formatRp(data["HARGA"]),
-                                  bold: true),
+                              Utils.labelSetter(Utils.formatRp(data["HARGA"]), bold: true),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Utils.labelSetter(
-                                      "Dic : " +
-                                          Utils.formatRp(
-                                              data["DISKON_NOMINAL"]),
+                                      "Dic : " + Utils.formatRp(data["DISKON_NOMINAL"]),
                                       bold: false),
                                   Utils.labelSetter("Jumlah : " +
                                       Utils.formatNumber(data["QTY"]) +
@@ -428,8 +408,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "top",
@@ -475,8 +454,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
         for (var d in multiHarga) {
           double qtyDari = d["DARI"];
           double qtyHingga = d["HINGGA"];
-          if (d["IDSATUAN"] == idSatuan &&
-              d["IDGOLONGAN"] == idGolonganPelanggan) {
+          if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolonganPelanggan) {
             if (qty >= qtyDari && qty <= qtyHingga) {
               tempResult = d;
             }
@@ -487,8 +465,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
           for (var d in multiHarga) {
             double qtyDari = d["DARI"];
             double qtyHingga = d["HINGGA"];
-            if (d["IDSATUAN"] == idSatuan &&
-                d["IDGOLONGAN"] == idGolongan2Pelanggan) {
+            if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolongan2Pelanggan) {
               if (qty >= qtyDari && qty <= qtyHingga) {
                 tempResult = d;
               }
@@ -602,8 +579,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
   SingleChildScrollView modalBayar(StateSetter setStateIn) {
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -611,29 +587,21 @@ class _InputPenjualanState extends State<InputPenjualan> {
           children: [
             Utils.labelSetter("Pembayaran", size: 25),
             Padding(padding: EdgeInsets.all(20)),
-            Text("TOTAL BELANJA"),
+            Utils.labelSetter("TOTAL BELANJA", size: 16),
             Container(
               width: double.maxFinite,
               padding: EdgeInsets.all(10),
               child: Utils.labelSetter(Utils.formatNumber(totalPenjualan),
-                  size: 35,
-                  bold: true,
-                  align: TextAlign.right,
-                  top: 0,
-                  bottom: 0),
+                  size: 35, bold: true, align: TextAlign.right, top: 0, bottom: 0),
             ),
-            Text(kembalianStatus),
+            Utils.labelSetter(kembalianStatus, size: 16),
             Container(
               width: double.maxFinite,
               padding: EdgeInsets.all(10),
               child: Utils.labelSetter(Utils.formatNumber(kembalian),
-                  size: 35,
-                  bold: true,
-                  align: TextAlign.right,
-                  top: 0,
-                  bottom: 0),
+                  size: 35, bold: true, align: TextAlign.right, top: 0, bottom: 0),
             ),
-            Text("JUMLAH UANG"),
+            Utils.labelSetter("JUMLAH UANG", size: 16),
             Row(children: [
               Expanded(
                 flex: 5,
@@ -689,8 +657,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       double uangMuka = double.parse(uangMukaCtrl.text);
                       if (uangMuka > totalPenjualan) {
                         Utils.showMessage(
-                            "Uang muka tidak boleh lebih besar dari total belanja",
-                            context);
+                            "Uang muka tidak boleh lebih besar dari total belanja", context);
                         return;
                       }
                     }
@@ -698,8 +665,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     if (isTunai == 1) {
                       if (kembalianStatus == "KURANG") {
                         Utils.showMessage(
-                            "Pembayaran tidak cukup, transaksi tidak bisa diproses",
-                            context);
+                            "Pembayaran tidak cukup, transaksi tidak bisa diproses", context);
                         return;
                       }
                     }
@@ -729,10 +695,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"]
                       });
                     }
-                    Map<String, Object> rootMap = {
-                      "header": headerMap,
-                      "detail": detailList
-                    };
+                    Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
                     print(result);
                     if (result != null) {
@@ -768,8 +731,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     jumlahCtrl.text = data["QTY"].toString();
     diskonCtrl.text = data["DISKON_NOMINAL"].toString();
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -834,11 +796,11 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
-                            type: "satuan",
+                            type: "satuanbarang",
+                            idBarang: data["IDBARANG"],
                           );
                         },
                       ));
@@ -864,19 +826,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     child: ElevatedButton(
                         onPressed: () {
                           int qty = int.parse(jumlahCtrl.text);
-                          dynamic hargaUpdate =
-                              getHargaJual(dataList[index], idSatuan, qty);
+                          dynamic hargaUpdate = getHargaJual(dataList[index], idSatuan, qty);
                           setState(() {
-                            dataListShow[index]["IDSATUANPENGALI"] =
-                                hargaUpdate["IDSATUANPENGALI"];
+                            dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                             dataListShow[index]["QTY"] = qty;
                             dataListShow[index]["QTYSATUANPENGALI"] =
                                 hargaUpdate["QTYSATUANPENGALI"];
                             dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                             dataListShow[index]["IDSATUAN"] = idSatuan;
                             dataListShow[index]["SATUAN"] = satuanCtrl.text;
-                            dataListShow[index]["DISKON_NOMINAL"] =
-                                double.parse(diskonCtrl.text);
+                            dataListShow[index]["DISKON_NOMINAL"] = double.parse(diskonCtrl.text);
 
                             totalPenjualan = setTotalJual();
                             Navigator.pop(context);
@@ -889,8 +848,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                         onPressed: () async {
                           bool isDelete = await Utils.showConfirmMessage(
                               context, "Yakin ingin menghapus data ini ?");
@@ -918,8 +876,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     gudangCtrl.text = namaGudang;
     pelangganCtrl.text = namaPelanggan;
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -963,8 +920,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "gudang",
@@ -995,8 +951,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "pelanggan",
@@ -1065,8 +1020,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 }
               });
             },
-            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)),
-                size: 20)),
+            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)), size: 20)),
       );
     }
     ;

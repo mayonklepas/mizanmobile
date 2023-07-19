@@ -18,12 +18,25 @@ class ListPenerimaan extends StatefulWidget {
 class _ListPenerimaanState extends State<ListPenerimaan> {
   Future<List<dynamic>>? _dataPenerimaan;
 
-  Future<List<dynamic>> _getDataPenerimaan({String keyword = ""}) async {
+  Future<List<dynamic>> _getDataPenerimaan(
+      {String keyword = "", String tglDari = "", String tglHingga = "", String idDept = ""}) async {
+    if (tglDari == "") {
+      tglDari = Utils.formatStdDate(DateTime.now());
+    }
+
+    if (tglHingga == "") {
+      tglHingga = Utils.formatStdDate(DateTime.now());
+    }
+
+    if (idDept == "") {
+      idDept = Utils.idDeptTemp;
+    }
+
     Uri url = Uri.parse(
-        "${Utils.mainUrl}penerimaan/daftar?iddept=1&tgldari=2023-01-01&tglhingga=2023-01-31");
+        "${Utils.mainUrl}penerimaan/daftar?iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     if (keyword != null && keyword != "") {
       url = Uri.parse(
-          "${Utils.mainUrl}penerimaan/cari?iddept=1&tgldari=2023-01-01&tglhingga=2023-01-31&cari=$keyword");
+          "${Utils.mainUrl}penerimaan/cari?iddept=$idDept&tgldari=2023-01-01&tglhingga=2023-01-31&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     print(url.toString());

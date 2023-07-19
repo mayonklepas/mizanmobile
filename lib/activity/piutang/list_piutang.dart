@@ -20,9 +20,9 @@ class _ListPiutangState extends State<ListPiutang> {
   Future<List<dynamic>>? _dataPiutang;
 
   Future<List<dynamic>> _getDataPiutang({String keyword = ""}) async {
-    Uri url = Uri.parse("${Utils.mainUrl}piutang/daftar?iddept=-1");
+    Uri url = Uri.parse("${Utils.mainUrl}piutang/daftar?iddept=${Utils.idDept}");
     if (keyword != null && keyword != "") {
-      url = Uri.parse("${Utils.mainUrl}piutang/cari?iddept=-1&cari=$keyword");
+      url = Uri.parse("${Utils.mainUrl}piutang/cari?iddept=${Utils.idDept}&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     print(url.toString());

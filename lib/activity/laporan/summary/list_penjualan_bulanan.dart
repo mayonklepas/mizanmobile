@@ -5,27 +5,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:mizanmobile/activity/penjualan/input_penjualan.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
-import '../component/bottom_modal_filter.dart';
+import '../../component/bottom_modal_filter.dart';
 
-class ListPembelian extends StatefulWidget {
-  const ListPembelian({Key? key}) : super(key: key);
+class ListPenjualanBulanan extends StatefulWidget {
+  const ListPenjualanBulanan({Key? key}) : super(key: key);
 
   @override
-  State<ListPembelian> createState() => _ListPembelianState();
+  State<ListPenjualanBulanan> createState() => _ListPenjualanBulananState();
 }
 
-class _ListPembelianState extends State<ListPembelian> {
-  Future<List<dynamic>>? _dataPembelian;
+class _ListPenjualanBulananState extends State<ListPenjualanBulanan> {
+  Future<List<dynamic>>? _dataPenjualanBulanan;
+  dynamic _dataMastePenjualanBulanan;
   TextEditingController tanggalDariCtrl = TextEditingController();
   TextEditingController tanggalHinggaCtrl = TextEditingController();
 
-  Future<List<dynamic>> _getDataPembelian(
-      {String keyword = "", String tglDari = "", String tglHingga = "", String idDept = ""}) async {
+  Future<List<dynamic>> _getDataPenjualanBulanan(
+      {String tglDari = "",
+      String tglHingga = "",
+      String idDept = "",
+      String idPengguna = ""}) async {
     if (tglDari == "") {
-      tglDari = Utils.formatStdDate(DateTime.now());
+      tglDari = Utils.fisrtDateOfMonthString();
     }
 
     if (tglHingga == "") {
@@ -36,48 +41,60 @@ class _ListPembelianState extends State<ListPembelian> {
       idDept = Utils.idDeptTemp;
     }
 
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}pembelian/daftar?iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
-    if (keyword != null && keyword != "") {
-      url = Uri.parse(
-          "${Utils.mainUrl}pembelian/cari?iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
+    if (idPengguna == "") {
+      idPengguna = Utils.idPenggunaTemp;
     }
+
+    Uri url = Uri.parse(
+        "${Utils.mainUrl}home/penjualanbulanan?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(url);
     print(jsonData);
-    return jsonData;
+    _dataMastePenjualanBulanan = await jsonData["header"];
+    return jsonData["detail"];
   }
 
   @override
   void initState() {
-    _dataPembelian = _getDataPembelian();
+    Utils.initAppParam();
+    _dataPenjualanBulanan = _getDataPenjualanBulanan();
     super.initState();
   }
 
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
     return FutureBuilder(
-      future: _dataPembelian,
+      future: _dataPenjualanBulanan,
       builder: ((context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else {
           return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                   flex: 0,
                   child: Container(
                     padding: EdgeInsets.all(10),
-                    child: Row(
+                    child: Table(
+                      defaultColumnWidth: FlexColumnWidth(),
                       children: [
-                        Icon(
-                          Icons.date_range,
-                          color: Colors.black54,
-                          size: 20,
-                        ),
-                        Text(
-                            "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}"),
+                        Utils.labelDuoSetter("Periode",
+                            "${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_HINGGA"])}",
+                            isRight: true),
+                        Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
+                        Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
+                            isRight: true),
+                        Utils.labelDuoSetter("Total Penjualan Tunai",
+                            Utils.formatNumber(_dataMastePenjualanBulanan["TOTAL_PENJUALAN_TUNAI"]),
+                            isRight: true, bold: true, size: 15),
+                        Utils.labelDuoSetter(
+                            "Total Penjualan Kredit",
+                            Utils.formatNumber(
+                                _dataMastePenjualanBulanan["TOTAL_PENJUALAN_KREDIT"]),
+                            isRight: true,
+                            bold: true,
+                            size: 15)
                       ],
                     ),
                   )),
@@ -94,7 +111,7 @@ class _ListPembelianState extends State<ListPembelian> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Utils.bagde(((index + 1).toString())),
+                                Utils.bagde((index + 1).toString()),
                                 Expanded(
                                   flex: 2,
                                   child: Padding(
@@ -102,17 +119,19 @@ class _ListPembelianState extends State<ListPembelian> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(dataList["NOREF"], bold: true),
-                                        Utils.labelSetter(dataList["NAMA_SUPLIER"]),
                                         Utils.labelSetter(
-                                            Utils.formatRp(dataList["TOTAL_PEMBELIAN"]),
+                                          dataList["TIPE_PENJUALAN"],
+                                          bold: true,
+                                        ),
+                                        Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
+                                        Utils.labelSetter(
+                                            Utils.formatRp(dataList["TOTAL_PENJUALAN"]),
                                             bold: true),
                                         Container(
                                           alignment: Alignment.bottomRight,
-                                          child: Text(
-                                            Utils.formatDate(dataList["TANGGAL"]),
-                                            style: TextStyle(fontSize: 11),
-                                          ),
+                                          child: Utils.labelSetter(
+                                              Utils.formatDate(dataList["TANGGAL"]),
+                                              size: 12),
                                         )
                                       ],
                                     ),
@@ -133,7 +152,7 @@ class _ListPembelianState extends State<ListPembelian> {
   }
 
   Icon customIcon = Icon(Icons.search);
-  Widget customSearchBar = Text("Daftar Pembelian");
+  Widget customSearchBar = Text("Daftar Penjualan Bulanan");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,38 +161,17 @@ class _ListPembelianState extends State<ListPembelian> {
         actions: [
           IconButton(
               onPressed: () {
-                setState(() {
-                  if (customIcon.icon == Icons.search) {
-                    customIcon = Icon(Icons.clear);
-                    customSearchBar = Utils.appBarSearch((keyword) {
-                      setState(() {
-                        _dataPembelian = _getDataPembelian(
-                            keyword: keyword,
-                            tglDari: tanggalDariCtrl.text,
-                            tglHingga: tanggalHinggaCtrl.text);
-                      });
-                    }, hint: "Cari");
-                  } else {
-                    customIcon = Icon(Icons.search);
-                    customSearchBar = Text("Daftar Pembelian");
-                  }
-                });
-              },
-              icon: customIcon),
-          IconButton(
-              onPressed: () {
                 dateBottomModal(context);
               },
-              icon: Icon(Icons.date_range))
+              icon: Icon(Icons.filter_list_alt))
         ],
       ),
       body: RefreshIndicator(
         onRefresh: () {
           return Future.sync(() {
             setState(() {
-              customIcon = Icon(Icons.search);
-              customSearchBar = Text("Daftar Pembelian");
-              _dataPembelian = _getDataPembelian();
+              customSearchBar = Text("Daftar Penjualan Bulanan");
+              _dataPenjualanBulanan = _getDataPenjualanBulanan();
               tanggalDariCtrl.text = "";
               tanggalHinggaCtrl.text = "";
             });
@@ -194,12 +192,17 @@ class _ListPembelianState extends State<ListPembelian> {
           return BottomModalFilter(
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
+              isDept: true,
+              isPengguna: true,
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));
                 setState(() {
-                  _dataPembelian = _getDataPembelian(
-                      tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
+                  _dataPenjualanBulanan = _getDataPenjualanBulanan(
+                      tglDari: tanggalDariCtrl.text,
+                      tglHingga: tanggalHinggaCtrl.text,
+                      idDept: Utils.idDeptTemp,
+                      idPengguna: Utils.idPenggunaTemp);
                 });
               });
         });

@@ -39,11 +39,11 @@ class _ListPenjualanState extends State<ListPenjualan> {
     }
 
     if (idDept == "") {
-      idDept = Utils.idDept;
+      idDept = Utils.idDeptTemp;
     }
 
     if (idPengguna == "") {
-      idPengguna = "-1";
+      idPengguna = Utils.idPenggunaTemp;
     }
 
     Uri url = Uri.parse(
@@ -61,6 +61,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
 
   @override
   void initState() {
+    Utils.initAppParam();
     _dataPenjualan = _getDataPenjualan();
     super.initState();
   }
@@ -84,7 +85,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
                       defaultColumnWidth: FlexColumnWidth(),
                       children: [
                         Utils.labelDuoSetter("Periode",
-                            "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}",
+                            "${Utils.formatDate(_dataMastePenjualan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualan["TANGGAL_HINGGA"])}",
                             isRight: true),
                         Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
                         Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
@@ -125,14 +126,10 @@ class _ListPenjualanState extends State<ListPenjualan> {
                                         ),
                                         Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
                                         Utils.labelSetter(dataList["KETERANGAN"]),
+                                        Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
                                         Utils.labelSetter(
                                             Utils.formatRp(dataList["TOTAL_PENJUALAN"]),
                                             bold: true),
-                                        Container(
-                                          alignment: Alignment.bottomRight,
-                                          child: Utils.labelSetter(dataList["BAGIAN_PENJUALAN"],
-                                              size: 12),
-                                        ),
                                         Container(
                                           alignment: Alignment.bottomRight,
                                           child: Utils.labelSetter(

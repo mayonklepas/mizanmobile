@@ -128,7 +128,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
                                         Utils.labelSetter(dataList["KETERANGAN"]),
                                         Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
                                         Utils.labelSetter(
-                                            Utils.formatRp(dataList["TOTAL_PENJUALAN"]),
+                                            Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
                                             bold: true),
                                         Container(
                                           alignment: Alignment.bottomRight,

@@ -105,7 +105,7 @@ class _ListPembelianState extends State<ListPembelian> {
                                         Utils.labelSetter(dataList["NOREF"], bold: true),
                                         Utils.labelSetter(dataList["NAMA_SUPLIER"]),
                                         Utils.labelSetter(
-                                            Utils.formatRp(dataList["TOTAL_PEMBELIAN"]),
+                                            Utils.formatNumber(dataList["TOTAL_PEMBELIAN"]),
                                             bold: true),
                                         Container(
                                           alignment: Alignment.bottomRight,

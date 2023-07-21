@@ -202,7 +202,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                               Utils.labelDuoSetter("Hingga", Utils.formatNumber(v["HINGGA"]),
                                   isRight: true),
                               Utils.labelDuoSetter("Satuan", v["KODE_SATUAN"], isRight: true),
-                              Utils.labelDuoSetter("Harga", Utils.formatRp(v["HARGA_JUAL"]),
+                              Utils.labelDuoSetter("Harga", Utils.formatNumber(v["HARGA_JUAL"]),
                                   isRight: true, bold: true),
                             ],
                           ),

@@ -86,7 +86,7 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                                       style: TextStyle(fontSize: 10)),
                                   Padding(padding: EdgeInsets.all(3)),
                                   Text(
-                                    Utils.formatRp(dataList[index]["TOTAL_PEMBELIAN"]),
+                                    Utils.formatNumber(dataList[index]["TOTAL_PEMBELIAN"]),
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   Container(

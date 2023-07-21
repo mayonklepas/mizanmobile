@@ -287,7 +287,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         child: Table(
                           defaultColumnWidth: FlexColumnWidth(),
                           children: [
-                            Utils.labelDuoSetter("Total", Utils.formatRp(totalPenjualan),
+                            Utils.labelDuoSetter("Total", Utils.formatNumber(totalPenjualan),
                                 size: 19, isRight: true, bold: true)
                           ],
                         ),
@@ -362,12 +362,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             children: [
                               Utils.labelSetter(data["NAMA"], bold: true),
                               (Utils.labelSetter(data["KODE"])),
-                              Utils.labelSetter(Utils.formatRp(data["HARGA"]), bold: true),
+                              Utils.labelSetter(Utils.formatNumber(data["HARGA"]), bold: true),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Utils.labelSetter(
-                                      "Dic : " + Utils.formatRp(data["DISKON_NOMINAL"]),
+                                      "Dic : " + Utils.formatNumber(data["DISKON_NOMINAL"]),
                                       bold: false),
                                   Utils.labelSetter("Jumlah : " +
                                       Utils.formatNumber(data["QTY"]) +

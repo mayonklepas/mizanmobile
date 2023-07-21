@@ -68,14 +68,11 @@ class Utils {
     sp.setString(key, value);
   }
 
-  static String formatRp(var value) {
-    NumberFormat nf = NumberFormat.currency(locale: "id", symbol: "Rp ", decimalDigits: 0);
+  static String formatNumber(var value,
+      {decimalDigit = 0, String symbol = ""}) {
+    NumberFormat nf = NumberFormat.currency(
+        locale: "id", symbol: symbol, decimalDigits: decimalDigit);
 
-    return nf.format(value);
-  }
-
-  static String formatNumber(var value) {
-    NumberFormat nf = NumberFormat.decimalPattern("id");
     return nf.format(value);
   }
 
@@ -150,10 +147,10 @@ class Utils {
                 fillColor: Colors.white,
                 filled: true,
                 contentPadding: EdgeInsets.only(),
-                enabledBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-                focusedBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: 1.2)),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white, width: 1.3)),
                 hintText: hint,
                 prefixIcon: Icon(Icons.search),
                 hintStyle: TextStyle(color: Colors.black54)),
@@ -177,7 +174,8 @@ class Utils {
       _permission = await Geolocator.requestPermission();
     }
 
-    _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+    _position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium);
 
     return _position;
   }
@@ -221,6 +219,51 @@ class Utils {
     );
   }
 
+  static Row labelValueSetter(
+    String label,
+    String value, {
+    double sizeLabel = 14,
+    double sizeValue = 14,
+    bool boldLabel = false,
+    bool boldValue = false,
+    Color colorLabel = Colors.black,
+    Color colorValue = Colors.black,
+    TextAlign alignLabel = TextAlign.left,
+    TextAlign alignValue = TextAlign.left,
+    int flexLLabel = 1,
+    int flexValue = 2,
+    String separator = "",
+  }) {
+    FontWeight isWeightLabel = FontWeight.normal;
+    FontWeight isWeightValue = FontWeight.normal;
+
+    if (boldLabel) {
+      isWeightLabel = FontWeight.bold;
+    }
+
+    if (boldValue) {
+      isWeightValue = FontWeight.bold;
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          flex: flexLLabel,
+          child: Text(label,
+              textAlign: alignLabel,
+              style: TextStyle(
+                  fontSize: sizeLabel, fontWeight: isWeightLabel, color: colorLabel)),
+        ),
+        Expanded(
+          flex: flexValue,
+          child: Text(value,textAlign: alignValue,
+              style: TextStyle(
+                  fontSize: sizeLabel, fontWeight: isWeightValue, color: colorLabel)),
+        ),
+      ],
+    );
+  }
+
   static TableRow labelDuoSetter(String text1, String text2,
       {double size = 14,
       bool bold = false,
@@ -239,10 +282,13 @@ class Utils {
     return TableRow(
       children: [
         Text(text1,
-            textAlign: align, style: TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
+            textAlign: align,
+            style:
+                TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
         Text(text2,
             textAlign: secondAlign,
-            style: TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
+            style:
+                TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
       ],
     );
   }
@@ -259,7 +305,8 @@ class Utils {
         color: Colors.blue,
         child: Container(
           child: Center(
-            child: Utils.labelSetter(text, bold: true, size: 30, color: Colors.white),
+            child: Utils.labelSetter(text,
+                bold: true, size: 30, color: Colors.white),
           ),
         ),
       ),
@@ -278,7 +325,8 @@ class Utils {
   static Container labelForm(String label,
       {double top = 10, double bottom = 0, double left = 0, double right = 0}) {
     return Container(
-      margin: EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
+      margin:
+          EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
       child: Text(label),
     );
   }
@@ -294,10 +342,13 @@ class Utils {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
                   Expanded(
-                    child:
-                        Container(margin: EdgeInsets.only(left: 10), child: Text("Memuat Data...")),
+                      flex: 0,
+                      child: Container(child: CircularProgressIndicator())),
+                  Expanded(
+                    child: Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: Text("Memuat Data...")),
                   )
                 ],
               ),
@@ -326,7 +377,8 @@ class Utils {
         });
   }
 
-  static showMessageAction(String message, BuildContext context, ElevatedButton button) {
+  static showMessageAction(
+      String message, BuildContext context, ElevatedButton button) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -380,14 +432,18 @@ class Utils {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50), child: content),
+                padding:
+                    EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50),
+                child: content),
           );
         });
   }
 
-  static Future<bool> showConfirmMessage(BuildContext context, String message) async {
+  static Future<bool> showConfirmMessage(
+      BuildContext context, String message) async {
     bool result = false;
 
     await showDialog(

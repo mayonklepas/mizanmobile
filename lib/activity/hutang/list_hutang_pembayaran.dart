@@ -73,7 +73,7 @@ class _ListHutangPembayaranState extends State<ListHutangPembayaran> {
                                       defaultColumnWidth: FlexColumnWidth(),
                                       children: [
                                         Utils.labelDuoSetter("Jumlah Bayar",
-                                            Utils.formatRp(dataList["TOTAL_CICILAN"]),
+                                            Utils.formatNumber(dataList["TOTAL_CICILAN"]),
                                             bold: true, isRight: true),
                                       ],
                                     )),

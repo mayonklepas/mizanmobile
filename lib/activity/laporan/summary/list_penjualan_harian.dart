@@ -73,7 +73,7 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
                       defaultColumnWidth: FlexColumnWidth(),
                       children: [
                         Utils.labelDuoSetter(
-                            "Tanggal", "${Utils.formatDate(_dataMastePenjualanHarian["TANGGAL"])}",
+                            "Tanggal", Utils.formatDate(_dataMastePenjualanHarian["TANGGAL"]),
                             isRight: true),
                         Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
                         Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
@@ -116,7 +116,7 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
                                         Utils.labelSetter(dataList["KETERANGAN"]),
                                         Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
                                         Utils.labelSetter(
-                                            Utils.formatRp(dataList["TOTAL_PENJUALAN"]),
+                                            Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
                                             bold: true),
                                         Container(
                                           alignment: Alignment.bottomRight,

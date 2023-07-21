@@ -193,7 +193,7 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                             ],
                                           ),
                                           Padding(padding: EdgeInsets.only(top: 5)),
-                                          Utils.labelSetter(Utils.formatRp(dataList["TOTAL"]),
+                                          Utils.labelSetter(Utils.formatNumber(dataList["TOTAL"]),
                                               bold: true),
                                           Container(
                                             alignment: Alignment.bottomRight,

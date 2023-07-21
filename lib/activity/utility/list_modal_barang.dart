@@ -75,7 +75,7 @@ class _ListModalBarangState extends State<ListModalBarang> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Utils.labelSetter(Utils.formatRp(dataList["HARGA_JUAL"]),
+                                        Utils.labelSetter(Utils.formatNumber(dataList["HARGA_JUAL"]),
                                             bold: true),
                                         Utils.labelSetter(
                                             "Stok : " + Utils.formatNumber(dataList["STOK"])),

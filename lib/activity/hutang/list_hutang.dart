@@ -82,13 +82,13 @@ class _ListHutangState extends State<ListHutang> {
                                         defaultColumnWidth: FlexColumnWidth(),
                                         children: [
                                           Utils.labelDuoSetter(
-                                              "Total", Utils.formatRp(dataList["TOTAL_HUTANG"]),
+                                              "Total", Utils.formatNumber(dataList["TOTAL_HUTANG"]),
                                               isRight: true),
                                           Utils.labelDuoSetter(
-                                              "Cicilan", Utils.formatRp(dataList["TOTAL_CICILAN"]),
+                                              "Cicilan", Utils.formatNumber(dataList["TOTAL_CICILAN"]),
                                               isRight: true),
                                           Utils.labelDuoSetter(
-                                              "Sisa", Utils.formatRp(dataList["SISA_HUTANG"]),
+                                              "Sisa", Utils.formatNumber(dataList["SISA_HUTANG"]),
                                               isRight: true, bold: true)
                                         ],
                                       )),

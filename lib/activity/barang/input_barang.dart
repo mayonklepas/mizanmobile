@@ -148,17 +148,13 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         flex: 2,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Table(
-                            defaultColumnWidth: FlexColumnWidth(),
+                          child: Column(
                             children: [
-                              Utils.labelDuoSetter("Satuan", v["KODE_SATUAN"],
-                                  isRight: true, bold: true),
-                              Utils.labelDuoSetter("Kode/Barcode", v["BARCODE"], isRight: true),
-                              Utils.labelDuoSetter("Satuan Pengali", v["KODE_SATUAN_PENGALI"],
-                                  isRight: true),
-                              Utils.labelDuoSetter(
-                                  "Isi Per Satuan", Utils.formatNumber(v["QTYSATUANPENGALI"]),
-                                  isRight: true),
+                              Utils.labelValueSetter("Satuan", v["KODE_SATUAN"]),
+                              Utils.labelValueSetter("Kode/Barcode", v["BARCODE"]),
+                              Utils.labelValueSetter("Satuan Pengali", v["KODE_SATUAN_PENGALI"]),
+                              Utils.labelValueSetter(
+                                  "Isi Per Satuan", Utils.formatNumber(v["QTYSATUANPENGALI"]))
                             ],
                           ),
                         ),
@@ -192,18 +188,13 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         flex: 2,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 5),
-                          child: Table(
-                            defaultColumnWidth: FlexColumnWidth(),
+                          child: Column(
                             children: [
-                              Utils.labelDuoSetter("GOLONGAN", v["KODE_GOL"],
-                                  isRight: true, bold: true),
-                              Utils.labelDuoSetter("Dari", Utils.formatNumber(v["DARI"]),
-                                  isRight: true),
-                              Utils.labelDuoSetter("Hingga", Utils.formatNumber(v["HINGGA"]),
-                                  isRight: true),
-                              Utils.labelDuoSetter("Satuan", v["KODE_SATUAN"], isRight: true),
-                              Utils.labelDuoSetter("Harga", Utils.formatNumber(v["HARGA_JUAL"]),
-                                  isRight: true, bold: true),
+                              Utils.labelValueSetter("GOLONGAN", v["KODE_GOL"]),
+                              Utils.labelValueSetter("Dari", Utils.formatNumber(v["DARI"])),
+                              Utils.labelValueSetter("Hingga", Utils.formatNumber(v["HINGGA"])),
+                              Utils.labelValueSetter("Satuan", v["KODE_SATUAN"]),
+                              Utils.labelValueSetter("Harga", Utils.formatNumber(v["HARGA_JUAL"])),
                             ],
                           ),
                         ),

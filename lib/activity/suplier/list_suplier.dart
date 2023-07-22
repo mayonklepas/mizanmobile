@@ -135,19 +135,17 @@ class _ListSuplierState extends State<ListSuplier> {
                                   children: [
                                     Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
                                     Utils.labelSetter(dataList["KODE"].toString()),
-                                    Table(
-                                      defaultColumnWidth: FlexColumnWidth(),
-                                      children: [
-                                        Utils.labelDuoSetter(
-                                            "Golongan", dataList["NAMA_GOLONGAN"].toString(),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Klasifikasi", dataList["NAMA_KLASIFIKASI"].toString(),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Department", dataList["NAMA_DEPT"].toString(),
-                                            isRight: true)
-                                      ],
+                                    Utils.labelValueSetter(
+                                      "Golongan",
+                                      dataList["NAMA_GOLONGAN"].toString(),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Klasifikasi",
+                                      dataList["NAMA_KLASIFIKASI"].toString(),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Department",
+                                      dataList["NAMA_DEPT"].toString(),
                                     )
                                   ],
                                 ),

@@ -37,8 +37,8 @@ class _ListLabaHarianState extends State<ListLabaHarian> {
       idPengguna = Utils.idPenggunaTemp;
     }
 
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}home/labaharian?idpengguna=$idPengguna&iddept=$idDept&tgl=$tgl");
+    Uri url =
+        Uri.parse("${Utils.mainUrl}home/labaharian?idpengguna=$idPengguna&iddept=$idDept&tgl=$tgl");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     print(jsonData);
@@ -74,18 +74,17 @@ class _ListLabaHarianState extends State<ListLabaHarian> {
                         "Bagian Penjualan",
                         Utils.namaPenggunaTemp,
                       ),
-                      Utils.labelValueSetter("Modal",
-                          Utils.formatNumber(_dataMasteLabaHarian["MODAL"])),
                       Utils.labelValueSetter(
-                          "Pendapatan",
-                          Utils.formatNumber(
-                              _dataMasteLabaHarian["PENDAPATAN"]),alignValue: TextAlign.right),
+                          "Modal", Utils.formatNumber(_dataMasteLabaHarian["MODAL"]),
+                          boldValue: true),
+                      Utils.labelValueSetter(
+                          "Pendapatan", Utils.formatNumber(_dataMasteLabaHarian["PENDAPATAN"]),
+                          boldValue: true),
                       Utils.labelValueSetter(
                           "Keuntungan",
                           Utils.formatNumber(
-                              (_dataMasteLabaHarian["PENDAPATAN"] -
-                                  _dataMasteLabaHarian["MODAL"])),
-                                  alignValue: TextAlign.right),
+                              (_dataMasteLabaHarian["PENDAPATAN"] - _dataMasteLabaHarian["MODAL"])),
+                          boldValue: true),
                       Utils.labelValueSetter(
                           "Rasio",
                           Utils.formatNumber(
@@ -94,7 +93,8 @@ class _ListLabaHarianState extends State<ListLabaHarian> {
                                       _dataMasteLabaHarian["MODAL"] *
                                       100,
                                   decimalDigit: 2) +
-                              "%",alignValue: TextAlign.right)
+                              "%",
+                          boldValue: true)
                     ]),
                   )),
               Expanded(
@@ -116,34 +116,37 @@ class _ListLabaHarianState extends State<ListLabaHarian> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Utils.labelSetter(
                                           dataList["NAMA"],
                                           bold: true,
                                         ),
                                         Utils.labelSetter(dataList["KODE"]),
-                                        Utils.labelSetter("Kelompok : " +
-                                            dataList["KELOMPOK"]),
-                                        Utils.labelSetter("Cabang : " +
-                                            dataList["NAMA_DEPT"]),
-                                        Table(
-                                          children: [
-                                            Utils.labelDuoSetter(
-                                                "Modal",
-                                                Utils.formatNumber(
-                                                    dataList["MODAL"]),
-                                                bold: true,
-                                                isRight: true),
-                                            Utils.labelDuoSetter(
-                                                "Pendapatan",
-                                                Utils.formatNumber(
-                                                    dataList["PENDAPATAN"]),
-                                                bold: true,
-                                                isRight: true)
-                                          ],
-                                        ),
+                                        Utils.labelValueSetter("Kelompok", dataList["KELOMPOK"],
+                                            alignValue: TextAlign.left, flexValue: 3),
+                                        Utils.labelValueSetter("Cabang", dataList["NAMA_DEPT"],
+                                            alignValue: TextAlign.left, flexValue: 3),
+                                        Utils.labelValueSetter(
+                                            "Modal", Utils.formatNumber(dataList["MODAL"]),
+                                            boldValue: true),
+                                        Utils.labelValueSetter("Pendapatan",
+                                            Utils.formatNumber(dataList["PENDAPATAN"]),
+                                            boldValue: true),
+                                        Utils.labelValueSetter(
+                                            "Keuntungan",
+                                            Utils.formatNumber(
+                                                (dataList["PENDAPATAN"] - dataList["MODAL"])),
+                                            boldValue: true),
+                                        Utils.labelValueSetter(
+                                            "Rasio",
+                                            Utils.formatNumber(
+                                                    (dataList["PENDAPATAN"] - dataList["MODAL"]) /
+                                                        dataList["MODAL"] *
+                                                        100,
+                                                    decimalDigit: 2) +
+                                                "%",
+                                            boldValue: true)
                                       ],
                                     ),
                                   ),

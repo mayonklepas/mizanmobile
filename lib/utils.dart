@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -68,10 +66,12 @@ class Utils {
     sp.setString(key, value);
   }
 
-  static String formatNumber(var value,
-      {decimalDigit = 0, String symbol = ""}) {
-    NumberFormat nf = NumberFormat.currency(
-        locale: "id", symbol: symbol, decimalDigits: decimalDigit);
+  static String formatNumber(double value, {decimalDigit = 0, String symbol = ""}) {
+    if (value.isNaN) {
+      return "0";
+    }
+    NumberFormat nf =
+        NumberFormat.currency(locale: "id", symbol: symbol, decimalDigits: decimalDigit);
 
     return nf.format(value);
   }
@@ -147,10 +147,10 @@ class Utils {
                 fillColor: Colors.white,
                 filled: true,
                 contentPadding: EdgeInsets.only(),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.2)),
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white, width: 1.3)),
+                enabledBorder:
+                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+                focusedBorder:
+                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
                 hintText: hint,
                 prefixIcon: Icon(Icons.search),
                 hintStyle: TextStyle(color: Colors.black54)),
@@ -174,8 +174,7 @@ class Utils {
       _permission = await Geolocator.requestPermission();
     }
 
-    _position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium);
+    _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
 
     return _position;
   }
@@ -219,21 +218,20 @@ class Utils {
     );
   }
 
-  static Row labelValueSetter(
-    String label,
-    String value, {
-    double sizeLabel = 14,
-    double sizeValue = 14,
-    bool boldLabel = false,
-    bool boldValue = false,
-    Color colorLabel = Colors.black,
-    Color colorValue = Colors.black,
-    TextAlign alignLabel = TextAlign.left,
-    TextAlign alignValue = TextAlign.left,
-    int flexLLabel = 1,
-    int flexValue = 2,
-    String separator = "",
-  }) {
+  static Container labelValueSetter(String label, String value,
+      {double sizeLabel = 14,
+      double sizeValue = 14,
+      bool boldLabel = false,
+      bool boldValue = false,
+      Color colorLabel = Colors.black,
+      Color colorValue = Colors.black,
+      TextAlign alignLabel = TextAlign.left,
+      TextAlign alignValue = TextAlign.right,
+      int flexLabel = 1,
+      int flexValue = 1,
+      String separator = "",
+      double top = 2,
+      double bottom = 2}) {
     FontWeight isWeightLabel = FontWeight.normal;
     FontWeight isWeightValue = FontWeight.normal;
 
@@ -245,51 +243,26 @@ class Utils {
       isWeightValue = FontWeight.bold;
     }
 
-    return Row(
-      children: [
-        Expanded(
-          flex: flexLLabel,
-          child: Text(label,
-              textAlign: alignLabel,
-              style: TextStyle(
-                  fontSize: sizeLabel, fontWeight: isWeightLabel, color: colorLabel)),
-        ),
-        Expanded(
-          flex: flexValue,
-          child: Text(value,textAlign: alignValue,
-              style: TextStyle(
-                  fontSize: sizeLabel, fontWeight: isWeightValue, color: colorLabel)),
-        ),
-      ],
-    );
-  }
-
-  static TableRow labelDuoSetter(String text1, String text2,
-      {double size = 14,
-      bool bold = false,
-      Color color = Colors.black,
-      TextAlign align = TextAlign.left,
-      bool isRight = false}) {
-    FontWeight isWeight = FontWeight.normal;
-    if (bold) {
-      isWeight = FontWeight.bold;
-    }
-
-    TextAlign secondAlign = TextAlign.left;
-    if (isRight) {
-      secondAlign = TextAlign.right;
-    }
-    return TableRow(
-      children: [
-        Text(text1,
-            textAlign: align,
-            style:
-                TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
-        Text(text2,
-            textAlign: secondAlign,
-            style:
-                TextStyle(fontSize: size, fontWeight: isWeight, color: color)),
-      ],
+    return Container(
+      padding: EdgeInsets.only(top: top, bottom: bottom),
+      child: Row(
+        children: [
+          Expanded(
+            flex: flexLabel,
+            child: Text(label,
+                textAlign: alignLabel,
+                style:
+                    TextStyle(fontSize: sizeLabel, fontWeight: isWeightLabel, color: colorLabel)),
+          ),
+          Expanded(
+            flex: flexValue,
+            child: Text(value,
+                textAlign: alignValue,
+                style:
+                    TextStyle(fontSize: sizeLabel, fontWeight: isWeightValue, color: colorLabel)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -305,8 +278,7 @@ class Utils {
         color: Colors.blue,
         child: Container(
           child: Center(
-            child: Utils.labelSetter(text,
-                bold: true, size: 30, color: Colors.white),
+            child: Utils.labelSetter(text, bold: true, size: 30, color: Colors.white),
           ),
         ),
       ),
@@ -325,8 +297,7 @@ class Utils {
   static Container labelForm(String label,
       {double top = 10, double bottom = 0, double left = 0, double right = 0}) {
     return Container(
-      margin:
-          EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
+      margin: EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
       child: Text(label),
     );
   }
@@ -342,13 +313,10 @@ class Utils {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
                   Expanded(
-                      flex: 0,
-                      child: Container(child: CircularProgressIndicator())),
-                  Expanded(
-                    child: Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Text("Memuat Data...")),
+                    child:
+                        Container(margin: EdgeInsets.only(left: 10), child: Text("Memuat Data...")),
                   )
                 ],
               ),
@@ -377,8 +345,7 @@ class Utils {
         });
   }
 
-  static showMessageAction(
-      String message, BuildContext context, ElevatedButton button) {
+  static showMessageAction(String message, BuildContext context, ElevatedButton button) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -432,18 +399,14 @@ class Utils {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-                padding:
-                    EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50),
-                child: content),
+                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50), child: content),
           );
         });
   }
 
-  static Future<bool> showConfirmMessage(
-      BuildContext context, String message) async {
+  static Future<bool> showConfirmMessage(BuildContext context, String message) async {
     bool result = false;
 
     await showDialog(

@@ -607,17 +607,16 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                       padding: EdgeInsets.all(10),
                       child: Column(
                         children: [
-                          Table(children: [
-                            Utils.labelDuoSetter("No Transaksi", norefGlobal,
-                                isRight: true, bold: true),
-                            Utils.labelDuoSetter(
-                                "Tanggal Transaksi", Utils.formatDate(tanggalTransaksi),
-                                isRight: true),
-                            Utils.labelDuoSetter("Departement", namaDept, isRight: true),
-                            Utils.labelDuoSetter("Transfer Dari", namaGudangDari, isRight: true),
-                            Utils.labelDuoSetter("Transfer Ke", namaGudangKe, isRight: true),
-                            Utils.labelDuoSetter("Keterangan", keterangan, isRight: true),
-                          ]),
+                          Utils.labelValueSetter(
+                            "No Transaksi",
+                            norefGlobal,
+                          ),
+                          Utils.labelValueSetter(
+                              "Tanggal Transaksi", Utils.formatDate(tanggalTransaksi)),
+                          Utils.labelValueSetter("Departement", namaDept),
+                          Utils.labelValueSetter("Transfer Dari", namaGudangDari),
+                          Utils.labelValueSetter("Transfer Ke", namaGudangKe),
+                          Utils.labelValueSetter("Keterangan", keterangan)
                         ],
                       ),
                     ),

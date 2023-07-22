@@ -284,13 +284,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       KreditView(),
                       Container(
                         padding: EdgeInsets.all(15),
-                        child: Table(
-                          defaultColumnWidth: FlexColumnWidth(),
-                          children: [
-                            Utils.labelDuoSetter("Total", Utils.formatNumber(totalPenjualan),
-                                size: 19, isRight: true, bold: true)
-                          ],
-                        ),
+                        child: Utils.labelValueSetter("Total", Utils.formatNumber(totalPenjualan)),
                       ),
                       Container(
                         width: double.maxFinite,

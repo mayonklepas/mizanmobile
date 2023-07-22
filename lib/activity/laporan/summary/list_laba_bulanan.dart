@@ -1,34 +1,39 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:mizanmobile/activity/penjualan/input_penjualan.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
 import '../../component/bottom_modal_filter.dart';
 
-class ListPenjualanHarian extends StatefulWidget {
-  const ListPenjualanHarian({Key? key}) : super(key: key);
+class ListLabaBulanan extends StatefulWidget {
+  const ListLabaBulanan({Key? key}) : super(key: key);
 
   @override
-  State<ListPenjualanHarian> createState() => _ListPenjualanHarianState();
+  State<ListLabaBulanan> createState() => _ListLabaBulananState();
 }
 
-class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
-  Future<List<dynamic>>? _dataPenjualanHarian;
-  dynamic _dataMastePenjualanHarian;
+class _ListLabaBulananState extends State<ListLabaBulanan> {
+  Future<List<dynamic>>? _dataLabaBulanan;
+  dynamic _dataMasterLabaBulanan;
   TextEditingController tanggalDariCtrl = TextEditingController();
   TextEditingController tanggalHinggaCtrl = TextEditingController();
 
-  Future<List<dynamic>> _getDataPenjualanHarian(
-      {String tgl = "", String idDept = "", String idPengguna = ""}) async {
-    if (tgl == "") {
-      tgl = Utils.formatStdDate(DateTime.now());
+  Future<List<dynamic>> _getDataLabaBulanan(
+      {String tglDari = "",
+      String tglHingga = "",
+      String idDept = "",
+      String idPengguna = ""}) async {
+    if (tglDari == "") {
+      tglDari = Utils.fisrtDateOfMonthString();
+    }
+
+    if (tglHingga == "") {
+      tglHingga = Utils.formatStdDate(DateTime.now());
     }
 
     if (idDept == "") {
@@ -40,24 +45,24 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
     }
 
     Uri url = Uri.parse(
-        "${Utils.mainUrl}home/penjualanharian?idpengguna=$idPengguna&iddept=$idDept&tgl=$tgl");
+        "${Utils.mainUrl}home/lababulanan?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     print(jsonData);
-    _dataMastePenjualanHarian = await jsonData["header"];
+    _dataMasterLabaBulanan = await jsonData["header"];
     return jsonData["detail"];
   }
 
   @override
   void initState() {
     Utils.initAppParam();
-    _dataPenjualanHarian = _getDataPenjualanHarian();
+    _dataLabaBulanan = _getDataLabaBulanan();
     super.initState();
   }
 
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
     return FutureBuilder(
-      future: _dataPenjualanHarian,
+      future: _dataLabaBulanan,
       builder: ((context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -69,30 +74,38 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
               Expanded(
                   flex: 0,
                   child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Utils.labelValueSetter(
-                            "Tanggal",
-                            Utils.formatDate(_dataMastePenjualanHarian["TANGGAL"]),
-                          ),
-                          Utils.labelValueSetter("Department", Utils.namaDeptTemp),
-                          Utils.labelValueSetter(
-                            "Bagian Penjualan",
-                            Utils.namaPenggunaTemp,
-                          ),
-                          Utils.labelValueSetter(
-                              "Total Penjualan Tunai",
-                              Utils.formatNumber(
-                                  _dataMastePenjualanHarian["TOTAL_PENJUALAN_TUNAI"]),
-                              boldValue: true),
-                          Utils.labelValueSetter(
-                              "Total Penjualan Kredit",
-                              Utils.formatNumber(
-                                  _dataMastePenjualanHarian["TOTAL_PENJUALAN_KREDIT"]),
-                              boldValue: true),
-                        ],
-                      ))),
+                    padding: EdgeInsets.all(10),
+                    child: Column(children: [
+                      Utils.labelValueSetter("Periode",
+                          "${Utils.formatDate(_dataMasterLabaBulanan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMasterLabaBulanan["TANGGAL_HINGGA"])}"),
+                      Utils.labelValueSetter("Department", Utils.namaDeptTemp),
+                      Utils.labelValueSetter(
+                        "Bagian Penjualan",
+                        Utils.namaPenggunaTemp,
+                      ),
+                      Utils.labelValueSetter(
+                          "Modal", Utils.formatNumber(_dataMasterLabaBulanan["MODAL"]),
+                          boldValue: true),
+                      Utils.labelValueSetter(
+                          "Pendapatan", Utils.formatNumber(_dataMasterLabaBulanan["PENDAPATAN"]),
+                          boldValue: true),
+                      Utils.labelValueSetter(
+                          "Keuntungan",
+                          Utils.formatNumber((_dataMasterLabaBulanan["PENDAPATAN"] -
+                              _dataMasterLabaBulanan["MODAL"])),
+                          boldValue: true),
+                      Utils.labelValueSetter(
+                          "Rasio",
+                          Utils.formatNumber(
+                                  (_dataMasterLabaBulanan["PENDAPATAN"] -
+                                          _dataMasterLabaBulanan["MODAL"]) /
+                                      _dataMasterLabaBulanan["MODAL"] *
+                                      100,
+                                  decimalDigit: 2) +
+                              "%",
+                          boldValue: true)
+                    ]),
+                  )),
               Expanded(
                 child: ListView.builder(
                     itemCount: snapshot.data!.length,
@@ -114,25 +127,28 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(
-                                          dataList["NOREF"],
-                                          bold: true,
-                                        ),
-                                        Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
+                                        Utils.labelSetter(dataList["KELOMPOK"], bold: true),
+                                        Utils.labelSetter(dataList["NAMA_DEPT"]),
                                         Utils.labelValueSetter(
-                                            "Keterangan", dataList["KETERANGAN"]),
-                                        Utils.labelValueSetter(
-                                            "Bagian Penjualan", dataList["BAGIAN_PENJUALAN"]),
-                                        Utils.labelValueSetter("Total Penjualan",
-                                            Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
+                                            "Modal", Utils.formatNumber(dataList["MODAL"]),
                                             boldValue: true),
-                                        Container(
-                                          padding: EdgeInsets.only(top: 10),
-                                          alignment: Alignment.bottomRight,
-                                          child: Utils.labelSetter(
-                                              Utils.formatDate(dataList["TANGGAL"]),
-                                              size: 12),
-                                        )
+                                        Utils.labelValueSetter("Pendapatan",
+                                            Utils.formatNumber(dataList["PENDAPATAN"]),
+                                            boldValue: true),
+                                        Utils.labelValueSetter(
+                                            "Keuntungan",
+                                            Utils.formatNumber(
+                                                (dataList["PENDAPATAN"] - dataList["MODAL"])),
+                                            boldValue: true),
+                                        Utils.labelValueSetter(
+                                            "Rasio",
+                                            Utils.formatNumber(
+                                                    (dataList["PENDAPATAN"] - dataList["MODAL"]) /
+                                                        dataList["MODAL"] *
+                                                        100,
+                                                    decimalDigit: 2) +
+                                                "%",
+                                            boldValue: true)
                                       ],
                                     ),
                                   ),
@@ -152,7 +168,7 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
   }
 
   Icon customIcon = Icon(Icons.search);
-  Widget customSearchBar = Text("Daftar Penjualan Harian");
+  Widget customSearchBar = Text("Daftar Laba Bulanan");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,8 +186,8 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
         onRefresh: () {
           return Future.sync(() {
             setState(() {
-              customSearchBar = Text("Daftar Penjualan Harian");
-              _dataPenjualanHarian = _getDataPenjualanHarian();
+              customSearchBar = Text("Daftar Laba Bulanan");
+              _dataLabaBulanan = _getDataLabaBulanan();
               tanggalDariCtrl.text = "";
             });
           });
@@ -193,13 +209,13 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
               tanggalHinggaCtrl: tanggalHinggaCtrl,
               isDept: true,
               isPengguna: true,
-              isSingleDate: true,
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));
                 setState(() {
-                  _dataPenjualanHarian = _getDataPenjualanHarian(
-                      tgl: tanggalDariCtrl.text,
+                  _dataLabaBulanan = _getDataLabaBulanan(
+                      tglDari: tanggalDariCtrl.text,
+                      tglHingga: tanggalHinggaCtrl.text,
                       idDept: Utils.idDeptTemp,
                       idPengguna: Utils.idPenggunaTemp);
                 });

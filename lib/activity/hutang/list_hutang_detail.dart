@@ -77,23 +77,20 @@ class _ListHutangDetailState extends State<ListHutangDetail> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Utils.labelSetter(dataList["NOREF"], bold: true),
-                                    Container(
-                                        child: Table(
-                                      defaultColumnWidth: FlexColumnWidth(),
-                                      children: [
-                                        Utils.labelDuoSetter("Jatuh Tempo",
-                                            Utils.formatDate(dataList["JATUH_TEMPO"])),
-                                        Utils.labelDuoSetter(
-                                            "Total", Utils.formatNumber(dataList["TOTAL_HUTANG"]),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Cicilan", Utils.formatNumber(dataList["TOTAL_CICILAN"]),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Sisa", Utils.formatNumber(dataList["SISA_HUTANG"]),
-                                            isRight: true, bold: true)
-                                      ],
-                                    )),
+                                    Utils.labelValueSetter(
+                                        "Jatuh Tempo", Utils.formatDate(dataList["JATUH_TEMPO"])),
+                                    Utils.labelValueSetter(
+                                      "Total",
+                                      Utils.formatNumber(dataList["TOTAL_HUTANG"]),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Cicilan",
+                                      Utils.formatNumber(dataList["TOTAL_CICILAN"]),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Sisa",
+                                      Utils.formatNumber(dataList["SISA_HUTANG"]),
+                                    ),
                                     Container(
                                       padding: EdgeInsets.only(top: 10),
                                       alignment: Alignment.bottomRight,

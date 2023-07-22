@@ -81,21 +81,23 @@ class _ListPenjualanState extends State<ListPenjualan> {
                   flex: 0,
                   child: Container(
                     padding: EdgeInsets.all(10),
-                    child: Table(
-                      defaultColumnWidth: FlexColumnWidth(),
+                    child: Column(
                       children: [
-                        Utils.labelDuoSetter("Periode",
-                            "${Utils.formatDate(_dataMastePenjualan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualan["TANGGAL_HINGGA"])}",
-                            isRight: true),
-                        Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
-                        Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
-                            isRight: true),
-                        Utils.labelDuoSetter("Total Penjualan Tunai",
-                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
-                            isRight: true),
-                        Utils.labelDuoSetter("Total Penjualan Kredit",
-                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
-                            isRight: true)
+                        Utils.labelValueSetter("Periode",
+                            "${Utils.formatDate(_dataMastePenjualan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualan["TANGGAL_HINGGA"])}"),
+                        Utils.labelValueSetter("Department", Utils.namaDeptTemp),
+                        Utils.labelValueSetter(
+                          "Bagian Penjualan",
+                          Utils.namaPenggunaTemp,
+                        ),
+                        Utils.labelValueSetter(
+                          "Total Penjualan Tunai",
+                          Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
+                        ),
+                        Utils.labelValueSetter(
+                          "Total Penjualan Kredit",
+                          Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
+                        )
                       ],
                     ),
                   )),

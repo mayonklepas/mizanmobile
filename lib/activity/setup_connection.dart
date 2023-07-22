@@ -49,12 +49,10 @@ class _SetupConnectionState extends State<SetupConnection> {
                 child: Container(
                   width: double.infinity,
                   child: Card(
-                    child: Container(
-                        padding: EdgeInsets.all(10),
-                        child: Table(children: [
-                          Utils.labelDuoSetter("Koneksi Aktif", Utils.mainUrl, isRight: true),
-                          Utils.labelDuoSetter("Image Url Aktif", Utils.imageUrl, isRight: true)
-                        ])),
+                    child: Column(children: [
+                      Utils.labelValueSetter("Koneksi Aktif", Utils.mainUrl),
+                      Utils.labelValueSetter("Image Url Aktif", Utils.imageUrl)
+                    ]),
                   ),
                 )),
             Expanded(

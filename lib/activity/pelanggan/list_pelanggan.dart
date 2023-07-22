@@ -136,22 +136,21 @@ class _ListPelangganState extends State<ListPelanggan> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
-                                    Table(
-                                      defaultColumnWidth: FlexColumnWidth(),
-                                      children: [
-                                        Utils.labelDuoSetter(
-                                            "GOL 1", dataList["NAMA_GOLONGAN"].toString(),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "GOL 2", dataList["NAMA_GOLONGAN2"].toString(),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Klasifikasi", dataList["NAMA_KLASIFIKASI"].toString(),
-                                            isRight: true),
-                                        Utils.labelDuoSetter(
-                                            "Department", dataList["NAMA_DEPT"].toString(),
-                                            isRight: true)
-                                      ],
+                                    Utils.labelValueSetter(
+                                      "GOL 1",
+                                      dataList["NAMA_GOLONGAN"].toString(),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "GOL 2",
+                                      dataList["NAMA_GOLONGAN2"].toString(),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Klasifikasi",
+                                      dataList["NAMA_KLASIFIKASI"].toString(),
+                                    ),
+                                    Utils.labelValueSetter(
+                                      "Department",
+                                      dataList["NAMA_DEPT"].toString(),
                                     )
                                   ],
                                 ),

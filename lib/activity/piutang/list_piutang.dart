@@ -77,21 +77,18 @@ class _ListPiutangState extends State<ListPiutang> {
                                     children: [
                                       Utils.labelSetter(dataList["NAMA"], bold: true),
                                       Utils.labelSetter(dataList["DEPTNAME"]),
-                                      Container(
-                                          child: Table(
-                                        defaultColumnWidth: FlexColumnWidth(),
-                                        children: [
-                                          Utils.labelDuoSetter(
-                                              "Total", Utils.formatNumber(dataList["TOTAL_HUTANG"]),
-                                              isRight: true),
-                                          Utils.labelDuoSetter(
-                                              "Cicilan", Utils.formatNumber(dataList["TOTAL_CICILAN"]),
-                                              isRight: true),
-                                          Utils.labelDuoSetter(
-                                              "Sisa", Utils.formatNumber(dataList["SISA_HUTANG"]),
-                                              isRight: true, bold: true)
-                                        ],
-                                      )),
+                                      Utils.labelValueSetter(
+                                        "Total",
+                                        Utils.formatNumber(dataList["TOTAL_HUTANG"]),
+                                      ),
+                                      Utils.labelValueSetter(
+                                        "Cicilan",
+                                        Utils.formatNumber(dataList["TOTAL_CICILAN"]),
+                                      ),
+                                      Utils.labelValueSetter(
+                                        "Sisa",
+                                        Utils.formatNumber(dataList["SISA_HUTANG"]),
+                                      ),
                                     ],
                                   ),
                                 ),

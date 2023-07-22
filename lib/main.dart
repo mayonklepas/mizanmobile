@@ -71,21 +71,21 @@ class _MainPageState extends State<MainPage> {
       Utils.mainUrl = sp.getString("defaultConnection").toString();
       Utils.imageUrl = sp.getString("defaultImageUrl").toString();
 
-      Utils.idDept = sp.getString("defaultIdDept").toString();
-      Utils.namaDept = sp.getString("defaultNamaDept").toString();
+      dynamic mapSetup = jsonDecode(sp.getString(Utils.mainUrl).toString());
 
-      Utils.idAkunStokOpname = sp.getString("defaultIdAkunStokOpname").toString();
-      Utils.namaAkunStokOpname = sp.getString("defaultNamaAkunStokOpname").toString();
-      Utils.idGudang = sp.getString("defaultIdGudang").toString();
-      Utils.namaGudang = sp.getString("defaultNamaGudang").toString();
+      Utils.idDept = mapSetup["defaultIdDept"].toString();
+      Utils.namaDept = mapSetup["defaultNamaDept"].toString();
+      Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
+      Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
+      Utils.idGudang = mapSetup["defaultIdGudang"].toString();
+      Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
+      Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
+      Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
+      Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
 
       Utils.idUser = sp.getString("defaultIdUser").toString();
       Utils.token = sp.getString("token").toString();
       Utils.namaUser = sp.getString("namaUser").toString();
-
-      Utils.idPelanggan = sp.getString("defaultIdPelanggan").toString();
-      Utils.namaPelanggan = sp.getString("defaultNamaPelanggan").toString();
-      Utils.idGolonganPelanggan = sp.getString("defaultIdGolonganPelanggan").toString();
     });
   }
 

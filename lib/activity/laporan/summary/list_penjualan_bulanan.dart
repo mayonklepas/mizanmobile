@@ -76,25 +76,22 @@ class _ListPenjualanBulananState extends State<ListPenjualanBulanan> {
                   flex: 0,
                   child: Container(
                     padding: EdgeInsets.all(10),
-                    child: Table(
-                      defaultColumnWidth: FlexColumnWidth(),
+                    child: Column(
                       children: [
-                        Utils.labelDuoSetter("Periode",
-                            "${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_HINGGA"])}",
-                            isRight: true),
-                        Utils.labelDuoSetter("Department", Utils.namaDeptTemp, isRight: true),
-                        Utils.labelDuoSetter("Bagian Penjualan", Utils.namaPenggunaTemp,
-                            isRight: true),
-                        Utils.labelDuoSetter("Total Penjualan Tunai",
+                        Utils.labelValueSetter("Periode",
+                            "${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualanBulanan["TANGGAL_HINGGA"])}"),
+                        Utils.labelValueSetter("Department", Utils.namaDeptTemp),
+                        Utils.labelValueSetter("Bagian Penjualan", Utils.namaPenggunaTemp),
+                        Utils.labelValueSetter("Total Penjualan Tunai",
                             Utils.formatNumber(_dataMastePenjualanBulanan["TOTAL_PENJUALAN_TUNAI"]),
-                            isRight: true, bold: true, size: 15),
-                        Utils.labelDuoSetter(
+                            boldValue: true, sizeValue: 15, flexLabel: 2),
+                        Utils.labelValueSetter(
                             "Total Penjualan Kredit",
                             Utils.formatNumber(
                                 _dataMastePenjualanBulanan["TOTAL_PENJUALAN_KREDIT"]),
-                            isRight: true,
-                            bold: true,
-                            size: 15)
+                            boldValue: true,
+                            sizeValue: 15,
+                            flexLabel: 2)
                       ],
                     ),
                   )),
@@ -119,15 +116,14 @@ class _ListPenjualanBulananState extends State<ListPenjualanBulanan> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(
-                                          dataList["TIPE_PENJUALAN"],
-                                          bold: true,
-                                        ),
-                                        Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
-                                        Utils.labelSetter(
+                                        Utils.labelValueSetter("Tipe", dataList["TIPE_PENJUALAN"]),
+                                        Utils.labelValueSetter(
+                                            "Bagian Penjualan", dataList["BAGIAN_PENJUALAN"]),
+                                        Utils.labelValueSetter("Total Penjualan",
                                             Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
-                                            bold: true),
+                                            boldValue: true),
                                         Container(
+                                          padding: EdgeInsets.only(top: 10),
                                           alignment: Alignment.bottomRight,
                                           child: Utils.labelSetter(
                                               Utils.formatDate(dataList["TANGGAL"]),

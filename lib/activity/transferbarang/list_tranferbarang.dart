@@ -176,19 +176,17 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Utils.labelSetter(dataList["NOREF"], bold: true),
-                                          Table(
-                                            defaultColumnWidth: FlexColumnWidth(),
-                                            children: [
-                                              Utils.labelDuoSetter(
-                                                  "Dari", dataList["NAMA_GUDANG_DARI"],
-                                                  isRight: true),
-                                              Utils.labelDuoSetter(
-                                                  "Ke", dataList["NAMA_GUDANG_TUJUAN"],
-                                                  isRight: true),
-                                              Utils.labelDuoSetter(
-                                                  "Keterangan", dataList["KETERANGAN"],
-                                                  isRight: true)
-                                            ],
+                                          Utils.labelValueSetter(
+                                            "Dari",
+                                            dataList["NAMA_GUDANG_DARI"],
+                                          ),
+                                          Utils.labelValueSetter(
+                                            "Ke",
+                                            dataList["NAMA_GUDANG_TUJUAN"],
+                                          ),
+                                          Utils.labelValueSetter(
+                                            "Keterangan",
+                                            dataList["KETERANGAN"],
                                           ),
                                           Container(
                                             margin: EdgeInsets.only(top: 5),

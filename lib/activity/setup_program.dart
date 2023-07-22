@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -27,16 +29,17 @@ class _SetupProgramState extends State<SetupProgram> {
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
-      idDept = sp.getString("defaultIdDept").toString();
-      deptCtrl.text = sp.getString("defaultNamaDept").toString();
-      idAkunStokOpname = sp.getString("defaultIdAkunStokOpname").toString();
-      akunStokOpnameCtrl.text = sp.getString("defaultNamaAkunStokOpname").toString();
-      idGudang = sp.getString("defaultIdGudang").toString();
-      gudangCtrl.text = sp.getString("defaultNamaGudang").toString();
-      idPelanggan = sp.getString("defaultIdPelanggan").toString();
-      idGolonganPelanggan = sp.getString("defaultIdGolonganPelanggan").toString();
-      idGolongan2Pelanggan = sp.getString("defaultIdGolongan2Pelanggan").toString();
-      namaPelangganCtrl.text = sp.getString("defaultNamaPelanggan").toString();
+      dynamic mapSetup = jsonDecode(sp.getString(Utils.mainUrl).toString());
+      idDept = mapSetup["defaultIdDept"].toString();
+      deptCtrl.text = mapSetup["defaultNamaDept"].toString();
+      idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
+      akunStokOpnameCtrl.text = mapSetup["defaultNamaAkunStokOpname"].toString();
+      idGudang = mapSetup["defaultIdGudang"].toString();
+      gudangCtrl.text = mapSetup["defaultNamaGudang"].toString();
+      idPelanggan = mapSetup["defaultIdPelanggan"].toString();
+      idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
+      idGolongan2Pelanggan = mapSetup["defaultIdGolongan2Pelanggan"].toString();
+      namaPelangganCtrl.text = mapSetup["defaultNamaPelanggan"].toString();
     });
   }
 
@@ -185,17 +188,23 @@ class _SetupProgramState extends State<SetupProgram> {
                 width: double.infinity,
                 child: ElevatedButton(
                     onPressed: () async {
+                      Map<String, String> mapSetup = {
+                        "defaultIdDept": idDept,
+                        "defaultNamaDept": deptCtrl.text,
+                        "defaultIdGudang": idGudang,
+                        "defaultNamaGudang": gudangCtrl.text,
+                        "defaultIdAkunStokOpname": idAkunStokOpname,
+                        "defaultNamaAkunStokOpname": akunStokOpnameCtrl.text,
+                        "defaultIdPelanggan": idPelanggan,
+                        "defaultNamaPelanggan": namaPelangganCtrl.text,
+                        "defaultIdGolonganPelanggan": idGolonganPelanggan,
+                        "defaultIdGolongan2Pelanggan": idGolonganPelanggan,
+                      };
+
+                      String jsonSetup = jsonEncode(mapSetup);
+
                       SharedPreferences sp = await SharedPreferences.getInstance();
-                      sp.setString("defaultIdDept", idDept);
-                      sp.setString("defaultNamaDept", deptCtrl.text);
-                      sp.setString("defaultIdGudang", idGudang);
-                      sp.setString("defaultNamaGudang", gudangCtrl.text);
-                      sp.setString("defaultIdAkunStokOpname", idAkunStokOpname);
-                      sp.setString("defaultNamaAkunStokOpname", akunStokOpnameCtrl.text);
-                      sp.setString("defaultIdPelanggan", idPelanggan);
-                      sp.setString("defaultNamaPelanggan", namaPelangganCtrl.text);
-                      sp.setString("defaultIdGolonganPelanggan", idGolonganPelanggan);
-                      sp.setString("defaultIdGolongan2Pelanggan", idGolonganPelanggan);
+                      sp.setString(Utils.mainUrl, jsonSetup);
 
                       setState(() {
                         Utils.idDept = idDept;

@@ -170,21 +170,17 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 children: [
                                   Utils.labelSetter(data["NAMA_BARANG"], bold: true),
                                   Utils.labelSetter(data["KODE_BARANG"]),
-                                  Table(
-                                    children: [
-                                      Utils.labelDuoSetter(
-                                          "Stok Program",
-                                          Utils.formatNumber(data["STOK_PROGRAM"]) +
-                                              " " +
-                                              data["KODE_SATUAN"],
-                                          isRight: true),
-                                      Utils.labelDuoSetter(
-                                          "Stok Fisik",
-                                          Utils.formatNumber(data["STOK_FISIK"]) +
-                                              " " +
-                                              data["KODE_SATUAN"],
-                                          isRight: true),
-                                    ],
+                                  Utils.labelValueSetter(
+                                    "Stok Program",
+                                    Utils.formatNumber(data["STOK_PROGRAM"]) +
+                                        " " +
+                                        data["KODE_SATUAN"],
+                                  ),
+                                  Utils.labelValueSetter(
+                                    "Stok Fisik",
+                                    Utils.formatNumber(data["STOK_FISIK"]) +
+                                        " " +
+                                        data["KODE_SATUAN"],
                                   )
                                 ],
                               ),
@@ -649,17 +645,24 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                       padding: EdgeInsets.all(10),
                       child: Column(
                         children: [
-                          Table(children: [
-                            Utils.labelDuoSetter("No Transaksi", norefGlobal,
-                                isRight: true, bold: true),
-                            Utils.labelDuoSetter(
-                                "Tanggal Transaksi", Utils.formatDate(tanggalTransaksi),
-                                isRight: true),
-                            Utils.labelDuoSetter("Departmen", namaDept, isRight: true),
-                            Utils.labelDuoSetter("Gudang", namaGudang, isRight: true),
-                            Utils.labelDuoSetter("Akun Opname", namaAkunOpname, isRight: true),
-                            Utils.labelDuoSetter("Keterangan", keterangan, isRight: true),
-                          ]),
+                          Utils.labelValueSetter(
+                            "No Transaksi",
+                            norefGlobal,
+                          ),
+                          Utils.labelValueSetter(
+                            "Tanggal Transaksi",
+                            Utils.formatDate(tanggalTransaksi),
+                          ),
+                          Utils.labelValueSetter(
+                            "Departmen",
+                            namaDept,
+                          ),
+                          Utils.labelValueSetter("Gudang", namaGudang),
+                          Utils.labelValueSetter("Akun Opname", namaAkunOpname),
+                          Utils.labelValueSetter(
+                            "Keterangan",
+                            keterangan,
+                          ),
                         ],
                       ),
                     ),

@@ -91,24 +91,24 @@ class _ListMutasiState extends State<ListMutasi> {
                         Padding(padding: EdgeInsets.only(top: 5)),
                         Utils.labelSetter(_dataheader["NAMA"].toString(), bold: true),
                         Utils.labelSetter(_dataheader["KODE"].toString(), bold: true),
-                        Table(
-                          defaultColumnWidth: FlexColumnWidth(),
-                          children: [
-                            Utils.labelDuoSetter("Satuan", _dataheader["KODE_SATUAN"].toString(),
-                                isRight: true, bold: true),
-                            Utils.labelDuoSetter(
-                                "Stok Awal", Utils.formatNumber(_dataheader["STOK_AWAL"]),
-                                isRight: true, bold: true),
-                            Utils.labelDuoSetter("Masuk", Utils.formatNumber(_dataheader["MASUK"]),
-                                isRight: true),
-                            Utils.labelDuoSetter(
-                                "Keluar", Utils.formatNumber(_dataheader["KELUAR"]),
-                                isRight: true),
-                            Utils.labelDuoSetter(
-                                "Stok Akhir", Utils.formatNumber(_dataheader["STOK_AKHIR"]),
-                                isRight: true, bold: true)
-                          ],
-                        )
+                        Utils.labelValueSetter(
+                          "Satuan",
+                          _dataheader["KODE_SATUAN"].toString(),
+                        ),
+                        Utils.labelValueSetter(
+                          "Stok Awal",
+                          Utils.formatNumber(_dataheader["STOK_AWAL"]),
+                        ),
+                        Utils.labelValueSetter(
+                          "Masuk",
+                          Utils.formatNumber(_dataheader["MASUK"]),
+                        ),
+                        Utils.labelValueSetter(
+                          "Keluar",
+                          Utils.formatNumber(_dataheader["KELUAR"]),
+                        ),
+                        Utils.labelValueSetter(
+                            "Stok Akhir", Utils.formatNumber(_dataheader["STOK_AKHIR"]))
                       ],
                     ),
                   )),
@@ -141,28 +141,27 @@ class _ListMutasiState extends State<ListMutasi> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Utils.labelSetter(dataList["NOREF"].toString(), bold: true),
-                                        Table(
-                                          defaultColumnWidth: FlexColumnWidth(),
-                                          children: [
-                                            Utils.labelDuoSetter(
-                                                "Kelompok", dataList["KELOMPOK_TRANS"],
-                                                isRight: true, bold: true),
-                                            Utils.labelDuoSetter(
-                                                "Masuk", Utils.formatNumber(dataList["MASUK"]),
-                                                isRight: true),
-                                            Utils.labelDuoSetter(
-                                                "Keluar", Utils.formatNumber(dataList["KELUAR"]),
-                                                isRight: true),
-                                            Utils.labelDuoSetter(
-                                                "Sisa", Utils.formatNumber(dataList["SISA"]),
-                                                isRight: true),
-                                            Utils.labelDuoSetter("Harga Pokok",
-                                                Utils.formatNumber(dataList["HARGA_POKOK"]),
-                                                isRight: true, bold: true),
-                                            Utils.labelDuoSetter("Harga Jual",
-                                                Utils.formatNumber(dataList["HARGA_JUAL"]),
-                                                isRight: true, bold: true)
-                                          ],
+                                        Utils.labelValueSetter(
+                                            "Kelompok", dataList["KELOMPOK_TRANS"]),
+                                        Utils.labelValueSetter(
+                                          "Masuk",
+                                          Utils.formatNumber(dataList["MASUK"]),
+                                        ),
+                                        Utils.labelValueSetter(
+                                          "Keluar",
+                                          Utils.formatNumber(dataList["KELUAR"]),
+                                        ),
+                                        Utils.labelValueSetter(
+                                          "Sisa",
+                                          Utils.formatNumber(dataList["SISA"]),
+                                        ),
+                                        Utils.labelValueSetter(
+                                          "Harga Pokok",
+                                          Utils.formatNumber(dataList["HARGA_POKOK"]),
+                                        ),
+                                        Utils.labelValueSetter(
+                                          "Harga Jual",
+                                          Utils.formatNumber(dataList["HARGA_JUAL"]),
                                         ),
                                         Container(
                                           padding: EdgeInsets.only(top: 10),

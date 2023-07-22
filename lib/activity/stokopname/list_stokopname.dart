@@ -178,19 +178,17 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Utils.labelSetter(dataList["NOREF"], bold: true),
-                                          Table(
-                                            defaultColumnWidth: FlexColumnWidth(),
-                                            children: [
-                                              Utils.labelDuoSetter(
-                                                  "Departmen", dataList["NAMA_DEPT"],
-                                                  isRight: true),
-                                              Utils.labelDuoSetter(
-                                                  "Gudang", dataList["NAMA_GUDANG"],
-                                                  isRight: true),
-                                              Utils.labelDuoSetter(
-                                                  "Keterangan", dataList["KETERANGAN"],
-                                                  isRight: true),
-                                            ],
+                                          Utils.labelValueSetter(
+                                            "Departmen",
+                                            dataList["NAMA_DEPT"],
+                                          ),
+                                          Utils.labelValueSetter(
+                                            "Gudang",
+                                            dataList["NAMA_GUDANG"],
+                                          ),
+                                          Utils.labelValueSetter(
+                                            "Keterangan",
+                                            dataList["KETERANGAN"],
                                           ),
                                           Padding(padding: EdgeInsets.only(top: 5)),
                                           Utils.labelSetter(Utils.formatNumber(dataList["TOTAL"]),

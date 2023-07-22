@@ -68,15 +68,8 @@ class _ListHutangPembayaranState extends State<ListHutangPembayaran> {
                                   children: [
                                     Utils.labelSetter(dataList["NOREF"], bold: true),
                                     Utils.labelSetter(dataList["KETERANGAN"]),
-                                    Container(
-                                        child: Table(
-                                      defaultColumnWidth: FlexColumnWidth(),
-                                      children: [
-                                        Utils.labelDuoSetter("Jumlah Bayar",
-                                            Utils.formatNumber(dataList["TOTAL_CICILAN"]),
-                                            bold: true, isRight: true),
-                                      ],
-                                    )),
+                                    Utils.labelValueSetter("Jumlah Bayar",
+                                        Utils.formatNumber(dataList["TOTAL_CICILAN"])),
                                     Container(
                                       padding: EdgeInsets.only(top: 10),
                                       alignment: Alignment.bottomRight,

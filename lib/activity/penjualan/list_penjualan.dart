@@ -90,14 +90,12 @@ class _ListPenjualanState extends State<ListPenjualan> {
                           "Bagian Penjualan",
                           Utils.namaPenggunaTemp,
                         ),
-                        Utils.labelValueSetter(
-                          "Total Penjualan Tunai",
-                          Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
-                        ),
-                        Utils.labelValueSetter(
-                          "Total Penjualan Kredit",
-                          Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
-                        )
+                        Utils.labelValueSetter("Total Penjualan Tunai",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
+                            boldValue: true),
+                        Utils.labelValueSetter("Total Penjualan Kredit",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
+                            boldValue: true)
                       ],
                     ),
                   )),
@@ -161,7 +159,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      /*floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
             return InputPenjualan();
@@ -171,7 +169,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
           Icons.add,
           size: 30,
         ),
-      ),
+      ),*/
       appBar: AppBar(
         title: customSearchBar,
         actions: [

@@ -78,17 +78,14 @@ class _ListPiutangState extends State<ListPiutang> {
                                       Utils.labelSetter(dataList["NAMA"], bold: true),
                                       Utils.labelSetter(dataList["DEPTNAME"]),
                                       Utils.labelValueSetter(
-                                        "Total",
-                                        Utils.formatNumber(dataList["TOTAL_HUTANG"]),
-                                      ),
+                                          "Total", Utils.formatNumber(dataList["TOTAL_HUTANG"]),
+                                          boldValue: true),
                                       Utils.labelValueSetter(
-                                        "Cicilan",
-                                        Utils.formatNumber(dataList["TOTAL_CICILAN"]),
-                                      ),
+                                          "Cicilan", Utils.formatNumber(dataList["TOTAL_CICILAN"]),
+                                          boldValue: true),
                                       Utils.labelValueSetter(
-                                        "Sisa",
-                                        Utils.formatNumber(dataList["SISA_HUTANG"]),
-                                      ),
+                                          "Sisa", Utils.formatNumber(dataList["SISA_HUTANG"]),
+                                          boldValue: true),
                                     ],
                                   ),
                                 ),

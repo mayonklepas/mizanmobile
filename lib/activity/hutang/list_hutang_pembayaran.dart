@@ -69,7 +69,8 @@ class _ListHutangPembayaranState extends State<ListHutangPembayaran> {
                                     Utils.labelSetter(dataList["NOREF"], bold: true),
                                     Utils.labelSetter(dataList["KETERANGAN"]),
                                     Utils.labelValueSetter("Jumlah Bayar",
-                                        Utils.formatNumber(dataList["TOTAL_CICILAN"])),
+                                        Utils.formatNumber(dataList["TOTAL_CICILAN"]),
+                                        boldValue: true),
                                     Container(
                                       padding: EdgeInsets.only(top: 10),
                                       alignment: Alignment.bottomRight,

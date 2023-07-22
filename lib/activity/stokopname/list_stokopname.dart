@@ -191,9 +191,11 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                             dataList["KETERANGAN"],
                                           ),
                                           Padding(padding: EdgeInsets.only(top: 5)),
-                                          Utils.labelSetter(Utils.formatNumber(dataList["TOTAL"]),
-                                              bold: true),
+                                          Utils.labelValueSetter(
+                                              "Total", Utils.formatNumber(dataList["TOTAL"]),
+                                              boldValue: true),
                                           Container(
+                                            padding: EdgeInsets.only(top: 10),
                                             alignment: Alignment.bottomRight,
                                             child: Text(
                                               Utils.formatDate(dataList["TANGGAL"]),

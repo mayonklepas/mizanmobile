@@ -33,7 +33,8 @@ class _ListMutasiState extends State<ListMutasi> {
       String tglHingga = "",
       String idGudang = "",
       String idDept = "",
-      String idPengguna = ""}) async {
+      String idPengguna = "",
+      String idKelompokTransaksi = ""}) async {
     if (tglDari == "") {
       tglDari = Utils.formatStdDate(DateTime.now());
     }
@@ -46,8 +47,12 @@ class _ListMutasiState extends State<ListMutasi> {
       idGudang = Utils.idGudangTemp;
     }
 
+     if (idKelompokTransaksi == "") {
+      idKelompokTransaksi = Utils.idKelompokTransaksi;
+    }
+
     Uri url = Uri.parse(
-        "${Utils.mainUrl}barang/mutasi?idbarang=${widget.idBarang}&idgudang=$idGudang&tgldari=$tglDari&tglhingga=$tglHingga");
+        "${Utils.mainUrl}barang/mutasi?idbarang=${widget.idBarang}&idgudang=$idGudang&tgldari=$tglDari&tglhingga=$tglHingga&idkelompok=$idKelompokTransaksi");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     _dataheader = await jsonData["header"];
@@ -78,7 +83,8 @@ class _ListMutasiState extends State<ListMutasi> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Utils.labelSetter(_dataheader["NAMA"].toString(), bold: true),
+                        Utils.labelSetter(_dataheader["NAMA"].toString(),
+                            bold: true),
                         Utils.labelSetter(_dataheader["KODE"].toString()),
                         SizedBox(height: 3),
                         Utils.labelValueSetter("Periode",
@@ -99,8 +105,8 @@ class _ListMutasiState extends State<ListMutasi> {
                           "Keluar",
                           Utils.formatNumber(_dataheader["KELUAR"]),
                         ),
-                        Utils.labelValueSetter(
-                            "Stok Akhir", Utils.formatNumber(_dataheader["STOK_AKHIR"]))
+                        Utils.labelValueSetter("Stok Akhir",
+                            Utils.formatNumber(_dataheader["STOK_AKHIR"]))
                       ],
                     ),
                   )),
@@ -130,18 +136,22 @@ class _ListMutasiState extends State<ListMutasi> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(dataList["NOREF"].toString(), bold: true),
-                                        Utils.labelValueSetter(
-                                            "Kelompok", dataList["KELOMPOK_TRANS"]),
+                                        Utils.labelSetter(
+                                            dataList["NOREF"].toString(),
+                                            bold: true),
+                                        Utils.labelValueSetter("Kelompok",
+                                            dataList["KELOMPOK_TRANS"]),
                                         Utils.labelValueSetter(
                                           "Masuk",
                                           Utils.formatNumber(dataList["MASUK"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Keluar",
-                                          Utils.formatNumber(dataList["KELUAR"]),
+                                          Utils.formatNumber(
+                                              dataList["KELUAR"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Sisa",
@@ -149,17 +159,20 @@ class _ListMutasiState extends State<ListMutasi> {
                                         ),
                                         Utils.labelValueSetter(
                                           "Harga Pokok",
-                                          Utils.formatNumber(dataList["HARGA_POKOK"]),
+                                          Utils.formatNumber(
+                                              dataList["HARGA_POKOK"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Harga Jual",
-                                          Utils.formatNumber(dataList["HARGA_JUAL"]),
+                                          Utils.formatNumber(
+                                              dataList["HARGA_JUAL"]),
                                         ),
                                         Container(
                                           padding: EdgeInsets.only(top: 10),
                                           alignment: Alignment.bottomRight,
                                           child: Text(
-                                            Utils.formatDate(dataList["TANGGAL"]),
+                                            Utils.formatDate(
+                                                dataList["TANGGAL"]),
                                             style: TextStyle(fontSize: 11),
                                           ),
                                         )
@@ -209,6 +222,7 @@ class _ListMutasiState extends State<ListMutasi> {
               tanggalDariCtrl: tanggalDariCtrl,
               tanggalHinggaCtrl: tanggalHinggaCtrl,
               isGudang: true,
+              isKelompokTransaksi: true,
               action: () {
                 Navigator.pop(context);
                 Future.delayed(Duration(seconds: 2));
@@ -216,7 +230,8 @@ class _ListMutasiState extends State<ListMutasi> {
                   _dataMutasiDetail = _getDataMutasi(
                       tglDari: tanggalDariCtrl.text,
                       tglHingga: tanggalHinggaCtrl.text,
-                      idGudang: Utils.idGudangTemp);
+                      idGudang: Utils.idGudangTemp,
+                      idKelompokTransaksi: Utils.idKelompokTransaksi);
                 });
               });
         });

@@ -71,6 +71,10 @@ class Utils {
 
   static String companyCode = "";
 
+  static String idKelompokTransaksi = "";
+
+  static String namaKelompokTransaksi = "";
+
   static getPref(String key) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? result = sp.getString(key);
@@ -486,6 +490,8 @@ class Utils {
     Utils.namaDeptTemp = Utils.namaDept;
     Utils.idGudangTemp = Utils.idGudang;
     Utils.namaGudangTemp = Utils.namaGudang;
+    Utils.idKelompokTransaksi = "-1";
+    Utils.namaKelompokTransaksi = "SEMUA";
   }
 
   static void setAllPref() async {

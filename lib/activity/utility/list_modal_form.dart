@@ -61,7 +61,9 @@ class _ListModalFormState extends State<ListModalForm> {
       mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
     } else if (type == "top") {
       mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
-    }
+    } if (type == "kelompoktransaksi") {
+      mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
+    } 
 
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());

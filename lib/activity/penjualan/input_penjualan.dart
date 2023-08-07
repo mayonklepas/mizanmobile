@@ -194,6 +194,50 @@ class _InputPenjualanState extends State<InputPenjualan> {
             }
           }, focus: false),
           actions: [
+            IconButton(onPressed: () async{
+              dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                builder: (context) {
+                  return ListModalBarang();
+                },
+              ));
+
+              if (popUpResult == null) return;
+              var resultDataDetail = await _getBarang(popUpResult["KODE"]);
+              var data = resultDataDetail["item"];
+              var db = data["detail_barang"][0];
+              if (!isBarangExists(db["NOINDEX"].toString())) {
+                setState(() {
+                  dataListShow.add({
+                    "IDBARANG": db["NOINDEX"].toString(),
+                    "KODE": db["KODE"],
+                    "NAMA": db["NAMA"],
+                    "IDSATUAN": db["IDSATUAN"],
+                    "SATUAN": db["KODE_SATUAN"],
+                    "QTY": 1,
+                    "HARGA": db["HARGA_JUAL"],
+                    "DISKON_NOMINAL": 0,
+                    "IDGUDANG": idGudang,
+                    "IDSATUANPENGALI": db["IDSATUAN"],
+                    "QTYSATUANPENGALI": 1
+                  });
+                  dataList.add(data);
+                  totalPenjualan = setTotalJual();
+                });
+              } else {
+                int index = getIndexBarang(db["NOINDEX"].toString());
+                int qty = dataListShow[index]["QTY"] + 1;
+                String idSatuan = db["IDSATUAN"];
+                dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
+
+                setState(() {
+                  dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
+                  dataListShow[index]["QTY"] = qty;
+                  dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
+                  dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
+                  totalPenjualan = setTotalJual();
+                });
+              }
+            }, icon: Icon(Icons.inventory)),
             IconButton(
                 onPressed: () async {
                   String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(

@@ -13,6 +13,7 @@ class BottomModalFilter extends StatefulWidget {
   bool isDept;
   bool isPengguna;
   bool isSingleDate;
+  bool isKelompokTransaksi;
   BottomModalFilter(
       {super.key,
       required this.action,
@@ -21,7 +22,8 @@ class BottomModalFilter extends StatefulWidget {
       this.isGudang = false,
       this.isDept = false,
       this.isPengguna = false,
-      this.isSingleDate = false});
+      this.isSingleDate = false,
+      this.isKelompokTransaksi = false});
 
   @override
   State<BottomModalFilter> createState() => _BottomModalFilterState();
@@ -78,6 +80,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
             gudang(),
             department(),
             pengguna(),
+            kelompokTransaksi(),
             Padding(padding: EdgeInsets.only(top: 10)),
             SizedBox(
               width: double.infinity,
@@ -278,6 +281,57 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
       ),
     );
   }
+
+
+  
+  Widget kelompokTransaksi() {
+    if (!widget.isKelompokTransaksi) {
+      return Container();
+    }
+    TextEditingController kelompokTransaksiCtrl = new TextEditingController();
+    kelompokTransaksiCtrl.text = Utils.namaKelompokTransaksi;
+    return Container(
+      padding: EdgeInsets.only(top: 5),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Utils.labelForm("Kelompok Transaksi"),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 28,
+                  child: TextField(controller: kelompokTransaksiCtrl),
+                ),
+              ),
+              Expanded(
+                  flex: 0,
+                  child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "kelompoktransaksi",
+                            );
+                          },
+                        ));
+
+                        if (popUpResult == null) return;
+                        kelompokTransaksiCtrl.text = popUpResult["NAMA"];
+                        Utils.namaKelompokTransaksi = popUpResult["NAMA"];
+                        Utils.idKelompokTransaksi = popUpResult["NOINDEX"].toString();
+                      },
+                      icon: Icon(
+                        Icons.search,
+                      )))
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void setTextDateRange(TextEditingController tgl) async {
     DateTime? pickedDate = await Utils.getDatePicker(context);

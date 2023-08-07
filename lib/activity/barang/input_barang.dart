@@ -868,17 +868,20 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         child: Text("FIFO"),
                         value: "1",
                       ),
-                      /*DropdownMenuItem(
+                      DropdownMenuItem(
                         child: Text("LIFO"),
                         value: "2",
                       ),
                       DropdownMenuItem(
                         child: Text("AVERAGE"),
                         value: "3",
-                      )*/
+                      )
                     ],
                     onChanged: (newvalue) {
-                      _metodeHpp = newvalue.toString();
+                      setState(() {
+                        _metodeHpp = newvalue.toString();
+                      });
+                      
                     }),
                 Utils.labelForm("Stok Minimal"),
                 TextField(

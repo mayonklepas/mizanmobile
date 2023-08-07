@@ -46,29 +46,32 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           children: [
             Utils.labelSetter("Filter Data", bold: true, size: 25),
             Padding(padding: const EdgeInsets.all(10)),
-            Row(
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 28,
-                    child: TextField(
-                      controller: widget.tanggalDariCtrl,
-                      keyboardType: TextInputType.datetime,
-                      decoration: InputDecoration(
-                        hintText: tanggalDariLabel,
+                Utils.labelForm(tanggalDariLabel),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 28,
+                        child: TextField(
+                            controller: widget.tanggalDariCtrl,
+                            keyboardType: TextInputType.datetime),
                       ),
                     ),
-                  ),
+                    Expanded(
+                        flex: 0,
+                        child: IconButton(
+                            onPressed: () {
+                              setTextDateRange(widget.tanggalDariCtrl);
+                            },
+                            icon: Icon(
+                              Icons.date_range,
+                            )))
+                  ],
                 ),
-                Expanded(
-                    flex: 0,
-                    child: IconButton(
-                        onPressed: () {
-                          setTextDateRange(widget.tanggalDariCtrl);
-                        },
-                        icon: Icon(
-                          Icons.date_range,
-                        )))
               ],
             ),
             tanggalHingga(),
@@ -103,28 +106,30 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
     }
     return Container(
       padding: EdgeInsets.only(top: 5),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: TextField(
-                controller: widget.tanggalHinggaCtrl,
-                decoration: InputDecoration(
-                  hintText: "Tanggal Hingga",
+          Utils.labelForm("Tanggal Hingga"),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 28,
+                  child: TextField(controller: widget.tanggalHinggaCtrl),
                 ),
               ),
-            ),
+              Expanded(
+                  flex: 0,
+                  child: IconButton(
+                      onPressed: () {
+                        setTextDateRange(widget.tanggalHinggaCtrl);
+                      },
+                      icon: Icon(
+                        Icons.date_range,
+                      )))
+            ],
           ),
-          Expanded(
-              flex: 0,
-              child: IconButton(
-                  onPressed: () {
-                    setTextDateRange(widget.tanggalHinggaCtrl);
-                  },
-                  icon: Icon(
-                    Icons.date_range,
-                  )))
         ],
       ),
     );
@@ -138,39 +143,41 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
     gudangCtrl.text = Utils.namaGudangTemp;
     return Container(
       padding: EdgeInsets.only(top: 5),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: TextField(
-                controller: gudangCtrl,
-                decoration: InputDecoration(
-                  hintText: "Gudang",
+          Utils.labelForm("Gudang"),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 28,
+                  child: TextField(controller: gudangCtrl),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-              flex: 0,
-              child: IconButton(
-                  onPressed: () async {
-                    dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return ListModalForm(
-                          type: "gudang",
-                        );
-                      },
-                    ));
+              Expanded(
+                  flex: 0,
+                  child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "gudang",
+                            );
+                          },
+                        ));
 
-                    if (popUpResult == null) return;
-                    gudangCtrl.text = popUpResult["NAMA"];
-                    Utils.namaGudangTemp = popUpResult["NAMA"];
-                    Utils.idGudangTemp = popUpResult["NOINDEX"];
-                  },
-                  icon: Icon(
-                    Icons.search,
-                  )))
+                        if (popUpResult == null) return;
+                        gudangCtrl.text = popUpResult["NAMA"];
+                        Utils.namaGudangTemp = popUpResult["NAMA"];
+                        Utils.idGudangTemp = popUpResult["NOINDEX"];
+                      },
+                      icon: Icon(
+                        Icons.search,
+                      )))
+            ],
+          ),
         ],
       ),
     );
@@ -184,39 +191,41 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
     deptCtrl.text = Utils.namaDeptTemp;
     return Container(
       padding: EdgeInsets.only(top: 5),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: TextField(
-                controller: deptCtrl,
-                decoration: InputDecoration(
-                  hintText: "Department",
+          Utils.labelForm("Department"),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 28,
+                  child: TextField(controller: deptCtrl),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-              flex: 0,
-              child: IconButton(
-                  onPressed: () async {
-                    dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return ListModalForm(
-                          type: "dept",
-                        );
-                      },
-                    ));
+              Expanded(
+                  flex: 0,
+                  child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "dept",
+                            );
+                          },
+                        ));
 
-                    if (popUpResult == null) return;
-                    deptCtrl.text = popUpResult["NAMA"];
-                    Utils.namaDeptTemp = popUpResult["NAMA"];
-                    Utils.idDeptTemp = popUpResult["NOINDEX"].toString();
-                  },
-                  icon: Icon(
-                    Icons.search,
-                  )))
+                        if (popUpResult == null) return;
+                        deptCtrl.text = popUpResult["NAMA"];
+                        Utils.namaDeptTemp = popUpResult["NAMA"];
+                        Utils.idDeptTemp = popUpResult["NOINDEX"].toString();
+                      },
+                      icon: Icon(
+                        Icons.search,
+                      )))
+            ],
+          ),
         ],
       ),
     );
@@ -230,39 +239,41 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
     penggunaCtrl.text = Utils.namaPenggunaTemp;
     return Container(
       padding: EdgeInsets.only(top: 5),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: SizedBox(
-              height: 28,
-              child: TextField(
-                controller: penggunaCtrl,
-                decoration: InputDecoration(
-                  hintText: "Bagian Penjualan",
+          Utils.labelForm("Bagian Penjualan"),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 28,
+                  child: TextField(controller: penggunaCtrl),
                 ),
               ),
-            ),
-          ),
-          Expanded(
-              flex: 0,
-              child: IconButton(
-                  onPressed: () async {
-                    dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                      builder: (context) {
-                        return ListModalForm(
-                          type: "pengguna",
-                        );
-                      },
-                    ));
+              Expanded(
+                  flex: 0,
+                  child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "pengguna",
+                            );
+                          },
+                        ));
 
-                    if (popUpResult == null) return;
-                    penggunaCtrl.text = popUpResult["NAMA"];
-                    Utils.namaPenggunaTemp = popUpResult["NAMA"];
-                    Utils.idPenggunaTemp = popUpResult["NOINDEX"].toString();
-                  },
-                  icon: Icon(
-                    Icons.search,
-                  )))
+                        if (popUpResult == null) return;
+                        penggunaCtrl.text = popUpResult["NAMA"];
+                        Utils.namaPenggunaTemp = popUpResult["NAMA"];
+                        Utils.idPenggunaTemp = popUpResult["NOINDEX"].toString();
+                      },
+                      icon: Icon(
+                        Icons.search,
+                      )))
+            ],
+          ),
         ],
       ),
     );

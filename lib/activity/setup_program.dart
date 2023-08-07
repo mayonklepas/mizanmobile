@@ -25,11 +25,17 @@ class _SetupProgramState extends State<SetupProgram> {
   String idPelanggan = "";
   String idGolonganPelanggan = "";
   String idGolongan2Pelanggan = "";
+  TextEditingController namaKelompokCtrl = TextEditingController();
+  String idKelompok = "";
+  TextEditingController satuanCtrl = TextEditingController();
+  String idSatuan = "";
+  TextEditingController namaLokasiCtrl = TextEditingController();
+  String idLokasi = "";
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
-      dynamic mapSetup = jsonDecode(sp.getString(Utils.mainUrl).toString());
+      dynamic mapSetup = jsonDecode(sp.getString(Utils.connectionName).toString());
       idDept = mapSetup["defaultIdDept"].toString();
       deptCtrl.text = mapSetup["defaultNamaDept"].toString();
       idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
@@ -40,6 +46,12 @@ class _SetupProgramState extends State<SetupProgram> {
       idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
       idGolongan2Pelanggan = mapSetup["defaultIdGolongan2Pelanggan"].toString();
       namaPelangganCtrl.text = mapSetup["defaultNamaPelanggan"].toString();
+      idLokasi = mapSetup["defaultIdLokasi"].toString();
+      namaLokasiCtrl.text = mapSetup["defaultNamaLokasi"].toString();
+      satuanCtrl.text = mapSetup["defaultSatuan"].toString();
+      idSatuan = mapSetup["defaultIdSatuan"].toString();
+      idKelompok = mapSetup["defaultIdKelompok"].toString();
+      namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"].toString();
     });
   }
 
@@ -184,6 +196,96 @@ class _SetupProgramState extends State<SetupProgram> {
                   ),
                 ],
               ),
+              Utils.labelForm("Kelompok"),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 10,
+                      child: TextField(
+                        controller: namaKelompokCtrl,
+                        enabled: false,
+                      )),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "kelompokbarang",
+                            );
+                          },
+                        ));
+
+                        if (popUpResult == null) return;
+
+                        idKelompok = popUpResult["NOINDEX"];
+                        namaKelompokCtrl.text = popUpResult["NAMA"];
+                      },
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
+              Utils.labelForm("Satuan"),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 10,
+                      child: TextField(
+                        controller: satuanCtrl,
+                        enabled: false,
+                      )),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "satuan",
+                            );
+                          },
+                        ));
+
+                        if (popUpResult == null) return;
+
+                        idSatuan = popUpResult["NOINDEX"];
+                        satuanCtrl.text = popUpResult["NAMA"];
+                      },
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
+              Utils.labelForm("Lokasi"),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 10,
+                      child: TextField(
+                        controller: namaLokasiCtrl,
+                        enabled: false,
+                      )),
+                  Expanded(
+                    child: IconButton(
+                      onPressed: () async {
+                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                          builder: (context) {
+                            return ListModalForm(
+                              type: "lokasi",
+                            );
+                          },
+                        ));
+
+                        if (popUpResult == null) return;
+
+                        idLokasi = popUpResult["NOINDEX"];
+                        namaLokasiCtrl.text = popUpResult["NAMA"];
+                      },
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                ],
+              ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -199,12 +301,18 @@ class _SetupProgramState extends State<SetupProgram> {
                         "defaultNamaPelanggan": namaPelangganCtrl.text,
                         "defaultIdGolonganPelanggan": idGolonganPelanggan,
                         "defaultIdGolongan2Pelanggan": idGolonganPelanggan,
+                        "defaultIdKelompok": idKelompok,
+                        "defaultNamaKelompok": namaKelompokCtrl.text,
+                        "defaultIdSatuan": idSatuan,
+                        "defaultSatuan": satuanCtrl.text,
+                        "defaultIdLokasi": idLokasi,
+                        "defaultNamaLokasi": namaLokasiCtrl.text
                       };
 
                       String jsonSetup = jsonEncode(mapSetup);
 
                       SharedPreferences sp = await SharedPreferences.getInstance();
-                      sp.setString(Utils.mainUrl, jsonSetup);
+                      sp.setString(Utils.connectionName, jsonSetup);
 
                       setState(() {
                         Utils.idDept = idDept;
@@ -217,6 +325,12 @@ class _SetupProgramState extends State<SetupProgram> {
                         Utils.idGolonganPelanggan = idGolonganPelanggan;
                         Utils.idGolongan2Pelanggan = idGolongan2Pelanggan;
                         Utils.namaPelanggan = namaPelangganCtrl.text;
+                        Utils.idKelompok = idKelompok;
+                        Utils.namaKelompok = namaKelompokCtrl.text;
+                        Utils.idLokasi = idLokasi;
+                        Utils.namaLokasi = namaLokasiCtrl.text;
+                        Utils.idSatuan = idSatuan;
+                        Utils.satuan = satuanCtrl.text;
                       });
                       sp.reload();
                       ScaffoldMessenger.of(context)

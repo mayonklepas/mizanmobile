@@ -159,7 +159,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
             return InputPenjualan();
@@ -169,7 +169,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
           Icons.add,
           size: 30,
         ),
-      ),*/
+      ),
       appBar: AppBar(
         title: customSearchBar,
         actions: [

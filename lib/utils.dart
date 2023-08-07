@@ -9,6 +9,8 @@ import 'package:http/http.dart';
 class Utils {
   Utils() {}
 
+  static String connectionName = "";
+
   static String mainUrl = "";
 
   static String idDept = "";
@@ -35,6 +37,18 @@ class Utils {
 
   static String namaAkunPenjualan = "";
 
+  static String idLokasi = "";
+
+  static String namaLokasi = "";
+
+  static String idSatuan = "";
+
+  static String satuan = "";
+
+  static String idKelompok = "";
+
+  static String namaKelompok = "";
+
   static String idUser = "";
 
   static String imageUrl = "";
@@ -55,6 +69,8 @@ class Utils {
 
   static String idGolongan2Pelanggan = "";
 
+  static String companyCode = "";
+
   static getPref(String key) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? result = sp.getString(key);
@@ -66,7 +82,7 @@ class Utils {
     sp.setString(key, value);
   }
 
-  static String formatNumber(double value, {decimalDigit = 0, String symbol = ""}) {
+  static String formatNumber(var value, {decimalDigit = 0, String symbol = ""}) {
     if (value.isNaN) {
       return "0";
     }
@@ -442,6 +458,7 @@ class Utils {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': 'Bearer ' + Utils.token,
+      'company-code': Utils.companyCode
     };
     return header;
   }
@@ -450,6 +467,7 @@ class Utils {
     Map<String, String> header = <String, String>{
       'Content-Type': 'multipart/form-data',
       'Authorization': 'Bearer ' + Utils.token,
+      'company-code': Utils.companyCode
     };
     return header;
   }
@@ -468,5 +486,36 @@ class Utils {
     Utils.namaDeptTemp = Utils.namaDept;
     Utils.idGudangTemp = Utils.idGudang;
     Utils.namaGudangTemp = Utils.namaGudang;
+  }
+
+  static void setAllPref() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    Utils.connectionName = sp.getString("defaultConnectionName").toString();
+    Utils.mainUrl = sp.getString("defaultConnection").toString();
+    Utils.imageUrl = sp.getString("defaultImageUrl").toString();
+    Utils.idUser = sp.getString("defaultIdUser").toString();
+    Utils.token = sp.getString("token").toString();
+    Utils.namaUser = sp.getString("namaUser").toString();
+
+    Utils.companyCode = sp.getString("defaultCompanyCode").toString();
+
+    dynamic mapSetup = jsonDecode(sp.getString(Utils.connectionName).toString());
+
+    Utils.idDept = mapSetup["defaultIdDept"].toString();
+    Utils.namaDept = mapSetup["defaultNamaDept"].toString();
+    Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
+    Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
+    Utils.idGudang = mapSetup["defaultIdGudang"].toString();
+    Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
+    Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
+    Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
+    Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
+
+    Utils.idSatuan = mapSetup["defaultIdSatuan"].toString();
+    Utils.satuan = mapSetup["defaultSatuan"].toString();
+    Utils.idLokasi = mapSetup["defaultIdLokasi"].toString();
+    Utils.namaLokasi = mapSetup["defaultNamaLokasi"].toString();
+    Utils.idKelompok = mapSetup["defaultIdKelompok"].toString();
+    Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
   }
 }

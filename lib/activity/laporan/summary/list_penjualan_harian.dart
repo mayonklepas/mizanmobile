@@ -121,6 +121,7 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
                                         Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
                                         Utils.labelValueSetter(
                                             "Keterangan", dataList["KETERANGAN"]),
+                                        Utils.labelValueSetter("Department", dataList["NAMA_DEPT"]),
                                         Utils.labelValueSetter(
                                             "Bagian Penjualan", dataList["BAGIAN_PENJUALAN"]),
                                         Utils.labelValueSetter("Total Penjualan",

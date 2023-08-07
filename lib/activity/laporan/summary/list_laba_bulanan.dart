@@ -128,7 +128,7 @@ class _ListLabaBulananState extends State<ListLabaBulanan> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Utils.labelSetter(dataList["KELOMPOK"], bold: true),
-                                        Utils.labelSetter(dataList["NAMA_DEPT"]),
+                                        Utils.labelValueSetter("Department", dataList["NAMA_DEPT"]),
                                         Utils.labelValueSetter(
                                             "Modal", Utils.formatNumber(dataList["MODAL"]),
                                             boldValue: true),

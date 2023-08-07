@@ -600,7 +600,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                             "iddept": idDept,
                                             "tanggal": tanggalCtrl.text,
                                             "keterangan": keteranganCtrl.text,
-                                            "useredit": "1-20022608040886784809",
+                                            "useredit": Utils.idUser,
                                           };
                                           result = await _postStokOpname(mapData, "editheader");
                                         } else {
@@ -608,7 +608,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                             "iddept": idDept,
                                             "tanggal": tanggalCtrl.text,
                                             "keterangan": keteranganCtrl.text,
-                                            "userinput": "1-20022608040886784809"
+                                            "userinput": Utils.idUser
                                           };
                                           result = await _postStokOpname(mapData, "insertheader");
                                         }

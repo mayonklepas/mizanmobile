@@ -117,6 +117,7 @@ class _ListPenjualanBulananState extends State<ListPenjualanBulanan> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Utils.labelValueSetter("Tipe", dataList["TIPE_PENJUALAN"]),
+                                        Utils.labelValueSetter("Department", dataList["NAMA_DEPT"]),
                                         Utils.labelValueSetter(
                                             "Bagian Penjualan", dataList["BAGIAN_PENJUALAN"]),
                                         Utils.labelValueSetter("Total Penjualan",

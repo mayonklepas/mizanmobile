@@ -30,6 +30,7 @@ class _LoginState extends State<Login> {
       body: jsonEncode(postBody),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'company-code': Utils.companyCode
       },
     );
     var jsonData = jsonDecode(response.body);

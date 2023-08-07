@@ -18,6 +18,7 @@ class _SetupConnectionState extends State<SetupConnection> {
   TextEditingController namaCtrl = TextEditingController();
   TextEditingController urlCtrl = TextEditingController();
   TextEditingController imageUrlCtrl = TextEditingController();
+  TextEditingController companyCodeCtrl = TextEditingController();
   int indexEdit = -1;
 
   _loadSetupConnection() async {
@@ -51,7 +52,8 @@ class _SetupConnectionState extends State<SetupConnection> {
                   child: Card(
                     child: Column(children: [
                       Utils.labelValueSetter("Koneksi Aktif", Utils.mainUrl),
-                      Utils.labelValueSetter("Image Url Aktif", Utils.imageUrl)
+                      Utils.labelValueSetter("Image Url Aktif", Utils.imageUrl),
+                      Utils.labelValueSetter("Company Code", Utils.companyCode)
                     ]),
                   ),
                 )),
@@ -76,6 +78,10 @@ class _SetupConnectionState extends State<SetupConnection> {
                         TextField(
                           controller: imageUrlCtrl,
                         ),
+                        Utils.labelForm("Company Code"),
+                        TextField(
+                          controller: companyCodeCtrl,
+                        ),
                         Padding(padding: EdgeInsets.only(bottom: 10)),
                         SizedBox(
                           width: double.infinity,
@@ -91,13 +97,15 @@ class _SetupConnectionState extends State<SetupConnection> {
                                   _lsData.add(<String, String>{
                                     "nama": namaCtrl.text,
                                     "url": urlCtrl.text,
-                                    "imageUrl": imageUrlCtrl.text
+                                    "imageUrl": imageUrlCtrl.text,
+                                    "companyCode": companyCodeCtrl.text
                                   });
                                 } else {
                                   _lsData[indexEdit] = <String, String>{
                                     "nama": namaCtrl.text,
                                     "url": urlCtrl.text,
-                                    "imageUrl": imageUrlCtrl.text
+                                    "imageUrl": imageUrlCtrl.text,
+                                    "companyCode": companyCodeCtrl.text
                                   };
                                 }
                               });
@@ -109,6 +117,7 @@ class _SetupConnectionState extends State<SetupConnection> {
                               namaCtrl.text = "";
                               urlCtrl.text = "";
                               imageUrlCtrl.text = "";
+                              companyCodeCtrl.text = "";
                             },
                             child: Text("Simpan"),
                           ),
@@ -147,6 +156,8 @@ class _SetupConnectionState extends State<SetupConnection> {
                                                       namaCtrl.text = dataList["nama"];
                                                       urlCtrl.text = dataList["url"];
                                                       imageUrlCtrl.text = dataList["imageUrl"];
+                                                      companyCodeCtrl.text =
+                                                          dataList["companyCode"];
                                                     });
                                                   },
                                                   icon: Icon(
@@ -191,14 +202,19 @@ class _SetupConnectionState extends State<SetupConnection> {
                                                     SharedPreferences sp =
                                                         await SharedPreferences.getInstance();
                                                     sp.setString(
+                                                        "defaultConnectionName", dataList["nama"]);
+                                                    sp.setString(
                                                         "defaultConnection", dataList["url"]);
                                                     sp.setString(
                                                         "defaultImageUrl", dataList["imageUrl"]);
+                                                    sp.setString("defaultCompanyCode",
+                                                        dataList["companyCode"]);
                                                     sp.reload();
-
                                                     if (Navigator.canPop(context)) {
                                                       Navigator.pop(context);
                                                     }
+
+                                                    Utils.setAllPref();
                                                   },
                                                   icon: Icon(
                                                     Icons.check,
@@ -229,6 +245,7 @@ class _SetupConnectionState extends State<SetupConnection> {
                                           Utils.labelSetter(dataList["nama"], bold: true),
                                           Utils.labelSetter(dataList["url"]),
                                           Utils.labelSetter(dataList["imageUrl"]),
+                                          Utils.labelSetter(dataList["companyCode"]),
                                         ],
                                       ),
                                     ),

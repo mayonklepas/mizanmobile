@@ -46,11 +46,13 @@ class _MainPageState extends State<MainPage> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}user/login";
     Uri url = Uri.parse(urlString);
+
     Response response = await post(
       url,
       body: jsonEncode(postBody),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'company-code': Utils.companyCode
       },
     );
     var jsonData = jsonDecode(response.body);
@@ -61,32 +63,13 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    _setGlobalData();
     super.initState();
   }
 
-  _setGlobalData() async {
+  Future<String> imageUrl() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    setState(() {
-      Utils.mainUrl = sp.getString("defaultConnection").toString();
-      Utils.imageUrl = sp.getString("defaultImageUrl").toString();
-
-      dynamic mapSetup = jsonDecode(sp.getString(Utils.mainUrl).toString());
-
-      Utils.idDept = mapSetup["defaultIdDept"].toString();
-      Utils.namaDept = mapSetup["defaultNamaDept"].toString();
-      Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
-      Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
-      Utils.idGudang = mapSetup["defaultIdGudang"].toString();
-      Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
-      Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
-      Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
-      Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
-
-      Utils.idUser = sp.getString("defaultIdUser").toString();
-      Utils.token = sp.getString("token").toString();
-      Utils.namaUser = sp.getString("namaUser").toString();
-    });
+    Utils.setAllPref();
+    return sp.getString("defaultImageUrl").toString();
   }
 
   @override
@@ -112,19 +95,33 @@ class _MainPageState extends State<MainPage> {
                 Expanded(
                     flex: 0,
                     child: Container(
-                      padding: EdgeInsets.only(top: 20),
-                      child: Image.network(
-                        Utils.imageUrl + "logo.png",
-                        width: 170,
-                        height: 170,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 170,
-                            width: 170,
-                          );
-                        },
-                      ),
-                    )),
+                        padding: EdgeInsets.only(top: 15),
+                        child: FutureBuilder<String>(
+                            future: imageUrl(),
+                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                              return Column(
+                                children: [
+                                  Image.network(
+                                    Utils.imageUrl + "logo.png",
+                                    width: 170,
+                                    height: 170,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 170,
+                                        width: 170,
+                                      );
+                                    },
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    Utils.connectionName,
+                                    style: TextStyle(fontSize: 16),
+                                  )
+                                ],
+                              );
+                            }))),
                 Expanded(
                   flex: 0,
                   child: Container(

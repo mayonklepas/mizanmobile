@@ -29,10 +29,11 @@ class _ListMutasiState extends State<ListMutasi> {
   TextEditingController gudangCtrl = TextEditingController();
 
   Future<List<dynamic>> _getDataMutasi(
-      {String keyword = "",
-      String tglDari = "",
+      {String tglDari = "",
       String tglHingga = "",
-      String idGudang = ""}) async {
+      String idGudang = "",
+      String idDept = "",
+      String idPengguna = ""}) async {
     if (tglDari == "") {
       tglDari = Utils.formatStdDate(DateTime.now());
     }
@@ -77,20 +78,11 @@ class _ListMutasiState extends State<ListMutasi> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.date_range,
-                              color: Colors.black54,
-                              size: 20,
-                            ),
-                            Text(
-                                "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}"),
-                          ],
-                        ),
-                        Padding(padding: EdgeInsets.only(top: 5)),
                         Utils.labelSetter(_dataheader["NAMA"].toString(), bold: true),
-                        Utils.labelSetter(_dataheader["KODE"].toString(), bold: true),
+                        Utils.labelSetter(_dataheader["KODE"].toString()),
+                        SizedBox(height: 3),
+                        Utils.labelValueSetter("Periode",
+                            "${Utils.formatDate(tanggalDariCtrl.text)} - ${Utils.formatDate(tanggalHinggaCtrl.text)}"),
                         Utils.labelValueSetter(
                           "Satuan",
                           _dataheader["KODE_SATUAN"].toString(),
@@ -199,7 +191,7 @@ class _ListMutasiState extends State<ListMutasi> {
               onPressed: () {
                 dateBottomModal(context);
               },
-              icon: Icon(Icons.date_range)),
+              icon: Icon(Icons.filter_alt)),
         ],
       ),
       body: Container(

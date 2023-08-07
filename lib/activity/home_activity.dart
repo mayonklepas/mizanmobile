@@ -4,6 +4,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/list_barang.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
+import 'package:mizanmobile/activity/laporan/print_test.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_laba_bulanan.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_laba_harian.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_penjualan_bulanan.dart';
@@ -31,12 +32,15 @@ class HomeActivity extends StatefulWidget {
 
 class _HomeActivityState extends State<HomeActivity> {
   Future<dynamic> _getHome() async {
-    String urlString = "${Utils.mainUrl}home/daftar?tgl=${Utils.currentDateString()}";
+    String urlString =
+        "${Utils.mainUrl}home/daftar?tgl=${Utils.currentDateString()}&iddept=${Utils.idDept}";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     return jsonData["data_home"];
   }
+
+  String koneksi = "";
 
   Container setIconCard(
       IconData icon, MaterialColor color, String label, void Function() tapAction) {
@@ -110,6 +114,7 @@ class _HomeActivityState extends State<HomeActivity> {
   void initState() {
     // TODO: implement initState
     setDataHome();
+    koneksi = Utils.connectionName;
     super.initState();
   }
 
@@ -130,17 +135,36 @@ class _HomeActivityState extends State<HomeActivity> {
               children: [
                 Expanded(
                   flex: 0,
-                  child: Image.network(
-                    Utils.imageUrl + "logo.png",
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                        builder: (context) {
+                          return PrintTest();
+                        },
+                      ));
+                    },
+                    child: Image.network(
+                      Utils.imageUrl + "logo.png",
+                    ),
                   ),
                 ),
                 Expanded(
                   child: Container(
                     padding: EdgeInsets.only(left: 10),
-                    child: Text(
-                      "Mizan Mobile",
-                      style:
-                          TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Mizan Mobile",
+                          style: TextStyle(
+                              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          koneksi,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        )
+                      ],
                     ),
                   ),
                 )
@@ -163,6 +187,12 @@ class _HomeActivityState extends State<HomeActivity> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
+                        setState(() {
+                          penjualanHarian = 0;
+                          penjualanBulanan = 0;
+                          labaHarian = 0;
+                          labaBulanan = 0;
+                        });
                         dynamic data = await _getHome();
                         setState(() {
                           penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
@@ -205,7 +235,7 @@ class _HomeActivityState extends State<HomeActivity> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
-                                  "IDR " + Utils.formatNumber(penjualanHarian),
+                                  Utils.formatNumber(penjualanHarian),
                                   style: TextStyle(
                                     fontSize: 25,
                                     color: Colors.blue,
@@ -244,7 +274,7 @@ class _HomeActivityState extends State<HomeActivity> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
-                                  "IDR " + Utils.formatNumber(penjualanBulanan),
+                                  Utils.formatNumber(penjualanBulanan),
                                   style: TextStyle(
                                     fontSize: 25,
                                     color: Colors.blue,
@@ -283,7 +313,7 @@ class _HomeActivityState extends State<HomeActivity> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
-                                  "IDR " + Utils.formatNumber(labaHarian),
+                                  Utils.formatNumber(labaHarian),
                                   style: TextStyle(
                                     fontSize: 25,
                                     color: Colors.blue,
@@ -322,7 +352,7 @@ class _HomeActivityState extends State<HomeActivity> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 10),
                                 child: Text(
-                                  "IDR " + Utils.formatNumber(labaBulanan),
+                                  Utils.formatNumber(labaBulanan),
                                   style: TextStyle(
                                     fontSize: 25,
                                     color: Colors.blue,

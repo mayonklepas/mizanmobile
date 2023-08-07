@@ -123,10 +123,8 @@ class _ListLabaHarianState extends State<ListLabaHarian> {
                                           bold: true,
                                         ),
                                         Utils.labelSetter(dataList["KODE"]),
-                                        Utils.labelValueSetter("Kelompok", dataList["KELOMPOK"],
-                                            alignValue: TextAlign.left, flexValue: 3),
-                                        Utils.labelValueSetter("Cabang", dataList["NAMA_DEPT"],
-                                            alignValue: TextAlign.left, flexValue: 3),
+                                        Utils.labelValueSetter("Kelompok", dataList["KELOMPOK"]),
+                                        Utils.labelValueSetter("Department", dataList["NAMA_DEPT"]),
                                         Utils.labelValueSetter(
                                             "Modal", Utils.formatNumber(dataList["MODAL"]),
                                             boldValue: true),

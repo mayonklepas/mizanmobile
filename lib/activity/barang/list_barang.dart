@@ -71,6 +71,10 @@ class _ListBarangState extends State<ListBarang> {
   Image _imageSetter() {
     if (imagePreview.contains("http")) {
       return Image.network(
+        headers: <String, String>{
+          'Authorization': 'Bearer ' + Utils.token,
+          'company-code': Utils.companyCode
+        },
         imagePreview,
         height: 200,
       );
@@ -253,6 +257,10 @@ class _ListBarangState extends State<ListBarang> {
                             //Utils.bagde(dataList["NAMA"].toString().substring(0, 1)),
                             Image.network(
                               gambarUrlString + "thumbnail/" + dataList["NOINDEX"],
+                              headers: {
+                                'Authorization': 'Bearer ' + Utils.token,
+                                'company-code': Utils.companyCode
+                              },
                               height: 70,
                               width: 80,
                               fit: BoxFit.contain,
@@ -269,7 +277,8 @@ class _ListBarangState extends State<ListBarang> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Utils.labelSetter(Utils.formatNumber(dataList["HARGA_JUAL"]),
+                                        Utils.labelSetter(
+                                            Utils.formatNumber(dataList["HARGA_JUAL"]),
                                             bold: true),
                                         Utils.labelSetter("Stok : " +
                                             Utils.formatNumber(dataList["STOK"]) +

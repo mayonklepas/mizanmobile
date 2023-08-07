@@ -78,6 +78,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+
     _setDataDetail(widget.idBarang);
     _tabController = TabController(initialIndex: indexTab, length: 3, vsync: this);
     _tabController.addListener(() {
@@ -94,8 +95,17 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
     idBarangGlobal = await idBarang;
 
     if (idBarang == "") {
-      _deptCtrl.text = Utils.namaDept;
-      _gudangCtrl.text = Utils.namaGudang;
+      setState(() {
+        _deptCtrl.text = Utils.namaDept;
+        _gudangCtrl.text = Utils.namaGudang;
+        _kelompokCtrl.text = Utils.namaKelompok;
+        _idKelompok = Utils.idKelompok;
+        _satuanCtrl.text = Utils.satuan;
+        _idSatuan = Utils.idSatuan;
+        _lokasiCtrl.text = Utils.namaLokasi;
+        _idLokasi = Utils.idLokasi;
+      });
+
       return;
     }
     dynamic dataDetail = await _getDataDetailBarang(idBarang);
@@ -632,7 +642,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
             padding: EdgeInsets.all(20),
             child: ListView(
               children: [
-                Utils.labelForm("Kode Barang"),
+                Utils.labelForm("Kode Barang (Kosongkan untuk auto generate)"),
                 Row(
                   children: [
                     Expanded(
@@ -858,14 +868,14 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         child: Text("FIFO"),
                         value: "1",
                       ),
-                      DropdownMenuItem(
+                      /*DropdownMenuItem(
                         child: Text("LIFO"),
                         value: "2",
                       ),
                       DropdownMenuItem(
                         child: Text("AVERAGE"),
                         value: "3",
-                      )
+                      )*/
                     ],
                     onChanged: (newvalue) {
                       _metodeHpp = newvalue.toString();
@@ -887,7 +897,10 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    if (_kodeCtrl.text == "" ||
+                    if (_kelompokCtrl.text == "" ||
+                        _satuanCtrl.text == "" ||
+                        _gudangCtrl.text == "" ||
+                        _deptCtrl.text == "" ||
                         _namaCtrl.text == "" ||
                         _hargaJualCtrl.text == "" ||
                         _stokMinimalCtrl.text == "" ||

@@ -561,7 +561,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                                             "iddept": idDept,
                                             "tanggal": tanggalCtrl.text,
                                             "keterangan": keteranganCtrl.text,
-                                            "useredit": "1-20022608040886784809",
+                                            "useredit": Utils.idUser,
                                           };
                                           result = await _postTranferbarang(mapData, "editheader");
                                         } else {
@@ -569,7 +569,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                                             "iddept": idDept,
                                             "tanggal": tanggalCtrl.text,
                                             "keterangan": keteranganCtrl.text,
-                                            "userinput": "1-20022608040886784809"
+                                            "userinput": Utils.idUser
                                           };
                                           result =
                                               await _postTranferbarang(mapData, "insertheader");

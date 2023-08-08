@@ -431,12 +431,12 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                   Row(
                     children: [
                       Expanded(
-                          flex: 10,
                           child: TextField(
-                            controller: satuanCtrl,
-                            enabled: false,
-                          )),
+                        controller: satuanCtrl,
+                        enabled: false,
+                      )),
                       Expanded(
+                        flex: 0,
                         child: IconButton(
                           onPressed: () async {
                             popUpResult = await Navigator.push(context, MaterialPageRoute(
@@ -456,8 +456,26 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                     ],
                   ),
                   Utils.labelForm("Kode/Barcode"),
-                  TextField(
-                    controller: barcodeCtrl,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                          child: TextField(
+                        controller: barcodeCtrl,
+                      )),
+                      Expanded(
+                          flex: 0,
+                          child: IconButton(
+                              onPressed: () async {
+                                String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                                    "#ff6666", "Cancel", true, ScanMode.BARCODE);
+
+                                if (barcodeScanRes == "-1") return;
+                                barcodeCtrl.text = barcodeScanRes;
+                              },
+                              icon: Icon(Icons.qr_code_scanner))),
+                    ],
                   ),
                   Utils.labelForm("Isi Persatuan"),
                   TextField(
@@ -881,7 +899,6 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                       setState(() {
                         _metodeHpp = newvalue.toString();
                       });
-                      
                     }),
                 Utils.labelForm("Stok Minimal"),
                 TextField(
@@ -954,8 +971,15 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                       };
                       result = await _postDetailDataBarang(mapData, "edit");
                     }
-                    Utils.showMessage(result["message"], context);
-                    _setDataDetail(idBarangGlobal);
+                    Utils.showMessageAction(
+                        result["message"],
+                        context,
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text("Ok")));
                   },
                   child: Text("SIMPAN"),
                 ),

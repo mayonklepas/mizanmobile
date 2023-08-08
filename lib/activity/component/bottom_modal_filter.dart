@@ -56,12 +56,8 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                 Row(
                   children: [
                     Expanded(
-                      child: SizedBox(
-                        height: 28,
-                        child: TextField(
-                            controller: widget.tanggalDariCtrl,
-                            keyboardType: TextInputType.datetime),
-                      ),
+                      child: TextField(
+                          controller: widget.tanggalDariCtrl, keyboardType: TextInputType.datetime),
                     ),
                     Expanded(
                         flex: 0,
@@ -117,10 +113,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           Row(
             children: [
               Expanded(
-                child: SizedBox(
-                  height: 28,
-                  child: TextField(controller: widget.tanggalHinggaCtrl),
-                ),
+                child: TextField(controller: widget.tanggalHinggaCtrl),
               ),
               Expanded(
                   flex: 0,
@@ -154,10 +147,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           Row(
             children: [
               Expanded(
-                child: SizedBox(
-                  height: 28,
-                  child: TextField(controller: gudangCtrl),
-                ),
+                child: TextField(controller: gudangCtrl),
               ),
               Expanded(
                   flex: 0,
@@ -202,10 +192,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           Row(
             children: [
               Expanded(
-                child: SizedBox(
-                  height: 28,
-                  child: TextField(controller: deptCtrl),
-                ),
+                child: TextField(controller: deptCtrl),
               ),
               Expanded(
                   flex: 0,
@@ -250,10 +237,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           Row(
             children: [
               Expanded(
-                child: SizedBox(
-                  height: 28,
-                  child: TextField(controller: penggunaCtrl),
-                ),
+                child: TextField(controller: penggunaCtrl),
               ),
               Expanded(
                   flex: 0,
@@ -282,8 +266,6 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
     );
   }
 
-
-  
   Widget kelompokTransaksi() {
     if (!widget.isKelompokTransaksi) {
       return Container();
@@ -300,10 +282,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
           Row(
             children: [
               Expanded(
-                child: SizedBox(
-                  height: 28,
-                  child: TextField(controller: kelompokTransaksiCtrl),
-                ),
+                child: TextField(controller: kelompokTransaksiCtrl),
               ),
               Expanded(
                   flex: 0,
@@ -331,7 +310,6 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
       ),
     );
   }
-
 
   void setTextDateRange(TextEditingController tgl) async {
     DateTime? pickedDate = await Utils.getDatePicker(context);

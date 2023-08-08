@@ -506,22 +506,23 @@ class Utils {
     Utils.companyCode = sp.getString("defaultCompanyCode").toString();
 
     dynamic mapSetup = jsonDecode(sp.getString(Utils.connectionName).toString());
+    if (mapSetup != null) {
+      Utils.idDept = mapSetup["defaultIdDept"].toString();
+      Utils.namaDept = mapSetup["defaultNamaDept"].toString();
+      Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
+      Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
+      Utils.idGudang = mapSetup["defaultIdGudang"].toString();
+      Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
+      Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
+      Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
+      Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
 
-    Utils.idDept = mapSetup["defaultIdDept"].toString();
-    Utils.namaDept = mapSetup["defaultNamaDept"].toString();
-    Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
-    Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
-    Utils.idGudang = mapSetup["defaultIdGudang"].toString();
-    Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
-    Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
-    Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
-    Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
-
-    Utils.idSatuan = mapSetup["defaultIdSatuan"].toString();
-    Utils.satuan = mapSetup["defaultSatuan"].toString();
-    Utils.idLokasi = mapSetup["defaultIdLokasi"].toString();
-    Utils.namaLokasi = mapSetup["defaultNamaLokasi"].toString();
-    Utils.idKelompok = mapSetup["defaultIdKelompok"].toString();
-    Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
+      Utils.idSatuan = mapSetup["defaultIdSatuan"].toString();
+      Utils.satuan = mapSetup["defaultSatuan"].toString();
+      Utils.idLokasi = mapSetup["defaultIdLokasi"].toString();
+      Utils.namaLokasi = mapSetup["defaultNamaLokasi"].toString();
+      Utils.idKelompok = mapSetup["defaultIdKelompok"].toString();
+      Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
+    }
   }
 }

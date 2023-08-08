@@ -63,7 +63,32 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    _setConnection();
     super.initState();
+  }
+
+  _setConnection() async {
+    List<dynamic> _lsData = [];
+
+    _lsData.add(<String, String>{
+      "nama": "Mizan Cloud",
+      "url": "http://103.250.11.167:8081/api/",
+      "imageUrl": "http://103.250.11.167/mizan-assets/default/",
+      "companyCode": "public"
+    });
+
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String jsData = jsonEncode(_lsData);
+    await sp.setString("listConnection", jsData);
+    sp.reload();
+    dynamic dataList = jsonDecode(jsData)[0];
+    sp.setString("defaultConnectionName", dataList["nama"]);
+    sp.setString("defaultConnection", dataList["url"]);
+    sp.setString("defaultImageUrl", dataList["imageUrl"]);
+    sp.setString("defaultCompanyCode", dataList["companyCode"]);
+    sp.reload();
+
+    Utils.setAllPref();
   }
 
   Future<String> imageUrl() async {

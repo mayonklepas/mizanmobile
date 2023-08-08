@@ -12,8 +12,14 @@ class ListModalForm extends StatefulWidget {
   final String idBarang;
   final String keyword;
   final bool isExtra;
+  final bool withAll;
   const ListModalForm(
-      {Key? key, required this.type, this.idBarang = "", this.keyword = "", this.isExtra = false});
+      {Key? key,
+      required this.type,
+      this.idBarang = "",
+      this.keyword = "",
+      this.isExtra = false,
+      this.withAll = false});
 
   @override
   State<ListModalForm> createState() => _ListModalFormState();
@@ -52,7 +58,8 @@ class _ListModalFormState extends State<ListModalForm> {
     } else if (type == "klasifikasi") {
       mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
     } else if (type == "satuanbarang") {
-      mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
+      mainUrlString =
+          "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
     } else if (type == "akun") {
       mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
     } else if (type == "pengguna") {
@@ -61,16 +68,22 @@ class _ListModalFormState extends State<ListModalForm> {
       mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
     } else if (type == "top") {
       mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
-    } if (type == "kelompoktransaksi") {
+    }
+    if (type == "kelompoktransaksi") {
       mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
-    } 
+    }
 
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());
     List<dynamic> jsonData = jsonDecode(response.body)["data"];
-    Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
-    jsonData.insert(0, map);
-
+    if (widget.withAll) {
+      Map<String, dynamic> map = {
+        "NAMA": "SEMUA",
+        "KODE": "SEMUA",
+        "NOINDEX": "-1"
+      };
+      jsonData.insert(0, map);
+    }
     return jsonData;
   }
 
@@ -107,7 +120,8 @@ class _ListModalFormState extends State<ListModalForm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Utils.bagde(Utils.koooosong(dataList["NAMA"]).substring(0, 1)),
+                            Utils.bagde(Utils.koooosong(dataList["NAMA"])
+                                .substring(0, 1)),
                             Expanded(
                               flex: 3,
                               child: Padding(
@@ -115,8 +129,11 @@ class _ListModalFormState extends State<ListModalForm> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
-                                    Utils.labelSetter(dataList["KODE"].toString())
+                                    Utils.labelSetter(
+                                        dataList["NAMA"].toString(),
+                                        bold: true),
+                                    Utils.labelSetter(
+                                        dataList["KODE"].toString())
                                   ],
                                 ),
                               ),

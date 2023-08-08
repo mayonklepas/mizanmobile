@@ -157,6 +157,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                           builder: (context) {
                             return ListModalForm(
                               type: "gudang",
+                              withAll: true,
                             );
                           },
                         ));
@@ -202,6 +203,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                           builder: (context) {
                             return ListModalForm(
                               type: "dept",
+                              withAll: true,
                             );
                           },
                         ));
@@ -292,6 +294,7 @@ class _BottomModalFilterState extends State<BottomModalFilter> {
                           builder: (context) {
                             return ListModalForm(
                               type: "kelompoktransaksi",
+                              withAll: true,
                             );
                           },
                         ));

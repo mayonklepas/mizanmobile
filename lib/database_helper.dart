@@ -8,13 +8,13 @@ class DatabaseHelper {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-            "CREATE TABLE barang_temp(id INTEGER PRIMARY KEY,kode VARCHAR(100),nama VARCHAR(255), detail TEXT,multi_satuan TEXT,multi_harga TEXT)");
+            "CREATE TABLE barang_temp(id INTEGER PRIMARY KEY,kode VARCHAR(100),nama VARCHAR(255), detail TEXT,multi_satuan TEXT,multi_harga TEXT,date_update DATETIME DEFAULT CURRENT_TIMESTAMP)");
       },
     );
     return _database;
   }
 
-  Future<List<Map<String, Object?>>> readDatabases(String query,
+  Future<List<dynamic>> readDatabase(String query,
       {List<Object>? params}) async {
     Database database = await databaseConnection();
     if (params == null) {

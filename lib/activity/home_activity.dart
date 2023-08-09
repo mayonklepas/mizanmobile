@@ -19,6 +19,7 @@ import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
 import 'package:mizanmobile/activity/suplier/list_suplier.dart';
 import 'package:mizanmobile/activity/transferbarang/list_tranferbarang.dart';
+import 'package:mizanmobile/database_helper.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -40,10 +41,22 @@ class _HomeActivityState extends State<HomeActivity> {
     return jsonData["data_home"];
   }
 
+  Future<List<dynamic>> _getBarang(String keyword) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    String urlString =
+        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" +
+            keyword;
+    Uri url = Uri.parse(urlString);
+    Response response = await get(url, headers: Utils.setHeader());
+    var jsonData = jsonDecode(response.body)["data"]["item"];
+    Navigator.pop(context);
+    return jsonData;
+  }
+
   String koneksi = "";
 
-  Container setIconCard(
-      IconData icon, MaterialColor color, String label, void Function() tapAction) {
+  Container setIconCard(IconData icon, MaterialColor color, String label,
+      void Function() tapAction) {
     return Container(
       child: Column(
         children: [
@@ -70,7 +83,8 @@ class _HomeActivityState extends State<HomeActivity> {
           Container(
             height: 50,
             padding: EdgeInsets.only(top: 10),
-            child: Utils.labelSetter(label, size: 13, bold: true, align: TextAlign.center),
+            child: Utils.labelSetter(label,
+                size: 13, bold: true, align: TextAlign.center),
           )
         ],
       ),
@@ -158,7 +172,9 @@ class _HomeActivityState extends State<HomeActivity> {
                         Text(
                           "Mizan Mobile",
                           style: TextStyle(
-                              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold),
                         ),
                         Text(
                           koneksi,
@@ -212,7 +228,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -251,7 +268,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -290,7 +308,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -329,7 +348,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -371,7 +391,10 @@ class _HomeActivityState extends State<HomeActivity> {
                 padding: EdgeInsets.only(top: 20),
                 child: Text(
                   "Data Master",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 )),
             Container(
                 child: GridView(
@@ -387,14 +410,16 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
+                setIconCard(
+                    Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPelanggan();
                     },
                   ));
                 }),
-                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier", () {
+                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListSuplier();
@@ -406,7 +431,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Transaksi",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -422,14 +450,16 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
+                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPiutang();
                     },
                   ));
                 }),
-                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
+                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang",
+                    () {
                   showDialog(
                       context: context,
                       builder: (BuildContext ctx) {
@@ -446,14 +476,17 @@ class _HomeActivityState extends State<HomeActivity> {
                         );
                       });
                 }),
-                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian", () {
+                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPembelian();
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha", () {
+                setIconCard(
+                    Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListHutang();
@@ -467,7 +500,9 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.upload_file_outlined, Colors.blue, "Transfer Barang", () {
+                setIconCard(
+                    Icons.upload_file_outlined, Colors.blue, "Transfer Barang",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListTransferBarang();
@@ -479,7 +514,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Lainnya",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -488,13 +526,43 @@ class _HomeActivityState extends State<HomeActivity> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
-                setIconCard(Icons.print_outlined, Colors.blue, "Laporan", () {}),
+                setIconCard(
+                    Icons.print_outlined, Colors.blue, "Laporan", () {}),
                 setIconCard(Icons.settings, Colors.blue, "Setup Program", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return SetupProgram();
                     },
                   ));
+                }),
+                setIconCard(Icons.sync, Colors.blue, "Sinkronisasi", () async {
+                  List<dynamic> dataBarang = await _getBarang("");
+                  var db = DatabaseHelper();
+
+                  for (var d in dataBarang) {
+                    String kode = d["KODE"].toString();
+                    String nama = d["NAMA"].toString();
+                    String detail = jsonEncode(d);
+                    String multiSatuan = jsonEncode(d);
+                    String multiHarga = jsonEncode(d);
+
+                    String query = "SELECT * FROM barang_temp WHERE kode = ?";
+                    List<dynamic> lsDataBarangByCode =
+                        await db.readDatabase(query, params: [kode]);
+
+                    if (lsDataBarangByCode.isNotEmpty) {
+                      db.writeDatabase("DELETE FROM barang_temp WHERE kode = ?",params:[kode]);
+                    }
+
+                    db.writeDatabase(
+                        "INSERT INTO barang_temp(kode,nama,detail,multi_satuan,multi_harga) VALUES (?,?,?,?,?)",
+                        params: [kode, nama, detail, multiSatuan, multiHarga]);
+                  }
+
+                  String query = "SELECT * FROM barang_temp";
+
+                  List<dynamic> result = await db.readDatabase(query);
+                  print(result);
                 }),
               ],
             )),

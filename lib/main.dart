@@ -69,8 +69,8 @@ class _MainPageState extends State<MainPage> {
 
   _setConnection() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? listConnStr = sp.getString("listConnection");
-    if (listConnStr != null || listConnStr!.isNotEmpty) {
+
+    if (sp.getString("listConnection") != null) {
       return;
     }
 
@@ -116,9 +116,7 @@ class _MainPageState extends State<MainPage> {
                 alignment: Alignment.center,
                 child: Text("LOGIN",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold)))),
+                        color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold)))),
         body: SingleChildScrollView(
           child: Container(
             child: Column(
@@ -129,8 +127,7 @@ class _MainPageState extends State<MainPage> {
                         padding: EdgeInsets.only(top: 15),
                         child: FutureBuilder<String>(
                             future: imageUrl(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<String> snapshot) {
+                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
                                   Image.network(
@@ -189,16 +186,14 @@ class _MainPageState extends State<MainPage> {
                                   Utils.showMessage(result["message"], context);
                                 } else {
                                   dynamic data = result["data"];
-                                  SharedPreferences sp =
-                                      await SharedPreferences.getInstance();
+                                  SharedPreferences sp = await SharedPreferences.getInstance();
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
                                   Utils.idUser = data["iduser"];
                                   Utils.token = data["token"];
                                   Utils.namaUser = data["username"];
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
+                                  Navigator.pushReplacement(context, MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();
                                     },

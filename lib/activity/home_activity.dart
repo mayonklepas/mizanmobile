@@ -45,7 +45,8 @@ class _HomeActivityState extends State<HomeActivity> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     //String urlString =
     //"${Utils.mainUrl}barang/syncbarang?tglupdate=$tglupdate&idgudang=${Utils.idGudang}";
-    String urlString = "${Utils.mainUrl}barang/daftar?idgudang=${Utils.idGudang}&halaman=0";
+    String urlString =
+        "${Utils.mainUrl}barang/daftar?idgudang=${Utils.idGudang}&halaman=0";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
@@ -56,8 +57,8 @@ class _HomeActivityState extends State<HomeActivity> {
 
   String koneksi = "";
 
-  Container setIconCard(
-      IconData icon, MaterialColor color, String label, void Function() tapAction) {
+  Container setIconCard(IconData icon, MaterialColor color, String label,
+      void Function() tapAction) {
     return Container(
       child: Column(
         children: [
@@ -84,7 +85,8 @@ class _HomeActivityState extends State<HomeActivity> {
           Container(
             height: 50,
             padding: EdgeInsets.only(top: 10),
-            child: Utils.labelSetter(label, size: 13, bold: true, align: TextAlign.center),
+            child: Utils.labelSetter(label,
+                size: 13, bold: true, align: TextAlign.center),
           )
         ],
       ),
@@ -92,20 +94,21 @@ class _HomeActivityState extends State<HomeActivity> {
   }
 
   _setupProgramChecked() {
-    String idDept = Utils.idDept;
-    if (idDept == "null") {
-      Utils.showMessageAction(
-          "Anda harus melakukan setup program sebelum menggunakan aplikasi",
-          context,
-          ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) {
-                    return SetupProgram();
-                  },
-                ));
-              },
-              child: Text("Lakukan Setup")));
+    if (Utils.idDept.isEmpty || Utils.idGudang.isEmpty) {
+      Future.delayed(Duration.zero, () {
+        Utils.showMessageAction(
+            "Anda harus melakukan setup program sebelum menggunakan aplikasi",
+            context,
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SetupProgram();
+                    },
+                  ));
+                },
+                child: Text("Lakukan Setup")));
+      });
     }
   }
 
@@ -129,6 +132,7 @@ class _HomeActivityState extends State<HomeActivity> {
     // TODO: implement initState
     setDataHome();
     koneksi = Utils.connectionName;
+    _setupProgramChecked();
     super.initState();
   }
 
@@ -172,7 +176,9 @@ class _HomeActivityState extends State<HomeActivity> {
                         Text(
                           "Mizan Mobile",
                           style: TextStyle(
-                              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold),
                         ),
                         Text(
                           koneksi,
@@ -226,7 +232,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -265,7 +272,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -304,7 +312,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -343,7 +352,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(
@@ -385,7 +395,10 @@ class _HomeActivityState extends State<HomeActivity> {
                 padding: EdgeInsets.only(top: 20),
                 child: Text(
                   "Data Master",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 )),
             Container(
                 child: GridView(
@@ -401,14 +414,16 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
+                setIconCard(
+                    Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPelanggan();
                     },
                   ));
                 }),
-                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier", () {
+                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListSuplier();
@@ -420,7 +435,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Transaksi",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -436,14 +454,16 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
+                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPiutang();
                     },
                   ));
                 }),
-                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
+                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang",
+                    () {
                   showDialog(
                       context: context,
                       builder: (BuildContext ctx) {
@@ -460,14 +480,17 @@ class _HomeActivityState extends State<HomeActivity> {
                         );
                       });
                 }),
-                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian", () {
+                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPembelian();
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha", () {
+                setIconCard(
+                    Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListHutang();
@@ -481,7 +504,9 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.upload_file_outlined, Colors.blue, "Transfer Barang", () {
+                setIconCard(
+                    Icons.upload_file_outlined, Colors.blue, "Transfer Barang",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListTransferBarang();
@@ -493,7 +518,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Lainnya",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -502,7 +530,8 @@ class _HomeActivityState extends State<HomeActivity> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
-                setIconCard(Icons.print_outlined, Colors.blue, "Laporan", () {}),
+                setIconCard(
+                    Icons.print_outlined, Colors.blue, "Laporan", () {}),
                 setIconCard(Icons.settings, Colors.blue, "Setup Program", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
@@ -512,11 +541,18 @@ class _HomeActivityState extends State<HomeActivity> {
                 }),
                 setIconCard(Icons.sync, Colors.blue, "Sinkronisasi", () async {
                   var db = DatabaseHelper();
-                  String queryCount =
-                      "SELECT date_update FROM barang_temp ORDER BY date_update DESC LIMIT 1";
-                  List<dynamic> lsLastUpdate = await db.readDatabase(queryCount);
+
+                  int resDelete =
+                      await db.writeDatabase("DELETE FROM barang_temp");
+
+                  if (resDelete != 0) {
+                    print("Delete Berhasil");
+                  }
+                  List<dynamic> lsLastUpdate = await db.readDatabase(
+                      "SELECT date_update FROM barang_temp ORDER BY date_update DESC LIMIT 1");
                   if (lsLastUpdate.isEmpty) {
-                    List<dynamic> dataBarang = await _syncBarang("");
+                    List<dynamic> dataBarang =
+                        await _syncBarang("2023-01-09 01:00");
                     for (var d in dataBarang) {
                       String idbarang = d["NOINDEX"].toString();
                       String kode = d["KODE"].toString();
@@ -525,7 +561,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       String multiSatuan = jsonEncode([]);
                       String multiHarga = jsonEncode([]);
                       String hargaTanggal = jsonEncode([]);
-                      db.writeDatabase(
+                      int resInt = await db.writeDatabase(
                           "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?,?)",
                           params: [
                             idbarang,
@@ -536,12 +572,14 @@ class _HomeActivityState extends State<HomeActivity> {
                             multiHarga,
                             hargaTanggal
                           ]);
+                      print(resInt);
                     }
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Sinkronisasi Berhasil")));
                   } else {
-                    String date_update = lsLastUpdate[0]["date_update"];
-                    List<dynamic> dataBarang = await _syncBarang(date_update);
+                    String dateUpdate = lsLastUpdate[0]["date_update"];
+                    List<dynamic> dataBarang = await _syncBarang(dateUpdate);
 
                     dataBarang.forEach((d) => db.writeDatabase(
                         "DELETE FROM barang_temp WHERE kode = ?",
@@ -556,7 +594,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       String multiHarga = jsonEncode([]);
                       String hargaTanggal = jsonEncode([]);
 
-                      db.writeDatabase(
+                      int resInt = await db.writeDatabase(
                           "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?)",
                           params: [
                             idbarang,
@@ -567,12 +605,14 @@ class _HomeActivityState extends State<HomeActivity> {
                             multiHarga,
                             hargaTanggal
                           ]);
+                      print(resInt);
                     }
 
-                    print(db.readDatabase("select * from barang_temp LIMIT 10"));
+                    print(
+                        db.readDatabase("select * from barang_temp LIMIT 10"));
 
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Sinkronisasi Berhasil")));
                   }
                 }),
               ],

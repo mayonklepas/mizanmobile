@@ -526,7 +526,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       String multiHarga = jsonEncode([]);
                       String hargaTanggal = jsonEncode([]);
                       db.writeDatabase(
-                          "INSERT INTO barang_temp(idbarang,kode,nama,detail,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?,?)",
+                          "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?,?)",
                           params: [
                             idbarang,
                             kode,
@@ -557,7 +557,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       String hargaTanggal = jsonEncode([]);
 
                       db.writeDatabase(
-                          "INSERT INTO barang_temp(idbarang,kode,nama,detail,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?)",
+                          "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?)",
                           params: [
                             idbarang,
                             kode,

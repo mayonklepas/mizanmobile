@@ -7,10 +7,12 @@ import 'package:mizanmobile/activity/barang/input_barang.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
+import '../../database_helper.dart';
+
 class ListModalBarang extends StatefulWidget {
   final String keyword;
-  final String barangList;
-  const ListModalBarang({Key? key, this.keyword = "", this.barangList = ""}) : super(key: key);
+  final bool isLocal;
+  const ListModalBarang({Key? key, this.keyword = "", this.isLocal = false}) : super(key: key);
 
   @override
   State<ListModalBarang> createState() => _ListModalBarangState();
@@ -20,9 +22,20 @@ class _ListModalBarangState extends State<ListModalBarang> {
   Future<List<dynamic>>? _dataBarang;
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
-    if (widget.barangList != "") {
-      return jsonDecode(widget.barangList);
+    if (widget.isLocal) {
+      List<dynamic> listBarang =
+          await DatabaseHelper().readDatabase("SELECT idbarang,detail_barang FROM barang_temp");
+      if (keyword != "") {
+        listBarang = await DatabaseHelper().readDatabase(
+            "SELECT idbarang,detail_barang FROM barang_temp WHERE nama LIKE ?",
+            params: ["%$keyword%"]);
+      }
+
+      List<dynamic> listBarangContainer = [];
+      listBarang.forEach((d) => listBarangContainer.add(jsonDecode(d["detail_barang"])));
+      return listBarangContainer;
     }
+
     String mainUrlString =
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(mainUrlString);
@@ -43,7 +56,7 @@ class _ListModalBarangState extends State<ListModalBarang> {
     return FutureBuilder(
       future: _dataBarang,
       builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting && widget.isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
           return ListView.builder(
@@ -75,7 +88,8 @@ class _ListModalBarangState extends State<ListModalBarang> {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Utils.labelSetter(Utils.formatNumber(dataList["HARGA_JUAL"]),
+                                        Utils.labelSetter(
+                                            Utils.formatNumber(dataList["HARGA_JUAL"]),
                                             bold: true),
                                         Utils.labelSetter(
                                             "Stok : " + Utils.formatNumber(dataList["STOK"])),
@@ -98,39 +112,21 @@ class _ListModalBarangState extends State<ListModalBarang> {
   }
 
   Icon customIcon = Icon(Icons.search);
-  Widget customSearchBar = Text("Data Barang");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: customSearchBar,
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  if (customIcon.icon == Icons.search) {
-                    customIcon = Icon(Icons.clear);
-                    customSearchBar = Utils.appBarSearch((keyword) {
-                      setState(() {
-                        _dataBarang = _getDataBarang(keyword: keyword);
-                      });
-                    }, hint: "Cari Barang");
-                  } else {
-                    customIcon = Icon(Icons.search);
-                    customSearchBar = Text("Data Barang");
-                  }
-                });
-              },
-              icon: customIcon),
-          IconButton(onPressed: () {}, icon: Icon(Icons.qr_code_scanner))
-        ],
+        title: Utils.appBarSearchDynamic((keyword) {
+          setState(() {
+            _dataBarang = _getDataBarang(keyword: keyword);
+          });
+        }),
+        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.qr_code_scanner))],
       ),
       body: RefreshIndicator(
         onRefresh: () {
           return Future.sync(() {
             setState(() {
-              customIcon = Icon(Icons.search);
-              customSearchBar = Text("Daftar Barang");
               _dataBarang = _getDataBarang();
             });
           });

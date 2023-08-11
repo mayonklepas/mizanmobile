@@ -161,22 +161,71 @@ class Utils {
     return Container(
         height: 35,
         child: TextField(
-            cursorColor: Colors.blueAccent,
-            style: TextStyle(color: Colors.black54),
-            decoration: InputDecoration(
-                fillColor: Colors.white,
-                filled: true,
-                contentPadding: EdgeInsets.only(),
-                enabledBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-                focusedBorder:
-                    OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
-                hintText: hint,
-                prefixIcon: Icon(Icons.search),
-                hintStyle: TextStyle(color: Colors.black54)),
-            textInputAction: TextInputAction.search,
-            autofocus: focus,
-            onSubmitted: search));
+          cursorColor: Colors.blueAccent,
+          style: TextStyle(color: Colors.black54),
+          decoration: InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              contentPadding: EdgeInsets.only(),
+              enabledBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+              focusedBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+              hintText: hint,
+              prefixIcon: Icon(Icons.search),
+              hintStyle: TextStyle(color: Colors.black54)),
+          textInputAction: TextInputAction.search,
+          autofocus: focus,
+          onSubmitted: search,
+        ));
+  }
+
+  static Widget appBarSearchDynamic(void Function(String keyword) search,
+      {String hint = "Cari", bool focus = true}) {
+    return Container(
+        height: 35,
+        child: TextField(
+          cursorColor: Colors.blueAccent,
+          style: TextStyle(color: Colors.black54),
+          decoration: InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              contentPadding: EdgeInsets.only(),
+              enabledBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+              focusedBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+              hintText: hint,
+              prefixIcon: Icon(Icons.search),
+              hintStyle: TextStyle(color: Colors.black54)),
+          textInputAction: TextInputAction.search,
+          autofocus: focus,
+          onChanged: search,
+        ));
+  }
+
+  static Widget appBarSearchStatic(void Function() search,
+      {String hint = "Cari", bool focus = true}) {
+    return Container(
+        height: 35,
+        child: TextField(
+          cursorColor: Colors.blueAccent,
+          style: TextStyle(color: Colors.black54),
+          decoration: InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              contentPadding: EdgeInsets.only(),
+              enabledBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+              focusedBorder:
+                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+              hintText: hint,
+              prefixIcon: Icon(Icons.search),
+              hintStyle: TextStyle(color: Colors.black54)),
+          textInputAction: TextInputAction.search,
+          autofocus: focus,
+          onTap: search,
+        ));
   }
 
   static String limitText(String text, {int limit = 50}) {

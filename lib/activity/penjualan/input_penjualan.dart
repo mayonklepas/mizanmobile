@@ -53,8 +53,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   Future<dynamic> _getBarangs(String keyword) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
-        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" +
-            keyword;
+        "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
@@ -67,8 +66,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penjualan/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response =
-        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
@@ -113,217 +111,76 @@ class _InputPenjualanState extends State<InputPenjualan> {
     return Scaffold(
         appBar: AppBar(
           elevation: 0,
-          title: Utils.appBarSearch((keyword) async {
+          title: Utils.appBarSearchStatic(() async {
             //var resultData = await _getBarang(keyword);
 
-            List<dynamic> listBarang = await DatabaseHelper().readDatabase(
-                "SELECT idbarang,detail_barang FROM barang_temp WHERE kode = ? ",
-                params: [keyword]);
+            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return ListModalBarang(
+                  isLocal: true,
+                );
+              },
+            ));
 
-            if (listBarang.isEmpty) {
-              listBarang = await DatabaseHelper().readDatabase(
-                  "SELECT idbarang,detail_barang FROM barang_temp WHERE kode LIKE ? OR nama LIKE ? ",
-                  params: ["%$keyword%", "%$keyword%"]);
-            }
+            if (popUpResult == null) return;
 
-            if (listBarang.length > 1) {
-              List<dynamic> listBarangContainer = [];
-              listBarang.forEach((d) =>
-                  listBarangContainer.add(jsonDecode(d["detail_barang"])));
+            String noIndex = popUpResult["NOINDEX"];
+            List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
+                "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
+                params: [noIndex]);
 
-              dynamic popUpResult =
-                  await Navigator.push(context, MaterialPageRoute(
-                builder: (context) {
-                  return ListModalBarang(
-                      barangList: jsonEncode(listBarangContainer));
-                },
-              ));
+            dynamic detailBarang = listDetailBarang[0];
+            dynamic resultDataDetail = {
+              "detail_barang": jsonDecode(detailBarang["detail_barang"]),
+              "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
+              "multi_harga": jsonDecode(detailBarang["multi_harga"]),
+              "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
+            };
 
-              if (popUpResult == null) return;
-
-              String noIndex = popUpResult["NOINDEX"];
-              List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
-                  "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
-                  params: [noIndex]);
-
-              dynamic detailBarang = listDetailBarang[0];
-              dynamic resultDataDetail = {
-                "detail_barang": jsonDecode(detailBarang["detail_barang"]),
-                "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
-                "multi_harga": jsonDecode(detailBarang["multi_harga"]),
-                "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
-              };
-
-              var data = resultDataDetail;
-              var db = data["detail_barang"];
-              if (!isBarangExists(db["NOINDEX"].toString())) {
-                setState(() {
-                  dataListShow.add({
-                    "IDBARANG": db["NOINDEX"].toString(),
-                    "KODE": db["KODE"],
-                    "NAMA": db["NAMA"],
-                    "IDSATUAN": db["IDSATUAN"],
-                    "SATUAN": db["KODE_SATUAN"],
-                    "QTY": 1,
-                    "HARGA": db["HARGA_JUAL"],
-                    "DISKON_NOMINAL": 0,
-                    "IDGUDANG": idGudang,
-                    "IDSATUANPENGALI": db["IDSATUAN"],
-                    "QTYSATUANPENGALI": 1
-                  });
-                  dataList.add(data);
-                  totalPenjualan = setTotalJual();
+            var data = resultDataDetail;
+            var db = data["detail_barang"];
+            if (!isBarangExists(db["NOINDEX"].toString())) {
+              setState(() {
+                dataListShow.add({
+                  "IDBARANG": db["NOINDEX"].toString(),
+                  "KODE": db["KODE"],
+                  "NAMA": db["NAMA"],
+                  "IDSATUAN": db["IDSATUAN"],
+                  "SATUAN": db["KODE_SATUAN"],
+                  "QTY": 1,
+                  "HARGA": db["HARGA_JUAL"],
+                  "DISKON_NOMINAL": 0,
+                  "IDGUDANG": idGudang,
+                  "IDSATUANPENGALI": db["IDSATUAN"],
+                  "QTYSATUANPENGALI": 1
                 });
-              } else {
-                int index = getIndexBarang(db["NOINDEX"].toString());
-                int qty = dataListShow[index]["QTY"] + 1;
-                String idSatuan = db["IDSATUAN"];
-                dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
+                dataList.add(data);
+                totalPenjualan = setTotalJual();
+              });
+            } else {
+              int index = getIndexBarang(db["NOINDEX"].toString());
+              int qty = dataListShow[index]["QTY"] + 1;
+              String idSatuan = db["IDSATUAN"];
+              dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
 
-                setState(() {
-                  dataListShow[index]["IDSATUANPENGALI"] =
-                      hargaUpdate["IDSATUANPENGALI"];
-                  dataListShow[index]["QTY"] = qty;
-                  dataListShow[index]["QTYSATUANPENGALI"] =
-                      hargaUpdate["QTYSATUANPENGALI"];
-                  dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
-                  totalPenjualan = setTotalJual();
-                });
-              }
-            } else if (listBarang.length == 1) {
-              String noIndex = listBarang[0]["idbarang"];
-              List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
-                  "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
-                  params: [noIndex]);
-
-              dynamic detailBarang = listDetailBarang[0];
-              dynamic resultDataDetail = {
-                "detail_barang": jsonDecode(detailBarang["detail_barang"]),
-                "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
-                "multi_harga": jsonDecode(detailBarang["multi_harga"]),
-                "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
-              };
-
-              var data = resultDataDetail;
-              var db = data["detail_barang"];
-              if (!isBarangExists(db["NOINDEX"].toString())) {
-                setState(() {
-                  dataListShow.add({
-                    "IDBARANG": db["NOINDEX"].toString(),
-                    "KODE": db["KODE"],
-                    "NAMA": db["NAMA"],
-                    "IDSATUAN": db["IDSATUAN"],
-                    "SATUAN": db["KODE_SATUAN"],
-                    "QTY": 1,
-                    "HARGA": db["HARGA_JUAL"],
-                    "DISKON_NOMINAL": 0,
-                    "IDGUDANG": idGudang,
-                    "IDSATUANPENGALI": db["IDSATUAN"],
-                    "QTYSATUANPENGALI": 1
-                  });
-                  dataList.add(data);
-                  totalPenjualan = setTotalJual();
-                });
-              } else {
-                int index = getIndexBarang(db["NOINDEX"].toString());
-                int qty = dataListShow[index]["QTY"] + 1;
-                String idSatuan = db["IDSATUAN"];
-                dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
-
-                setState(() {
-                  dataListShow[index]["IDSATUANPENGALI"] =
-                      hargaUpdate["IDSATUANPENGALI"];
-                  dataListShow[index]["QTY"] = qty;
-                  dataListShow[index]["QTYSATUANPENGALI"] =
-                      hargaUpdate["QTYSATUANPENGALI"];
-                  dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
-                  totalPenjualan = setTotalJual();
-                });
-              }
+              setState(() {
+                dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
+                dataListShow[index]["QTY"] = qty;
+                dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
+                dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
+                totalPenjualan = setTotalJual();
+              });
             }
           }, focus: false),
           actions: [
             IconButton(
                 onPressed: () async {
-                  List<dynamic> listBarang = await DatabaseHelper()
-                      .readDatabase("SELECT detail_barang FROM barang_temp");
+                  String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                      "#ff6666", "Cancel", true, ScanMode.BARCODE);
 
-                  List<dynamic> listBarangContainer = [];
-                  listBarang.forEach((d) =>
-                      listBarangContainer.add(jsonDecode(d["detail_barang"])));
-
-                  dynamic popUpResult =
-                      await Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return ListModalBarang(
-                        barangList: jsonEncode(listBarangContainer),
-                      );
-                    },
-                  ));
-
-                  if (popUpResult == null) return;
-                  String noIndex = popUpResult["NOINDEX"];
-                  List<dynamic> listDetailBarang = await DatabaseHelper()
-                      .readDatabase(
-                          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
-                          params: [noIndex]);
-
-                  dynamic detailBarang = listDetailBarang[0];
-                  dynamic resultDataDetail = {
-                    "detail_barang": jsonDecode(detailBarang["detail_barang"]),
-                    "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
-                    "multi_harga": jsonDecode(detailBarang["multi_harga"]),
-                    "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
-                  };
-
-                  var data = resultDataDetail;
-                  var db = data["detail_barang"];
-                  if (!isBarangExists(db["NOINDEX"].toString())) {
-                    setState(() {
-                      dataListShow.add({
-                        "IDBARANG": db["NOINDEX"].toString(),
-                        "KODE": db["KODE"],
-                        "NAMA": db["NAMA"],
-                        "IDSATUAN": db["IDSATUAN"],
-                        "SATUAN": db["KODE_SATUAN"],
-                        "QTY": 1,
-                        "HARGA": db["HARGA_JUAL"],
-                        "DISKON_NOMINAL": 0,
-                        "IDGUDANG": idGudang,
-                        "IDSATUANPENGALI": db["IDSATUAN"],
-                        "QTYSATUANPENGALI": 1
-                      });
-                      dataList.add(data);
-                      totalPenjualan = setTotalJual();
-                    });
-                  } else {
-                    int index = getIndexBarang(db["NOINDEX"].toString());
-                    int qty = dataListShow[index]["QTY"] + 1;
-                    String idSatuan = db["IDSATUAN"];
-                    dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
-
-                    setState(() {
-                      dataListShow[index]["IDSATUANPENGALI"] =
-                          hargaUpdate["IDSATUANPENGALI"];
-                      dataListShow[index]["QTY"] = qty;
-                      dataListShow[index]["QTYSATUANPENGALI"] =
-                          hargaUpdate["QTYSATUANPENGALI"];
-                      dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
-                      totalPenjualan = setTotalJual();
-                    });
-                  }
-                },
-                icon: Icon(Icons.inventory)),
-            IconButton(
-                onPressed: () async {
-                  String barcodeScanRes =
-                      await FlutterBarcodeScanner.scanBarcode(
-                          "#ff6666", "Cancel", true, ScanMode.BARCODE);
-
-                  List<dynamic> listDetailBarang = await DatabaseHelper()
-                      .readDatabase(
-                          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode=?",
-                          params: [barcodeScanRes]);
+                  List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
+                      "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode=?",
+                      params: [barcodeScanRes]);
 
                   dynamic detailBarang = listDetailBarang[0];
                   dynamic resultDataDetail = {
@@ -360,11 +217,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
 
                     setState(() {
-                      dataListShow[index]["IDSATUANPENGALI"] =
-                          hargaUpdate["IDSATUANPENGALI"];
+                      dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                       dataListShow[index]["QTY"] = qty;
-                      dataListShow[index]["QTYSATUANPENGALI"] =
-                          hargaUpdate["QTYSATUANPENGALI"];
+                      dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
                       dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                       totalPenjualan = setTotalJual();
                     });
@@ -414,8 +269,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             child: IconButton(
                                 alignment: Alignment.centerRight,
                                 onPressed: () async {
-                                  dynamic popUpResult = await Navigator.push(
-                                      context, MaterialPageRoute(
+                                  dynamic popUpResult =
+                                      await Navigator.push(context, MaterialPageRoute(
                                     builder: (context) {
                                       return ListModalForm(
                                         type: "pelanggan",
@@ -430,10 +285,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                     pelangganCtrl.text = popUpResult["NAMA"];
                                     idPelanggan = popUpResult["NOINDEX"];
                                     namaPelanggan = popUpResult["NAMA"];
-                                    idGolonganPelanggan =
-                                        popUpResult["IDGOLONGAN"];
-                                    idGolongan2Pelanggan =
-                                        popUpResult["IDGOLONGAN2"];
+                                    idGolonganPelanggan = popUpResult["IDGOLONGAN"];
+                                    idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
                                   });
                                 },
                                 icon: Icon(Icons.search)))
@@ -477,10 +330,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       ),
                       KreditView(),
                       Container(
-                        padding: EdgeInsets.only(
-                            left: 15, right: 15, bottom: 15, top: 5),
-                        child: Utils.labelValueSetter(
-                            "Total", Utils.formatNumber(totalPenjualan),
+                        padding: EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 5),
+                        child: Utils.labelValueSetter("Total", Utils.formatNumber(totalPenjualan),
                             sizeLabel: 18, sizeValue: 18, boldValue: true),
                       ),
                       Container(
@@ -491,10 +342,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             jumlahUangCtrl.text = "0";
                             double jumlahUang = jumlahUangSetter("0");
                             setState(() {
-                              jumlahUangCtrl.text =
-                                  jumlahUang.toStringAsFixed(0);
-                              kembalian =
-                                  calculateKembalian(jumlahUang.toString());
+                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
+                              kembalian = calculateKembalian(jumlahUang.toString());
                               if (kembalian < 0) {
                                 kembalianStatus = "KURANG";
                                 kembalian = -kembalian;
@@ -507,14 +356,13 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 isScrollControlled: true,
                                 context: context,
                                 builder: (BuildContext context) {
-                                  return StatefulBuilder(builder:
-                                      (context, StateSetter setStateIn) {
+                                  return StatefulBuilder(
+                                      builder: (context, StateSetter setStateIn) {
                                     return modalBayar(setStateIn);
                                   });
                                 });
                           },
-                          child:
-                              Utils.labelSetter("BAYAR", color: Colors.white),
+                          child: Utils.labelSetter("BAYAR", color: Colors.white),
                         ),
                       ),
                     ],
@@ -556,17 +404,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             children: [
                               Utils.labelSetter(data["NAMA"], bold: true),
                               (Utils.labelSetter(data["KODE"])),
-                              Utils.labelSetter(
-                                  Utils.formatNumber(data["HARGA"]),
-                                  bold: true),
+                              Utils.labelSetter(Utils.formatNumber(data["HARGA"]), bold: true),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Utils.labelSetter(
-                                      "Dic : " +
-                                          Utils.formatNumber(
-                                              data["DISKON_NOMINAL"]),
+                                      "Dic : " + Utils.formatNumber(data["DISKON_NOMINAL"]),
                                       bold: false),
                                   Utils.labelSetter("Jumlah : " +
                                       Utils.formatNumber(data["QTY"]) +
@@ -607,8 +450,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "top",
@@ -640,7 +482,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     List<dynamic> hargaTanggal = data["harga_tanggal"];
     List<dynamic> multiHarga = data["multi_harga"];
     List<dynamic> multiSatuan = data["multi_satuan"];
-    List<dynamic> detailBarang = data["detail_barang"];
+    dynamic detailBarang = data["detail_barang"];
 
     dynamic tempResult;
     dynamic result;
@@ -654,8 +496,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
         for (var d in multiHarga) {
           double qtyDari = d["DARI"];
           double qtyHingga = d["HINGGA"];
-          if (d["IDSATUAN"] == idSatuan &&
-              d["IDGOLONGAN"] == idGolonganPelanggan) {
+          if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolonganPelanggan) {
             if (qty >= qtyDari && qty <= qtyHingga) {
               tempResult = d;
             }
@@ -666,8 +507,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
           for (var d in multiHarga) {
             double qtyDari = d["DARI"];
             double qtyHingga = d["HINGGA"];
-            if (d["IDSATUAN"] == idSatuan &&
-                d["IDGOLONGAN"] == idGolongan2Pelanggan) {
+            if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolongan2Pelanggan) {
               if (qty >= qtyDari && qty <= qtyHingga) {
                 tempResult = d;
               }
@@ -703,8 +543,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
     }
 
     result ??= {
-      "HARGA": detailBarang[0]["HARGA_JUAL"],
-      "IDSATUANPENGALI": detailBarang[0]["IDSATUAN"],
+      "HARGA": detailBarang["HARGA_JUAL"],
+      "IDSATUANPENGALI": detailBarang["IDSATUAN"],
       "QTYSATUANPENGALI": 1,
     };
 
@@ -781,8 +621,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
   SingleChildScrollView modalBayar(StateSetter setStateIn) {
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -795,22 +634,14 @@ class _InputPenjualanState extends State<InputPenjualan> {
               width: double.maxFinite,
               padding: EdgeInsets.all(10),
               child: Utils.labelSetter(Utils.formatNumber(totalPenjualan),
-                  size: 35,
-                  bold: true,
-                  align: TextAlign.right,
-                  top: 0,
-                  bottom: 0),
+                  size: 35, bold: true, align: TextAlign.right, top: 0, bottom: 0),
             ),
             Utils.labelSetter(kembalianStatus, size: 16),
             Container(
               width: double.maxFinite,
               padding: EdgeInsets.all(10),
               child: Utils.labelSetter(Utils.formatNumber(kembalian),
-                  size: 35,
-                  bold: true,
-                  align: TextAlign.right,
-                  top: 0,
-                  bottom: 0),
+                  size: 35, bold: true, align: TextAlign.right, top: 0, bottom: 0),
             ),
             Utils.labelSetter("JUMLAH UANG", size: 16),
             Row(children: [
@@ -868,8 +699,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       double uangMuka = double.parse(uangMukaCtrl.text);
                       if (uangMuka > totalPenjualan) {
                         Utils.showMessage(
-                            "Uang muka tidak boleh lebih besar dari total belanja",
-                            context);
+                            "Uang muka tidak boleh lebih besar dari total belanja", context);
                         return;
                       }
                     }
@@ -877,8 +707,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     if (isTunai == 1) {
                       if (kembalianStatus == "KURANG") {
                         Utils.showMessage(
-                            "Pembayaran tidak cukup, transaksi tidak bisa diproses",
-                            context);
+                            "Pembayaran tidak cukup, transaksi tidak bisa diproses", context);
                         return;
                       }
                     }
@@ -908,10 +737,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"]
                       });
                     }
-                    Map<String, Object> rootMap = {
-                      "header": headerMap,
-                      "detail": detailList
-                    };
+                    Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
                     print(result);
                     if (result != null) {
@@ -947,8 +773,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     jumlahCtrl.text = data["QTY"].toString();
     diskonCtrl.text = data["DISKON_NOMINAL"].toString();
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -1013,8 +838,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "satuanbarang",
@@ -1044,19 +868,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     child: ElevatedButton(
                         onPressed: () {
                           int qty = int.parse(jumlahCtrl.text);
-                          dynamic hargaUpdate =
-                              getHargaJual(dataList[index], idSatuan, qty);
+                          dynamic hargaUpdate = getHargaJual(dataList[index], idSatuan, qty);
                           setState(() {
-                            dataListShow[index]["IDSATUANPENGALI"] =
-                                hargaUpdate["IDSATUANPENGALI"];
+                            dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
                             dataListShow[index]["QTY"] = qty;
                             dataListShow[index]["QTYSATUANPENGALI"] =
                                 hargaUpdate["QTYSATUANPENGALI"];
                             dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                             dataListShow[index]["IDSATUAN"] = idSatuan;
                             dataListShow[index]["SATUAN"] = satuanCtrl.text;
-                            dataListShow[index]["DISKON_NOMINAL"] =
-                                double.parse(diskonCtrl.text);
+                            dataListShow[index]["DISKON_NOMINAL"] = double.parse(diskonCtrl.text);
 
                             totalPenjualan = setTotalJual();
                             Navigator.pop(context);
@@ -1069,8 +890,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                     flex: 1,
                     child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
                         onPressed: () async {
                           bool isDelete = await Utils.showConfirmMessage(
                               context, "Yakin ingin menghapus data ini ?");
@@ -1098,8 +918,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     gudangCtrl.text = namaGudang;
     pelangganCtrl.text = namaPelanggan;
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -1143,8 +962,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "gudang",
@@ -1175,8 +993,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "pelanggan",
@@ -1248,8 +1065,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                 }
               });
             },
-            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)),
-                size: 20)),
+            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)), size: 20)),
       );
     }
     ;

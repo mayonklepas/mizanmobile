@@ -23,16 +23,26 @@ class _ListModalBarangState extends State<ListModalBarang> {
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     if (widget.isLocal) {
-      List<dynamic> listBarang =
-          await DatabaseHelper().readDatabase("SELECT idbarang,detail_barang FROM barang_temp");
+      List<dynamic> listBarang = await DatabaseHelper()
+          .readDatabase("SELECT idbarang,detail_barang FROM barang_temp ORDER BY nama ASC");
       if (keyword != "") {
         listBarang = await DatabaseHelper().readDatabase(
-            "SELECT idbarang,detail_barang FROM barang_temp WHERE nama LIKE ?",
+            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE nama LIKE ? ORDER BY nama ASC",
             params: ["%$keyword%"]);
       }
 
+      List<dynamic> listBarangSort = List.of(listBarang);
+
+      if (keyword.isNotEmpty) {
+        listBarangSort.sort((a, b) {
+          int indexA = a["nama"].toString().toLowerCase().indexOf(keyword.toLowerCase());
+          int indexB = b["nama"].toString().toLowerCase().indexOf(keyword.toLowerCase());
+          return indexA.compareTo(indexB);
+        });
+      }
+
       List<dynamic> listBarangContainer = [];
-      listBarang.forEach((d) => listBarangContainer.add(jsonDecode(d["detail_barang"])));
+      listBarangSort.forEach((d) => listBarangContainer.add(jsonDecode(d["detail_barang"])));
       return listBarangContainer;
     }
 
@@ -56,11 +66,12 @@ class _ListModalBarangState extends State<ListModalBarang> {
     return FutureBuilder(
       future: _dataBarang,
       builder: ((context, snapshot) {
+        List<dynamic> snap = snapshot.data ?? [];
         if (snapshot.connectionState == ConnectionState.waiting && widget.isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
           return ListView.builder(
-              itemCount: snapshot.data!.length,
+              itemCount: snap.length,
               itemBuilder: (BuildContext contex, int index) {
                 dynamic dataList = snapshot.data![index];
                 return Container(

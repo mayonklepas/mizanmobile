@@ -16,6 +16,7 @@ import 'package:mizanmobile/activity/penjualan/list_penjualan.dart';
 import 'package:mizanmobile/activity/piutang/list_piutang.dart';
 import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
+import 'package:mizanmobile/activity/setup_user.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
 import 'package:mizanmobile/activity/suplier/list_suplier.dart';
 import 'package:mizanmobile/activity/transferbarang/list_tranferbarang.dart';
@@ -23,6 +24,8 @@ import 'package:mizanmobile/database_helper.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
+
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeActivity extends StatefulWidget {
   const HomeActivity({Key? key}) : super(key: key);
@@ -41,10 +44,10 @@ class _HomeActivityState extends State<HomeActivity> {
     return jsonData["data_home"];
   }
 
-  Future<List<dynamic>> _syncBarang(String tglupdate) async {
+  Future<dynamic> _getInfoSync(String tglUpdate) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
-        "${Utils.mainUrl}barang/syncbarang?tglupdate=$tglupdate&idgudang=${Utils.idGudang}";
+        "${Utils.mainUrl}barang/getitemsync?tglupdate=$tglUpdate&idgudang=${Utils.idGudang}";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
@@ -54,6 +57,16 @@ class _HomeActivityState extends State<HomeActivity> {
   }
 
   String koneksi = "";
+  String localLastUpdate = "";
+  bool sinkronisasiOnOff = false;
+
+  _getInfoSyncLocal() async {
+    var db = DatabaseHelper();
+    List<dynamic> getInfo =
+        await db.readDatabase("SELECT * FROM sync_info ORDER BY last_updated DESC LIMIT 1");
+    localLastUpdate = getInfo[0]["last_updated"];
+    sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
+  }
 
   Container setIconCard(
       IconData icon, MaterialColor color, String label, void Function() tapAction) {
@@ -109,6 +122,106 @@ class _HomeActivityState extends State<HomeActivity> {
     }
   }
 
+  SingleChildScrollView _bottomSheetInfo(StateSetter stateIn) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        padding: EdgeInsets.all(25),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Utils.labelSetter("Informasi Pengguna", bottom: 20, size: 20, bold: true),
+            Utils.labelValueSetter("Pengguna", Utils.namaUser),
+            Utils.labelValueSetter(
+              "Nama Koneksi",
+              Utils.connectionName,
+              top: 10,
+            ),
+            Utils.labelValueSetter("Kode Outlet", Utils.companyCode, top: 10, bottom: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Ingin mengubah user dan password ?"),
+                Padding(padding: EdgeInsets.all(3)),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return SetupUser();
+                      },
+                    ));
+                  },
+                  child: Text(
+                    "Klik disini",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            ),
+            Utils.labelSetter("Informasi Layanan", bottom: 10, top: 20, size: 20, bold: true),
+            Utils.labelValueSetter("Mizan Mobile", "Aktif Sampai 21/05/2050",
+                top: 10, colorValue: Colors.green),
+            Utils.labelValueSetter("Mizan Desktop", "Aktif Sampai 21/05/2050",
+                top: 10, colorValue: Colors.green),
+            Utils.labelValueSetter("Mizan Cloud Backup", "Aktif Sampai 21/05/2050",
+                colorValue: Colors.green, top: 10),
+            Utils.labelValueSetter(
+              "Sinkronisasi Terakhir",
+              localLastUpdate,
+              colorValue: Colors.green,
+              top: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Sinkronisasi otomatis"),
+                Switch(
+                    value: sinkronisasiOnOff,
+                    onChanged: (value) async {
+                      int status = 0;
+                      if (value == true) {
+                        status = 1;
+                      }
+                      await DatabaseHelper()
+                          .writeDatabase("UPDATE sync_info SET status = ? ", params: [status]);
+                      stateIn(() => sinkronisasiOnOff = value);
+                    })
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Ingin mengaktifkan layanan ?"),
+                Padding(padding: EdgeInsets.all(3)),
+                InkWell(
+                  onTap: () async {
+                    if (!await launch("https://wa.me/6281805754534")) {
+                      throw Exception("Tidak bisa membuka url");
+                    }
+                  },
+                  child: Text(
+                    "Hubungi kami",
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                    onPressed: () {},
+                    child: Text("Logout"),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent)))
+          ],
+        ),
+      ),
+    );
+  }
+
   double penjualanHarian = 0;
   double penjualanBulanan = 0;
   double labaHarian = 0;
@@ -128,14 +241,18 @@ class _HomeActivityState extends State<HomeActivity> {
   void initState() {
     // TODO: implement initState
     setDataHome();
+    _getInfoSyncLocal();
     koneksi = Utils.connectionName;
     _setupProgramChecked();
     super.initState();
   }
 
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        key: scaffoldKey,
         appBar: AppBar(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
@@ -182,7 +299,32 @@ class _HomeActivityState extends State<HomeActivity> {
                       ],
                     ),
                   ),
-                )
+                ),
+                Expanded(
+                    flex: 0,
+                    child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (BuildContext contenxt) {
+                                        return StatefulBuilder(
+                                            builder: (context, StateSetter setStateIn) {
+                                          return _bottomSheetInfo(setStateIn);
+                                        });
+                                      });
+                                },
+                                icon: Icon(
+                                  Icons.account_circle,
+                                  size: 40,
+                                  color: Colors.white,
+                                )),
+                          ],
+                        )))
               ],
             ),
           ),
@@ -207,6 +349,7 @@ class _HomeActivityState extends State<HomeActivity> {
                           penjualanBulanan = 0;
                           labaHarian = 0;
                           labaBulanan = 0;
+                          _getInfoSyncLocal();
                         });
                         dynamic data = await _getHome();
                         setState(() {
@@ -216,7 +359,7 @@ class _HomeActivityState extends State<HomeActivity> {
                           labaBulanan = data["LABA_BULANAN"] ?? 0;
                         });
                       },
-                      child: Text("Refresh Summary"))
+                      child: Text("Refresh Home"))
                 ],
               ),
               padding: EdgeInsets.all(5),
@@ -512,81 +655,25 @@ class _HomeActivityState extends State<HomeActivity> {
                   ));
                 }),
                 setIconCard(Icons.sync, Colors.blue, "Sinkronisasi", () async {
-                  var db = DatabaseHelper();
+                  String tglSet = localLastUpdate;
 
-                  int resDelete = await db.writeDatabase("DELETE FROM barang_temp");
+                  dynamic itemSyncInfo = await _getInfoSync(tglSet);
+                  int jumlahItem = itemSyncInfo["jumlah_item_sync"];
 
-                  if (resDelete != 0) {
-                    print("Delete Berhasil");
-                  }
-                  List<dynamic> lsLastUpdate = await db.readDatabase(
-                      "SELECT date_update FROM barang_temp ORDER BY date_update DESC LIMIT 1");
-                  if (lsLastUpdate.isEmpty) {
-                    List<dynamic> dataBarang = await _syncBarang("2023-01-09 01:00");
-                    for (var d in dataBarang) {
-                      String idbarang = d["detail_barang"]["NOINDEX"].toString();
-                      String kode = d["detail_barang"]["KODE"].toString();
-                      String nama = d["detail_barang"]["NAMA"].toString();
-                      String detail = jsonEncode(d["detail_barang"]);
-                      String multiSatuan = jsonEncode(d["multi_satuan"]);
-                      String multiHarga = jsonEncode(d["multi_harga"]);
-                      String hargaTanggal = jsonEncode(d["harga_tanggal"]);
-                      int resInt = await db.writeDatabase(
-                          "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?,?)",
-                          params: [
-                            idbarang,
-                            kode,
-                            nama,
-                            detail,
-                            multiSatuan,
-                            multiHarga,
-                            hargaTanggal
-                          ]);
-                      print(resInt);
+                  bool isConfirm = await Utils.showConfirmMessage(context,
+                      "Jumlah item yang akan di sinkronisasi adalah ${Utils.formatNumber(jumlahItem)}, Lanjutkan ?");
+
+                  if (!isConfirm) {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
                     }
-
-                    var checkResult = await db.readDatabase("select * from barang_temp LIMIT 10");
-                    print(checkResult);
-
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
-                  } else {
-                    String dateUpdate = lsLastUpdate[0]["date_update"];
-                    List<dynamic> dataBarang = await _syncBarang(dateUpdate);
-
-                    dataBarang.forEach((d) => db.writeDatabase(
-                        "DELETE FROM barang_temp WHERE kode = ?",
-                        params: [d["KODE"]]));
-
-                    for (var d in dataBarang) {
-                      String idbarang = d["detail_barang"]["NOINDEX"].toString();
-                      String kode = d["detail_barang"]["KODE"].toString();
-                      String nama = d["detail_barang"]["NAMA"].toString();
-                      String detail = jsonEncode(d["detail_barang"]);
-                      String multiSatuan = jsonEncode(d["multi_satuan"]);
-                      String multiHarga = jsonEncode(d["multi_harga"]);
-                      String hargaTanggal = jsonEncode(d["harga_tanggal"]);
-
-                      int resInt = await db.writeDatabase(
-                          "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal) VALUES (?,?,?,?,?,?)",
-                          params: [
-                            idbarang,
-                            kode,
-                            nama,
-                            detail,
-                            multiSatuan,
-                            multiHarga,
-                            hargaTanggal
-                          ]);
-                      print(resInt);
-                    }
-
-                    var checkResult = await db.readDatabase("select * from barang_temp LIMIT 10");
-                    print(checkResult);
-
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
+                    return;
                   }
+
+                  Utils.syncLocalData();
+
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
                 }),
               ],
             )),

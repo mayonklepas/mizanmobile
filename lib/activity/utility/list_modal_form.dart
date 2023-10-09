@@ -27,6 +27,8 @@ class ListModalForm extends StatefulWidget {
 
 class _ListModalFormState extends State<ListModalForm> {
   Future<List<dynamic>>? _dataModal;
+  List<dynamic>? _dataCache;
+  bool isLocal = false;
 
   Future<List<dynamic>> _getDataModal({String keyword = ""}) async {
     String mainUrlString = "";
@@ -58,8 +60,7 @@ class _ListModalFormState extends State<ListModalForm> {
     } else if (type == "klasifikasi") {
       mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
     } else if (type == "satuanbarang") {
-      mainUrlString =
-          "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
+      mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
     } else if (type == "akun") {
       mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
     } else if (type == "pengguna") {
@@ -77,14 +78,24 @@ class _ListModalFormState extends State<ListModalForm> {
     Response response = await get(url, headers: Utils.setHeader());
     List<dynamic> jsonData = jsonDecode(response.body)["data"];
     if (widget.withAll) {
-      Map<String, dynamic> map = {
-        "NAMA": "SEMUA",
-        "KODE": "SEMUA",
-        "NOINDEX": "-1"
-      };
+      Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
       jsonData.insert(0, map);
     }
+    _dataCache = jsonData;
     return jsonData;
+  }
+
+  Future<List<dynamic>> _searchDataModal(String keyword) async {
+    isLocal = true;
+    List<dynamic> filterResult = [];
+    for (var d in _dataCache!) {
+      String nama = d["NAMA"].toString().toLowerCase();
+      if (nama.contains(keyword.toLowerCase())) {
+        filterResult.add(d);
+      }
+    }
+
+    return filterResult;
   }
 
   Icon customIcon = Icon(Icons.search);
@@ -101,7 +112,7 @@ class _ListModalFormState extends State<ListModalForm> {
     return FutureBuilder(
       future: _dataModal,
       builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting && isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
           return ListView.builder(
@@ -120,8 +131,7 @@ class _ListModalFormState extends State<ListModalForm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Utils.bagde(Utils.koooosong(dataList["NAMA"])
-                                .substring(0, 1)),
+                            Utils.bagde(Utils.koooosong(dataList["NAMA"]).substring(0, 1)),
                             Expanded(
                               flex: 3,
                               child: Padding(
@@ -129,11 +139,8 @@ class _ListModalFormState extends State<ListModalForm> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(
-                                        dataList["NAMA"].toString(),
-                                        bold: true),
-                                    Utils.labelSetter(
-                                        dataList["KODE"].toString())
+                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
+                                    Utils.labelSetter(dataList["KODE"].toString())
                                   ],
                                 ),
                               ),
@@ -161,9 +168,9 @@ class _ListModalFormState extends State<ListModalForm> {
                 setState(() {
                   if (customIcon.icon == Icons.search) {
                     customIcon = Icon(Icons.clear);
-                    customSearchBar = Utils.appBarSearch((keyword) {
+                    customSearchBar = Utils.appBarSearchDynamic((keyword) async {
                       setState(() {
-                        _dataModal = _getDataModal(keyword: keyword);
+                        _dataModal = _searchDataModal(keyword);
                       });
                     }, hint: "Cari ${widget.type}");
                   } else {
@@ -181,7 +188,7 @@ class _ListModalFormState extends State<ListModalForm> {
             setState(() {
               customIcon = Icon(Icons.search);
               customSearchBar = Text("Daftar ${widget.type}");
-              _dataModal = _getDataModal();
+              _dataModal = _dataModal;
             });
           });
         },

@@ -44,6 +44,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
   String _idDept = Utils.idDept;
   String _metodeHpp = "1";
   TextEditingController _stokMinimalCtrl = TextEditingController();
+
   TextEditingController _hargaBeliTerakhirCtrl = TextEditingController();
   TextEditingController _hargaJualCtrl = TextEditingController();
 
@@ -78,7 +79,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-
+    _stokMinimalCtrl.text = "0";
     _setDataDetail(widget.idBarang);
     _tabController = TabController(initialIndex: indexTab, length: 3, vsync: this);
     _tabController.addListener(() {
@@ -133,9 +134,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
       _idLokasi = dataInfo["IDLOKASI"];
       _deptCtrl.text = dataInfo["NAMA_DEPT"];
       _idDept = dataInfo["IDDEPT"].toString();
-      _stokMinimalCtrl.text = dataInfo["STOK_MINIMUM"].toString();
-      _hargaBeliTerakhirCtrl.text = dataInfo["HARGA_BELI"].toString();
-      _hargaJualCtrl.text = dataInfo["HARGA_JUAL"].toString();
+      _stokMinimalCtrl.text = Utils.formatNumber(dataInfo["STOK_MINIMUM"]);
+      _hargaBeliTerakhirCtrl.text = Utils.formatNumber(dataInfo["HARGA_BELI"]);
+      _hargaJualCtrl.text = Utils.formatNumber(dataInfo["HARGA_JUAL"]);
       _metodeHpp = dataInfo["METODEHPP"].toString();
 
       tab2 = ListView(
@@ -241,11 +242,11 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
       noIndex = param["NOINDEX"];
       golonganCtrl.text = param["KODE_GOL"];
       idGolongan = param["IDGOLONGAN"];
-      dariCtrl.text = param["DARI"].toString();
-      hinggaCtrl.text = param["HINGGA"].toString();
+      dariCtrl.text = Utils.formatNumber(param["DARI"]);
+      hinggaCtrl.text = Utils.formatNumber(param["HINGGA"]);
       satuanCtrl.text = param["KODE_SATUAN"];
       idSatuan = param["IDSATUAN"];
-      hargaCtrl.text = param["HARGA_JUAL"].toString();
+      hargaCtrl.text = Utils.formatNumber(param["HARGA_JUAL"]);
     }
     return showModalBottomSheet(
         isScrollControlled: true,
@@ -354,9 +355,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                               mapData = {
                                 "noindex": noIndex,
                                 "idgolongan": idGolongan,
-                                "dari": dariCtrl.text,
-                                "hingga": hinggaCtrl.text,
-                                "harga_jual": hargaCtrl.text,
+                                "dari": Utils.removeDotSeparator(dariCtrl.text),
+                                "hingga": Utils.removeDotSeparator(hinggaCtrl.text),
+                                "harga_jual": Utils.removeDotSeparator(hargaCtrl.text),
                                 "idsatuan": idSatuan,
                                 "idbarang": idBarangGlobal,
                                 "persen_harga_jual": 0,
@@ -367,9 +368,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                             } else {
                               mapData = {
                                 "idgolongan": idGolongan,
-                                "dari": dariCtrl.text,
-                                "hingga": hinggaCtrl.text,
-                                "harga_jual": hargaCtrl.text,
+                                "dari": Utils.removeDotSeparator(dariCtrl.text),
+                                "hingga": Utils.removeDotSeparator(hinggaCtrl.text),
+                                "harga_jual": Utils.removeDotSeparator(hargaCtrl.text),
                                 "idsatuan": idSatuan,
                                 "idbarang": idBarangGlobal,
                                 "persen_harga_jual": 0,
@@ -404,7 +405,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
     if (param != null) {
       noIndex = param["NOINDEX"];
       barcodeCtrl.text = param["BARCODE"];
-      isiPengaliCtrl.text = param["QTYSATUANPENGALI"].toString();
+      isiPengaliCtrl.text = Utils.formatNumber(param["QTYSATUANPENGALI"]);
       satuanCtrl.text = param["KODE_SATUAN"];
       idSatuan = param["IDSATUAN"];
       idSatuanPengali = param["IDSATUANPENGALI"];
@@ -499,7 +500,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                                 "idbarang": idBarangGlobal,
                                 "idsatuan": idSatuan,
                                 "idsatuanpengali": idSatuanPengali,
-                                "qtysatuanpengali": isiPengaliCtrl.text,
+                                "qtysatuanpengali": Utils.removeDotSeparator(isiPengaliCtrl.text),
                                 "barcode": barcodeCtrl.text,
                               };
                               result = await _postDetailDataBarang(mapData, "multisatuan/edit");
@@ -508,7 +509,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                                 "idbarang": idBarangGlobal,
                                 "barcode": barcodeCtrl.text,
                                 "idsatuan": idSatuan,
-                                "qtysatuanpengali": isiPengaliCtrl.text,
+                                "qtysatuanpengali": Utils.removeDotSeparator(isiPengaliCtrl.text),
                                 "idsatuanpengali": idSatuanPengali,
                               };
                               result = await _postDetailDataBarang(mapData, "multisatuan/insert");
@@ -945,12 +946,20 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         "iddept": _idDept,
                         "metodehpp": _metodeHpp,
                         "stok_minimum": _stokMinimalCtrl.text,
-                        "harga_beli": _hargaBeliTerakhirCtrl.text,
-                        "harga_jual": _hargaJualCtrl.text
+                        "harga_beli": Utils.removeDotSeparator(_hargaBeliTerakhirCtrl.text),
+                        "harga_jual": Utils.removeDotSeparator(_hargaJualCtrl.text)
                       };
                       result = await _postDetailDataBarang(mapData, "insert");
                       dynamic data = result["data"];
                       idBarangGlobal = data["NOINDEX"];
+                      Utils.showMessageAction(
+                          result["message"],
+                          context,
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("Ok")));
                     } else {
                       mapData = {
                         "noindex": idBarangGlobal,
@@ -966,20 +975,20 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         "iddept": _idDept,
                         "metodehpp": _metodeHpp,
                         "stok_minimum": _stokMinimalCtrl.text,
-                        "harga_beli": _hargaBeliTerakhirCtrl.text,
-                        "harga_jual": _hargaJualCtrl.text
+                        "harga_beli": Utils.removeDotSeparator(_hargaBeliTerakhirCtrl.text),
+                        "harga_jual": Utils.removeDotSeparator(_hargaJualCtrl.text)
                       };
                       result = await _postDetailDataBarang(mapData, "edit");
+                      Utils.showMessageAction(
+                          result["message"],
+                          context,
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                              child: Text("Ok")));
                     }
-                    Utils.showMessageAction(
-                        result["message"],
-                        context,
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: Text("Ok")));
                   },
                   child: Text("SIMPAN"),
                 ),

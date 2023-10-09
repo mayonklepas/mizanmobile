@@ -3,13 +3,18 @@ import 'package:path/path.dart';
 
 class DatabaseHelper {
   Future<Database> databaseConnection() async {
+    //databaseFactory.deleteDatabase(join(await getDatabasesPath(), "mizan_temp.db"));
     Database _database = await openDatabase(
       join(await getDatabasesPath(), "mizan_temp.db"),
       version: 1,
       onCreate: (db, version) async {
+        await db.execute(
+            "CREATE TABLE sync_info(id INTEGER PRIMARY KEY,status int,last_updated DATETIME)");
         await db.execute("CREATE TABLE barang_temp(id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
             "kode VARCHAR(100),nama VARCHAR(255), detail_barang TEXT,multi_satuan TEXT," +
-            "multi_harga TEXT,harga_tanggal TEXT,date_update DATETIME DEFAULT CURRENT_TIMESTAMP)");
+            "multi_harga TEXT,harga_tanggal TEXT,date_created DATETIME)");
+        await db.execute(
+            "INSERT INTO sync_info(id,status,last_updated) VALUES(1,0,'1945-01-01 00:00:00')");
       },
     );
     return _database;
@@ -23,18 +28,24 @@ class DatabaseHelper {
     return database.rawQuery(query, params);
   }
 
-  Future<int> writeDatabase(String query, {List<Object>? params, bool isUpdate = false}) async {
+  Future<int> writeDatabase(String query, {List<Object>? params}) async {
     Database database = await databaseConnection();
-    if (isUpdate) {
+    String queryTipe = query.substring(0, 10).toLowerCase();
+    if (queryTipe.contains("update")) {
       if (params == null) {
         return database.rawUpdate(query);
       }
       return database.rawUpdate(query, params);
-    } else {
+    } else if (queryTipe.contains("insert")) {
       if (params == null) {
         return database.rawInsert(query);
       }
       return database.rawInsert(query, params);
     }
+
+    if (params == null) {
+      return database.rawDelete(query);
+    }
+    return database.rawDelete(query, params);
   }
 }

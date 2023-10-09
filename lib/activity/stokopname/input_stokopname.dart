@@ -222,9 +222,9 @@ class _InputStokOpnameState extends State<InputStokOpname> {
       idSatuan = param["IDSATUAN"];
       idSatuanPengali = param["IDSATUANPENGALI"];
       qtySatuanPengali = param["QTYSATUANPENGALI"];
-      stokFisikCtrl.text = param["STOK_FISIK"].toString();
-      stokProgramCtrl.text = param["STOK_PROGRAM"].toString();
-      selisihStokCtrl.text = param["JUMLAH"].toString();
+      stokFisikCtrl.text = Utils.formatNumber(param["STOK_FISIK"]);
+      stokProgramCtrl.text = Utils.formatNumber(param["STOK_PROGRAM"]);
+      selisihStokCtrl.text = Utils.formatNumber(param["JUMLAH"]);
       inputType = "Edit Barang";
     }
     return showModalBottomSheet(
@@ -267,7 +267,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                             satuanCtrl.text = popUpResult["KODE_SATUAN"];
                             idSatuan = popUpResult["IDSATUAN"];
                             idSatuanPengali = popUpResult["IDSATUAN"];
-                            stokProgramCtrl.text = popUpResult["STOK"].toString();
+                            stokProgramCtrl.text = Utils.formatNumber(popUpResult["STOK"]);
                             qtySatuanPengali = 1;
                           },
                           icon: Icon(Icons.search),
@@ -309,7 +309,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                             satuanCtrl.text = popUpResult["KODE_SATUAN"];
                             idSatuan = popUpResult["IDSATUAN"];
                             idSatuanPengali = popUpResult["IDSATUAN"];
-                            stokProgramCtrl.text = popUpResult["STOK"].toString();
+                            stokProgramCtrl.text = Utils.formatNumber(popUpResult["STOK"]);
                             qtySatuanPengali = 1;
                           },
                           icon: Icon(Icons.qr_code_scanner),
@@ -365,10 +365,11 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                     controller: stokFisikCtrl,
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
-                      double stokProgram = double.parse(stokProgramCtrl.text);
+                      double stokProgram =
+                          double.parse(Utils.removeDotSeparator(stokProgramCtrl.text));
                       double stokFisik = double.parse(value);
                       double selisih = stokFisik - stokProgram;
-                      selisihStokCtrl.text = selisih.toString();
+                      selisihStokCtrl.text = Utils.formatNumber(selisih);
                     },
                   ),
                   Utils.labelForm("Selisih"),
@@ -411,9 +412,10 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 "idsatuan": idSatuan,
                                 "idsatuanpengali": idSatuanPengali,
                                 "qtysatuanpengali": qtySatuanPengali,
-                                "stokprogram": double.parse(stokProgramCtrl.text),
-                                "stokfisik": double.parse(stokFisikCtrl.text),
-                                "jumlah": double.parse(selisihStokCtrl.text),
+                                "stokprogram":
+                                    double.parse(Utils.formatNumber(stokProgramCtrl.text)),
+                                "stokfisik": double.parse(Utils.formatNumber(stokFisikCtrl.text)),
+                                "jumlah": double.parse(Utils.formatNumber(selisihStokCtrl.text)),
                               };
                               result = await _postStokOpname(mapData, "editdetail");
                             } else {
@@ -425,9 +427,10 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 "idsatuan": idSatuan,
                                 "idsatuanpengali": idSatuanPengali,
                                 "qtysatuanpengali": qtySatuanPengali,
-                                "stokprogram": double.parse(stokProgramCtrl.text),
-                                "stokfisik": double.parse(stokFisikCtrl.text),
-                                "jumlah": double.parse(selisihStokCtrl.text),
+                                "stokprogram":
+                                    double.parse(Utils.formatNumber(stokProgramCtrl.text)),
+                                "stokfisik": double.parse(Utils.formatNumber(stokFisikCtrl.text)),
+                                "jumlah": double.parse(Utils.formatNumber(selisihStokCtrl.text)),
                               };
                               result = await _postStokOpname(mapData, "insertdetail");
                             }

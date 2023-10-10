@@ -583,7 +583,7 @@ class Utils {
     }
   }
 
-  static void syncLocalData() async {
+  static Future<void> syncLocalData() async {
     var db = DatabaseHelper();
     List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
     int status = lsSyncInfo[0]["status"];

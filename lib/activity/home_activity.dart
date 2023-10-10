@@ -26,6 +26,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
+import 'package:workmanager/workmanager.dart';
 
 class HomeActivity extends StatefulWidget {
   const HomeActivity({Key? key}) : super(key: key);
@@ -244,6 +245,8 @@ class _HomeActivityState extends State<HomeActivity> {
     _getInfoSyncLocal();
     koneksi = Utils.connectionName;
     _setupProgramChecked();
+    Workmanager().registerPeriodicTask("sync-task", "sync-task",
+        frequency: Duration(minutes: 15), initialDelay: Duration(minutes: 1));
     super.initState();
   }
 
@@ -669,8 +672,9 @@ class _HomeActivityState extends State<HomeActivity> {
                     }
                     return;
                   }
-
-                  Utils.syncLocalData();
+                  Future.delayed(Duration.zero, () => Utils.showProgress(context));
+                  await Utils.syncLocalData();
+                  Navigator.pop(context);
 
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));

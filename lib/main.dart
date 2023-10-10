@@ -9,11 +9,23 @@ import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'database_helper.dart';
 
+void callBack() {
+  Workmanager().executeTask((taskName, inputData) async {
+    if (taskName == "sync-task") {
+      await Utils.syncLocalData();
+      print("Success sync");
+    }
+    return Future.value(true);
+  });
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(callBack, isInDebugMode: true);
   runApp(const MyApp());
 }
 

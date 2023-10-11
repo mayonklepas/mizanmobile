@@ -167,11 +167,34 @@ class _HomeActivityState extends State<HomeActivity> {
                 top: 10, colorValue: Colors.green),
             Utils.labelValueSetter("Mizan Cloud Backup", "Aktif Sampai 21/05/2050",
                 colorValue: Colors.green, top: 10),
-            Utils.labelValueSetter(
-              "Sinkronisasi Terakhir",
-              localLastUpdate,
-              colorValue: Colors.green,
-              top: 10,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Text(
+                      "Sikronisasi Terakhir",
+                      style: TextStyle(fontSize: 14, color: Colors.black),
+                    )),
+                Expanded(
+                    flex: 1,
+                    child: Text(localLastUpdate,
+                        textAlign: TextAlign.end,
+                        style: TextStyle(color: Colors.green, fontSize: 14))),
+                Expanded(
+                    flex: 0,
+                    child: IconButton(
+                        onPressed: () async {
+                          String harikemerdekaaan = "1945-08-17 00:00:00";
+                          await DatabaseHelper().writeDatabase(
+                              "UPDATE sync_info SET last_updated = ? ",
+                              params: [harikemerdekaaan]);
+                          stateIn(() {
+                            localLastUpdate = harikemerdekaaan;
+                          });
+                        },
+                        icon: Icon(Icons.refresh))),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

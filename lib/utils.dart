@@ -584,37 +584,44 @@ class Utils {
   }
 
   static Future<void> syncLocalData() async {
-    var db = DatabaseHelper();
-    List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
-    int status = lsSyncInfo[0]["status"];
-    if (status == 0) {
-      return;
-    }
-    String lastUpdate = lsSyncInfo[0]["last_updated"];
-    String urlString =
-        "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
-    Response response = await get(Uri.parse(urlString), headers: Utils.setHeader());
-    List<dynamic> dataBarang = jsonDecode(response.body)["data"];
-    List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
-    if (!lsbarangTemp.isEmpty) {
-      dataBarang.forEach((d) =>
-          db.writeDatabase("DELETE FROM barang_temp WHERE kode = ?", params: [d["IDBARANG"]]));
-    }
+    try {
+      var db = DatabaseHelper();
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+      int status = lsSyncInfo[0]["status"];
+      if (status == 0) {
+        return;
+      }
+      String lastUpdate = lsSyncInfo[0]["last_updated"];
+      String urlString =
+          "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
+      Response response = await get(Uri.parse(urlString), headers: Utils.setHeader());
+      String responseBody = response.body;
+      dynamic responseParsed = jsonDecode(responseBody);
+      List<dynamic> dataBarang = responseParsed["data"];
+      List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
+      if (!lsbarangTemp.isEmpty) {
+        dataBarang.forEach((d) =>
+            db.writeDatabase("DELETE FROM barang_temp WHERE kode = ?", params: [d["IDBARANG"]]));
+      }
 
-    for (var d in dataBarang) {
-      String idbarang = d["detail_barang"]["NOINDEX"].toString();
-      String kode = d["detail_barang"]["KODE"].toString();
-      String nama = d["detail_barang"]["NAMA"].toString();
-      String detail = jsonEncode(d["detail_barang"]);
-      String multiSatuan = jsonEncode(d["multi_satuan"]);
-      String multiHarga = jsonEncode(d["multi_harga"]);
-      String hargaTanggal = jsonEncode(d["harga_tanggal"]);
+      for (var d in dataBarang) {
+        String idbarang = d["detail_barang"]["NOINDEX"].toString();
+        String kode = d["detail_barang"]["KODE"].toString();
+        String nama = d["detail_barang"]["NAMA"].toString();
+        String detail = jsonEncode(d["detail_barang"]);
+        String multiSatuan = jsonEncode(d["multi_satuan"]);
+        String multiHarga = jsonEncode(d["multi_harga"]);
+        String hargaTanggal = jsonEncode(d["harga_tanggal"]);
 
-      await db.writeDatabase(
-          "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES (?,?,?,?,?,?,?,datetime('now'))",
-          params: [idbarang, kode, nama, detail, multiSatuan, multiHarga, hargaTanggal]);
+        await db.writeDatabase(
+            "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES (?,?,?,?,?,?,?,datetime('now'))",
+            params: [idbarang, kode, nama, detail, multiSatuan, multiHarga, hargaTanggal]);
+      }
+
+      await db.writeDatabase("UPDATE sync_info SET last_updated = datetime('now') WHERE id = 1");
+    } catch (e, stacktrace) {
+      print(e);
+      print(stacktrace);
     }
-
-    await db.writeDatabase("UPDATE sync_info SET last_updated = datetime('now') WHERE id = 1");
   }
 }

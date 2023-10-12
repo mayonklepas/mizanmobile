@@ -16,6 +16,12 @@ import 'database_helper.dart';
 void callBack() {
   Workmanager().executeTask((taskName, inputData) async {
     if (taskName == "sync-task") {
+      var db = DatabaseHelper();
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+      int status = lsSyncInfo[0]["status"];
+      if (status == 0) {
+        return Future.value(true);
+      }
       await Utils.syncLocalData();
       print("Success sync");
     }

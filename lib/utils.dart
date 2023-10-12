@@ -583,14 +583,32 @@ class Utils {
     }
   }
 
+  static String currentDateTimeString() {
+    DateTime dt = DateTime.now();
+    String day = dt.day.toString();
+    String month = dt.month.toString();
+    String year = dt.year.toString();
+    String hour = dt.hour.toString();
+    String minute = dt.minute.toString();
+    String second = dt.second.toString();
+
+    if (day.length == 1) {
+      day = "0" + day;
+    }
+
+    if (month.length == 1) {
+      month = "0" + month;
+    }
+
+    String formattedDateTime =
+        year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    return formattedDateTime;
+  }
+
   static Future<void> syncLocalData() async {
     try {
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
-      int status = lsSyncInfo[0]["status"];
-      if (status == 0) {
-        return;
-      }
       String lastUpdate = lsSyncInfo[0]["last_updated"];
       String urlString =
           "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
@@ -600,8 +618,8 @@ class Utils {
       List<dynamic> dataBarang = responseParsed["data"];
       List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
       if (!lsbarangTemp.isEmpty) {
-        dataBarang.forEach((d) =>
-            db.writeDatabase("DELETE FROM barang_temp WHERE kode = ?", params: [d["IDBARANG"]]));
+        dataBarang.forEach((d) => db.writeDatabase("DELETE FROM barang_temp WHERE idbarang = ?",
+            params: [d["detail_barang"]["NOINDEX"].toString()]));
       }
 
       for (var d in dataBarang) {
@@ -614,11 +632,21 @@ class Utils {
         String hargaTanggal = jsonEncode(d["harga_tanggal"]);
 
         await db.writeDatabase(
-            "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES (?,?,?,?,?,?,?,datetime('now'))",
-            params: [idbarang, kode, nama, detail, multiSatuan, multiHarga, hargaTanggal]);
+            "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES (?,?,?,?,?,?,?,?)",
+            params: [
+              idbarang,
+              kode,
+              nama,
+              detail,
+              multiSatuan,
+              multiHarga,
+              hargaTanggal,
+              Utils.currentDateTimeString()
+            ]);
       }
 
-      await db.writeDatabase("UPDATE sync_info SET last_updated = datetime('now') WHERE id = 1");
+      await db.writeDatabase("UPDATE sync_info SET last_updated = ? WHERE id = 1",
+          params: [Utils.currentDateTimeString()]);
     } catch (e, stacktrace) {
       print(e);
       print(stacktrace);

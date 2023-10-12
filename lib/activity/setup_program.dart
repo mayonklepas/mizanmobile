@@ -290,6 +290,37 @@ class _SetupProgramState extends State<SetupProgram> {
                     ),
                   ],
                 ),
+                Utils.labelForm("Bluetooth Printer"),
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 10,
+                        child: TextField(
+                          controller: namaLokasiCtrl,
+                          enabled: false,
+                        )),
+                    Expanded(
+                      child: IconButton(
+                        onPressed: () async {
+                          dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ListModalForm(
+                                type: "lokasi",
+                                withAll: true,
+                              );
+                            },
+                          ));
+
+                          if (popUpResult == null) return;
+
+                          idLokasi = popUpResult["NOINDEX"];
+                          namaLokasiCtrl.text = popUpResult["NAMA"];
+                        },
+                        icon: Icon(Icons.search),
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

@@ -560,7 +560,7 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: GridView(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, childAspectRatio: 0.80),
+                  crossAxisCount: 3, childAspectRatio: 0.75),
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
@@ -595,7 +595,7 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: GridView(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, childAspectRatio: 0.8),
+                  crossAxisCount: 3, childAspectRatio: 0.75),
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
@@ -668,7 +668,7 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: GridView(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, childAspectRatio: 0.8),
+                  crossAxisCount: 3, childAspectRatio: 0.7),
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [

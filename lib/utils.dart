@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart';
 
@@ -398,6 +401,28 @@ class Utils {
         });
   }
 
+  static showProgressCustom(BuildContext context, String message) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
+                  Expanded(
+                    child: Container(margin: EdgeInsets.only(left: 10), child: Text(message)),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   static showMessage(String message, BuildContext context) {
     showDialog(
         context: context,
@@ -617,11 +642,17 @@ class Utils {
       dynamic responseParsed = jsonDecode(responseBody);
       List<dynamic> dataBarang = responseParsed["data"];
       List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
+      List<String> lsQueryDelete = [];
       if (!lsbarangTemp.isEmpty) {
-        dataBarang.forEach((d) => db.writeDatabase("DELETE FROM barang_temp WHERE idbarang = ?",
-            params: [d["detail_barang"]["NOINDEX"].toString()]));
+        dataBarang.forEach((d) => () {
+              String query =
+                  "DELETE FROM barang_temp WHERE idbarang = ${d["detail_barang"]["NOINDEX"].toString()}";
+              lsQueryDelete.add(query);
+            });
+        await db.writeBatchDatabase(lsQueryDelete);
       }
 
+      List<String> lsQueryInsert = [];
       for (var d in dataBarang) {
         String idbarang = d["detail_barang"]["NOINDEX"].toString();
         String kode = d["detail_barang"]["KODE"].toString();
@@ -630,20 +661,13 @@ class Utils {
         String multiSatuan = jsonEncode(d["multi_satuan"]);
         String multiHarga = jsonEncode(d["multi_harga"]);
         String hargaTanggal = jsonEncode(d["harga_tanggal"]);
-
-        await db.writeDatabase(
-            "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES (?,?,?,?,?,?,?,?)",
-            params: [
-              idbarang,
-              kode,
-              nama,
-              detail,
-              multiSatuan,
-              multiHarga,
-              hargaTanggal,
-              Utils.currentDateTimeString()
-            ]);
+        String query =
+            "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES ('$idbarang','$kode','$nama','$detail','$multiSatuan','$multiHarga','$hargaTanggal','${Utils.currentDateTimeString()}')";
+        lsQueryInsert.add(query);
+        print(query);
       }
+
+      await db.writeBatchDatabase(lsQueryInsert);
 
       await db.writeDatabase("UPDATE sync_info SET last_updated = ? WHERE id = 1",
           params: [Utils.currentDateTimeString()]);

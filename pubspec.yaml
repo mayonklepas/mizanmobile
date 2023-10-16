@@ -45,9 +45,9 @@ dependencies:
   printing: ^5.10.5
   sqflite: ^2.2.7
   workmanager: ^0.5.0
-  #esc_pos_utils: ^1.1.0  
-  bluetooth_print: ^3.0.1 
-  bluetooth_thermal_printer: ^0.0.6
+  flutter_blue_plus: ^1.17.5
+  #flutter_blue: ^0.8.0
+  esc_pos_utils_plus: ^2.0.2
 
 
 dev_dependencies:

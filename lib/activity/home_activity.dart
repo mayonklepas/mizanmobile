@@ -60,6 +60,7 @@ class _HomeActivityState extends State<HomeActivity> {
   String koneksi = "";
   String localLastUpdate = "";
   bool sinkronisasiOnOff = false;
+  String totalData = "0";
 
   _getInfoSyncLocal() async {
     var db = DatabaseHelper();
@@ -67,6 +68,13 @@ class _HomeActivityState extends State<HomeActivity> {
         await db.readDatabase("SELECT * FROM sync_info ORDER BY last_updated DESC LIMIT 1");
     localLastUpdate = getInfo[0]["last_updated"];
     sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
+  }
+
+  _getInfoTotalItem() async {
+    var db = DatabaseHelper();
+    List<dynamic> getInfo =
+        await db.readDatabase("SELECT COUNT(idbarang) as total FROM barang_temp");
+    totalData = Utils.formatNumber(getInfo[0]["total"]);
   }
 
   Container setIconCard(
@@ -196,6 +204,8 @@ class _HomeActivityState extends State<HomeActivity> {
                         icon: Icon(Icons.refresh))),
               ],
             ),
+            Utils.labelValueSetter("Total Data Tersinkron", totalData,
+                colorValue: Colors.green, top: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -266,6 +276,7 @@ class _HomeActivityState extends State<HomeActivity> {
     // TODO: implement initState
     setDataHome();
     _getInfoSyncLocal();
+    _getInfoTotalItem();
     koneksi = Utils.connectionName;
     _setupProgramChecked();
     Workmanager().registerPeriodicTask("sync-task", "sync-task",
@@ -375,6 +386,7 @@ class _HomeActivityState extends State<HomeActivity> {
                           penjualanBulanan = 0;
                           labaHarian = 0;
                           labaBulanan = 0;
+                          _getInfoSyncLocal();
                           _getInfoSyncLocal();
                         });
                         dynamic data = await _getHome();
@@ -695,6 +707,7 @@ class _HomeActivityState extends State<HomeActivity> {
                     }
                     return;
                   }
+
                   Future.delayed(Duration.zero, () => Utils.showProgress(context));
                   await Utils.syncLocalData();
                   Navigator.pop(context);

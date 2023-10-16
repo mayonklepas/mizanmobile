@@ -24,10 +24,10 @@ class _ListModalBarangState extends State<ListModalBarang> {
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     if (widget.isLocal) {
       List<dynamic> listBarang = await DatabaseHelper()
-          .readDatabase("SELECT idbarang,detail_barang FROM barang_temp ORDER BY nama ASC");
+          .readDatabase("SELECT idbarang,detail_barang FROM barang_temp LIMIT 100");
       if (keyword != "") {
         listBarang = await DatabaseHelper().readDatabase(
-            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE nama LIKE ? ORDER BY nama ASC",
+            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE nama LIKE ? LIMIT 100",
             params: ["%$keyword%"]);
       }
 

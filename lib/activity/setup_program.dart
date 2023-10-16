@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:mizanmobile/activity/utility/list_device.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -304,10 +305,7 @@ class _SetupProgramState extends State<SetupProgram> {
                         onPressed: () async {
                           dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
-                              return ListModalForm(
-                                type: "lokasi",
-                                withAll: true,
-                              );
+                              return ListModalDevice();
                             },
                           ));
 

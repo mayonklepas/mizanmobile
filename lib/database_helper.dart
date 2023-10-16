@@ -11,7 +11,7 @@ class DatabaseHelper {
         await db.execute(
             "CREATE TABLE sync_info(id INTEGER PRIMARY KEY,status int,last_updated DATETIME)");
         await db.execute("CREATE TABLE barang_temp(id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
-            "kode VARCHAR(100),nama VARCHAR(255), detail_barang TEXT,multi_satuan TEXT," +
+            "kode VARCHAR(100),nama TEXT, detail_barang TEXT,multi_satuan TEXT," +
             "multi_harga TEXT,harga_tanggal TEXT,date_created DATETIME)");
         await db.execute(
             "INSERT INTO sync_info(id,status,last_updated) VALUES(1,0,'1945-01-01 00:00:00')");
@@ -47,5 +47,14 @@ class DatabaseHelper {
       return database.rawDelete(query);
     }
     return database.rawDelete(query, params);
+  }
+
+  Future<void> writeBatchDatabase(List<String> lsQuery) async {
+    Database database = await databaseConnection();
+    Batch batch = database.batch();
+    for (var d in lsQuery) {
+      batch.rawQuery(d);
+    }
+    batch.commit(noResult: true);
   }
 }

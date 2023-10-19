@@ -32,6 +32,7 @@ class _SetupProgramState extends State<SetupProgram> {
   String idSatuan = "";
   TextEditingController namaLokasiCtrl = TextEditingController();
   String idLokasi = "";
+  TextEditingController bluetoothDeviceCtrl = TextEditingController();
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -297,7 +298,7 @@ class _SetupProgramState extends State<SetupProgram> {
                     Expanded(
                         flex: 10,
                         child: TextField(
-                          controller: namaLokasiCtrl,
+                          controller: bluetoothDeviceCtrl,
                           enabled: false,
                         )),
                     Expanded(
@@ -309,10 +310,11 @@ class _SetupProgramState extends State<SetupProgram> {
                             },
                           ));
 
-                          if (popUpResult == null) return;
+                          //if (popUpResult == null) return;
 
-                          idLokasi = popUpResult["NOINDEX"];
-                          namaLokasiCtrl.text = popUpResult["NAMA"];
+                          setState(() {
+                            bluetoothDeviceCtrl.text = Utils.bluetoothName;
+                          });
                         },
                         icon: Icon(Icons.search),
                       ),

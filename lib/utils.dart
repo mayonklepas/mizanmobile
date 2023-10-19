@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,6 +77,10 @@ class Utils {
   static String idKelompokTransaksi = "";
 
   static String namaKelompokTransaksi = "";
+
+  static String bluetoothId = "";
+
+  static String bluetoothName = "";
 
   static getPref(String key) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -499,7 +501,7 @@ class Utils {
           return SingleChildScrollView(
             padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 50), child: content),
+                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20), child: content),
           );
         });
   }

@@ -6,6 +6,7 @@ import 'package:mizanmobile/activity/home_activity.dart';
 import 'package:mizanmobile/activity/login_activity.dart';
 import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
+import 'package:mizanmobile/activity/utility/printer_util.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
@@ -151,16 +152,19 @@ class _MainPageState extends State<MainPage> {
                             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
-                                  Image.network(
-                                    Utils.imageUrl + "logo.png",
-                                    width: 170,
-                                    height: 170,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        height: 170,
-                                        width: 170,
-                                      );
-                                    },
+                                  InkWell(
+                                    onTap: () {},
+                                    child: Image.network(
+                                      Utils.imageUrl + "logo.png",
+                                      width: 170,
+                                      height: 170,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 170,
+                                          width: 170,
+                                        );
+                                      },
+                                    ),
                                   ),
                                   SizedBox(
                                     height: 10,

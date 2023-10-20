@@ -153,7 +153,9 @@ class _MainPageState extends State<MainPage> {
                               return Column(
                                 children: [
                                   InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      PrinterUtils().printTestDevice();
+                                    },
                                     child: Image.network(
                                       Utils.imageUrl + "logo.png",
                                       width: 170,

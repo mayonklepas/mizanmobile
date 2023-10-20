@@ -33,6 +33,7 @@ class _SetupProgramState extends State<SetupProgram> {
   TextEditingController namaLokasiCtrl = TextEditingController();
   String idLokasi = "";
   TextEditingController bluetoothDeviceCtrl = TextEditingController();
+  String idBluetoothDevice = "";
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -54,6 +55,8 @@ class _SetupProgramState extends State<SetupProgram> {
       idSatuan = mapSetup["defaultIdSatuan"].toString();
       idKelompok = mapSetup["defaultIdKelompok"].toString();
       namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"].toString();
+      bluetoothDeviceCtrl.text = mapSetup["defaultBluetoothDevice"].toString();
+      idBluetoothDevice = mapSetup["defaultIdBluetoothDevice"].toString();
     });
   }
 
@@ -310,10 +313,10 @@ class _SetupProgramState extends State<SetupProgram> {
                             },
                           ));
 
-                          //if (popUpResult == null) return;
-
+                          if (popUpResult == null) return;
+                          idBluetoothDevice = popUpResult["id"];
                           setState(() {
-                            bluetoothDeviceCtrl.text = Utils.bluetoothName;
+                            bluetoothDeviceCtrl.text = popUpResult["name"];
                           });
                         },
                         icon: Icon(Icons.search),
@@ -341,7 +344,9 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIdSatuan": idSatuan,
                           "defaultSatuan": satuanCtrl.text,
                           "defaultIdLokasi": idLokasi,
-                          "defaultNamaLokasi": namaLokasiCtrl.text
+                          "defaultNamaLokasi": namaLokasiCtrl.text,
+                          "defaultBluetoothDevice": bluetoothDeviceCtrl.text,
+                          "defaultIdBluetoothDevice": idBluetoothDevice
                         };
 
                         String jsonSetup = jsonEncode(mapSetup);
@@ -366,6 +371,8 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.namaLokasi = namaLokasiCtrl.text;
                           Utils.idSatuan = idSatuan;
                           Utils.satuan = satuanCtrl.text;
+                          Utils.bluetoothId = idBluetoothDevice;
+                          Utils.bluetoothName = bluetoothDeviceCtrl.text;
                         });
                         sp.reload();
                         ScaffoldMessenger.of(context)

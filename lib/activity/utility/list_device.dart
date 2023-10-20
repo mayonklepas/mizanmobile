@@ -110,10 +110,9 @@ class _ListModalDeviceState extends State<ListModalDevice> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Utils.bluetoothId = deviceId;
-                        Utils.bluetoothName = deviceName;
+                        Map result = <String, String>{"id": deviceId, "name": deviceName};
                         Navigator.pop(context);
-                        Navigator.pop(context);
+                        Navigator.pop(context, result);
                       },
                       icon: Icon(Icons.check_circle),
                       label: Text("Set Sebagai Default"),

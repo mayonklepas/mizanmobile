@@ -607,6 +607,8 @@ class Utils {
       Utils.namaLokasi = mapSetup["defaultNamaLokasi"].toString();
       Utils.idKelompok = mapSetup["defaultIdKelompok"].toString();
       Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
+      Utils.bluetoothId = mapSetup["defaultIdBluetoothDevice"].toStringString();
+      Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toStringString();
     }
   }
 

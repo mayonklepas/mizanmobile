@@ -712,6 +712,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     }
                     Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
+
+                    var newlistShow = dataListShow;
+                    await PrinterUtils().printReceipt(newlistShow);
+
                     print(result);
                     if (result != null) {
                       if (result["status"] == 0) {
@@ -719,8 +723,6 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Utils.labelSetter("Transaksi berhasil",
                                 color: Colors.green, size: 20)));
-
-                        PrinterUtils().printReceipt(dataListShow);
 
                         setState(() {
                           dataList.clear();

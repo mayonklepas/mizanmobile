@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -29,12 +30,12 @@ class _ListBarangState extends State<ListBarang> {
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     Uri url = Uri.parse(mainUrlString);
-    print(url);
+    log(url.toString());
     if (keyword != null && keyword != "") {
       url = Uri.parse(cariUrlString + keyword);
     }
     http.Response response = await http.get(url, headers: Utils.setHeader());
-    print(jsonDecode(response.body));
+    log(jsonDecode(response.body).toString());
     var jsonData = jsonDecode(response.body)["data"];
     return jsonData;
   }
@@ -57,7 +58,7 @@ class _ListBarangState extends State<ListBarang> {
     http.Response response =
         await http.post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
-    print(jsonData);
+    log(jsonData.toString());
     Navigator.pop(context);
     return jsonData;
   }
@@ -145,7 +146,7 @@ class _ListBarangState extends State<ListBarang> {
                                                 };
                                                 dynamic result =
                                                     await _postBarang(mapData, "delete");
-                                                print(result);
+                                                log(result.toString());
                                                 setState(() {
                                                   _dataBarang = _getDataBarang();
                                                 });

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -21,7 +22,7 @@ class _PrintTestState extends State<PrintTest> {
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     Uri url = Uri.parse(mainUrlString);
     http.Response response = await http.get(url, headers: Utils.setHeader());
-    print(jsonDecode(response.body));
+    log(jsonDecode(response.body).toString());
     var jsonData = jsonDecode(response.body)["data"];
     return jsonData;
   }

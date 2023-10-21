@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,8 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
     Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
-    print(urlString);
-    print(jsonData);
+    log(urlString);
+    log(jsonData.toString());
     return jsonData;
   }
 
@@ -52,8 +53,8 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
     }
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(url);
-    print(jsonData);
+    log(url.toString());
+    log(jsonData.toString());
     return jsonData;
   }
 

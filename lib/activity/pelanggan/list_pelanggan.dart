@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class _ListPelangganState extends State<ListPelanggan> {
     }
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 
@@ -186,7 +187,6 @@ class _ListPelangganState extends State<ListPelanggan> {
     String textMode = "Tambah Pelanggan";
 
     deptCtrl.text = namaDept;
-    print(param);
 
     if (param != null) {
       textMode = "Edit Pelanggan";

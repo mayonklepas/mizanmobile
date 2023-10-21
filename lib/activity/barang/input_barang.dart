@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -55,7 +56,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     Navigator.pop(context);
     return jsonData;
   }
@@ -72,7 +73,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
     );
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 

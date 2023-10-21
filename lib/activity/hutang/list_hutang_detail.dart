@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +29,9 @@ class _ListHutangDetailState extends State<ListHutangDetail> {
           "${Utils.mainUrl}hutang/detail/cari?idsuplier=${widget.idSuplier}&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
-    print(url.toString());
+    log(url.toString());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 

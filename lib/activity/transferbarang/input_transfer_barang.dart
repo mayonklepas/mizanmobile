@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -43,7 +44,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
     Uri url = Uri.parse(urlString + idTransaksi);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 
@@ -243,7 +244,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
 
                             if (popUpResult == null) return;
 
-                            //print(popUpResult);
+                            //log(popUpResult);
                             setState(() {
                               kodeBarangCtrl.text = popUpResult["KODE"];
                               namaBarangCtrl.text = popUpResult["NAMA"];
@@ -347,7 +348,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            print(globalResultData);
+                            log(globalResultData.toString());
 
                             if (globalResultData["detail"] != null) {
                               List<dynamic> detail = globalResultData["detail"];
@@ -574,7 +575,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                                           result =
                                               await _postTranferbarang(mapData, "insertheader");
                                         }
-                                        print(result);
+                                        log(result.toString());
                                         idTransaksiGlobal = result["data"]["NOINDEX"];
                                         setState(() {
                                           norefGlobal = result["data"]["NOREF"];

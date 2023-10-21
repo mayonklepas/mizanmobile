@@ -33,20 +33,20 @@ class DatabaseHelper {
     String queryTipe = query.substring(0, 10).toLowerCase();
     if (queryTipe.contains("update")) {
       if (params == null) {
-        return database.rawUpdate(query);
+        return database.transaction((txn) async => await txn.rawUpdate(query));
       }
-      return database.rawUpdate(query, params);
+      return database.transaction((txn) async => await txn.rawUpdate(query, params));
     } else if (queryTipe.contains("insert")) {
       if (params == null) {
-        return database.rawInsert(query);
+        return database.transaction((txn) async => await txn.rawInsert(query));
       }
-      return database.rawInsert(query, params);
+      return database.transaction((txn) async => await txn.rawInsert(query, params));
+    } else {
+      if (params == null) {
+        return database.transaction((txn) async => await txn.rawDelete(query));
+      }
+      return database.transaction((txn) async => await txn.rawDelete(query, params));
     }
-
-    if (params == null) {
-      return database.rawDelete(query);
-    }
-    return database.rawDelete(query, params);
   }
 
   Future<void> writeBatchDatabase(List<String> lsQuery) async {
@@ -55,6 +55,6 @@ class DatabaseHelper {
     for (var d in lsQuery) {
       batch.rawQuery(d);
     }
-    batch.commit(noResult: true);
+    await batch.commit(noResult: true);
   }
 }

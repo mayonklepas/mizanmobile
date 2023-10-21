@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _ListLabaBulananState extends State<ListLabaBulanan> {
         "${Utils.mainUrl}home/lababulanan?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     _dataMasterLabaBulanan = await jsonData["header"];
     return jsonData["detail"];
   }

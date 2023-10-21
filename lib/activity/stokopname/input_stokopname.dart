@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -43,7 +44,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 
@@ -259,7 +260,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
 
                             if (popUpResult == null) return;
 
-                            print(popUpResult);
+                            log(popUpResult.toString());
                             kodeBarangCtrl.text = popUpResult["KODE"];
                             namaBarangCtrl.text = popUpResult["NAMA"];
                             idBarang = popUpResult["NOINDEX"];
@@ -279,7 +280,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                             String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
                                 "#ff6666", "Cancel", true, ScanMode.BARCODE);
 
-                            print(barcodeScanRes);
+                            log(barcodeScanRes);
 
                             if (barcodeScanRes == "-1") return;
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -380,9 +381,9 @@ class Utils {
     );
   }
 
-  static showProgress(BuildContext context) {
+  static showProgress(BuildContext context, {String message = "Memuat Data..."}) {
     showDialog(
-        barrierDismissible: false,
+        barrierDismissible: true,
         context: context,
         builder: (BuildContext context) {
           return Dialog(
@@ -393,8 +394,7 @@ class Utils {
                 children: [
                   Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
                   Expanded(
-                    child:
-                        Container(margin: EdgeInsets.only(left: 10), child: Text("Memuat Data...")),
+                    child: Container(margin: EdgeInsets.only(left: 10), child: Text(message)),
                   )
                 ],
               ),
@@ -607,8 +607,8 @@ class Utils {
       Utils.namaLokasi = mapSetup["defaultNamaLokasi"].toString();
       Utils.idKelompok = mapSetup["defaultIdKelompok"].toString();
       Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
-      Utils.bluetoothId = mapSetup["defaultIdBluetoothDevice"].toStringString();
-      Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toStringString();
+      Utils.bluetoothId = mapSetup["defaultIdBluetoothDevice"].toString();
+      Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toString();
     }
   }
 
@@ -643,16 +643,18 @@ class Utils {
           "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
       Response response = await get(Uri.parse(urlString), headers: Utils.setHeader());
       String responseBody = response.body;
+      log(responseBody);
       dynamic responseParsed = jsonDecode(responseBody);
       List<dynamic> dataBarang = responseParsed["data"];
       List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
       List<String> lsQueryDelete = [];
-      if (!lsbarangTemp.isEmpty) {
-        dataBarang.forEach((d) => () {
-              String query =
-                  "DELETE FROM barang_temp WHERE idbarang = ${d["detail_barang"]["NOINDEX"].toString()}";
-              lsQueryDelete.add(query);
-            });
+      if (lsbarangTemp.isNotEmpty) {
+        for (var d in dataBarang) {
+          String idbarang = d["detail_barang"]["NOINDEX"].toString();
+          String query = "DELETE FROM barang_temp WHERE idbarang = '$idbarang' ";
+          lsQueryDelete.add(query);
+        }
+        log("Deleting ${Utils.formatNumber(lsQueryDelete.length)} duplicate data");
         await db.writeBatchDatabase(lsQueryDelete);
       }
 
@@ -668,16 +670,17 @@ class Utils {
         String query =
             "INSERT INTO barang_temp(idbarang,kode,nama,detail_barang,multi_satuan,multi_harga,harga_tanggal,date_created) VALUES ('$idbarang','$kode','$nama','$detail','$multiSatuan','$multiHarga','$hargaTanggal','${Utils.currentDateTimeString()}')";
         lsQueryInsert.add(query);
-        print(query);
       }
 
+      log("Inserting ${Utils.formatNumber(lsQueryInsert.length)} new data");
       await db.writeBatchDatabase(lsQueryInsert);
 
+      log("Updating sync info");
       await db.writeDatabase("UPDATE sync_info SET last_updated = ? WHERE id = 1",
           params: [Utils.currentDateTimeString()]);
     } catch (e, stacktrace) {
-      print(e);
-      print(stacktrace);
+      log(e.toString());
+      log(stacktrace.toString());
     }
   }
 }

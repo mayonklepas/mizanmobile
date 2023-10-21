@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -25,9 +26,9 @@ class _ListPiutangPembayaranState extends State<ListPiutangPembayaran> {
     Uri url =
         Uri.parse("${Utils.mainUrl}piutang/detail/pembayaran?idgenjur=${widget.idPiutangDetail}");
     Response response = await get(url, headers: Utils.setHeader());
-    print(url.toString());
+    log(url.toString());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     return jsonData;
   }
 

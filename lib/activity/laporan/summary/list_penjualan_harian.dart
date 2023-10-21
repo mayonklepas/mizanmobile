@@ -43,7 +43,6 @@ class _ListPenjualanHarianState extends State<ListPenjualanHarian> {
         "${Utils.mainUrl}home/penjualanharian?idpengguna=$idPengguna&iddept=$idDept&tgl=$tgl");
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
     _dataMastePenjualanHarian = await jsonData["header"];
     return jsonData["detail"];
   }

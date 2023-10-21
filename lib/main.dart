@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 
@@ -16,15 +17,18 @@ import 'database_helper.dart';
 
 void callBack() {
   Workmanager().executeTask((taskName, inputData) async {
+    log("executing work manager: $taskName");
     if (taskName == "sync-task") {
+      log("prepare sync-task");
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
       int status = lsSyncInfo[0]["status"];
       if (status == 0) {
+        log("no active sync");
         return Future.value(true);
       }
+      log("process sync-task");
       await Utils.syncLocalData();
-      print("Success sync");
     }
     return Future.value(true);
   });
@@ -32,7 +36,7 @@ void callBack() {
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callBack, isInDebugMode: true);
+  Workmanager().initialize(callBack, isInDebugMode: false);
   runApp(const MyApp());
 }
 
@@ -78,7 +82,7 @@ class _MainPageState extends State<MainPage> {
       },
     );
     var jsonData = jsonDecode(response.body);
-    print(jsonData);
+    log(jsonData.toString());
     Navigator.pop(context);
     return jsonData;
   }

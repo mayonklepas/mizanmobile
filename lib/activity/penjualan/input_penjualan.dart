@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -59,7 +60,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
     Navigator.pop(context);
-    print(urlString);
+    log(urlString);
     return jsonData;
   }
 
@@ -201,7 +202,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                   ));
 
                                   if (popUpResult == null) return;
-                                  print(popUpResult);
+                                  log(popUpResult.toString());
 
                                   setState(() {
                                     pelangganCtrl.text = popUpResult["NAMA"];
@@ -523,7 +524,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   double setTotalJual() {
     double result = 0;
     for (var d in dataListShow) {
-      print(d);
+      log(d.toString());
       double harga = d["HARGA"];
       int qty = d["QTY"];
       double diskon = d["DISKON_NOMINAL"];
@@ -716,7 +717,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     var newlistShow = dataListShow;
                     await PrinterUtils().printReceipt(newlistShow);
 
-                    print(result);
+                    log(result.toString());
                     if (result != null) {
                       if (result["status"] == 0) {
                         Navigator.pop(context);

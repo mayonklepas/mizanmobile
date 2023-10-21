@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -52,7 +54,7 @@ class _HomeActivityState extends State<HomeActivity> {
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonData);
+    log(jsonData.toString());
     Navigator.pop(context);
     return jsonData;
   }
@@ -66,15 +68,13 @@ class _HomeActivityState extends State<HomeActivity> {
     var db = DatabaseHelper();
     List<dynamic> getInfo =
         await db.readDatabase("SELECT * FROM sync_info ORDER BY last_updated DESC LIMIT 1");
-    localLastUpdate = getInfo[0]["last_updated"];
-    sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
-  }
-
-  _getInfoTotalItem() async {
-    var db = DatabaseHelper();
-    List<dynamic> getInfo =
+    List<dynamic> getInfoBarang =
         await db.readDatabase("SELECT COUNT(idbarang) as total FROM barang_temp");
-    totalData = Utils.formatNumber(getInfo[0]["total"]);
+    setState(() {
+      localLastUpdate = getInfo[0]["last_updated"];
+      sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
+      totalData = Utils.formatNumber(getInfoBarang[0]["total"]);
+    });
   }
 
   Container setIconCard(
@@ -276,7 +276,6 @@ class _HomeActivityState extends State<HomeActivity> {
     // TODO: implement initState
     setDataHome();
     _getInfoSyncLocal();
-    _getInfoTotalItem();
     koneksi = Utils.connectionName;
     _setupProgramChecked();
     Workmanager().registerPeriodicTask("sync-task", "sync-task",
@@ -386,7 +385,6 @@ class _HomeActivityState extends State<HomeActivity> {
                           penjualanBulanan = 0;
                           labaHarian = 0;
                           labaBulanan = 0;
-                          _getInfoSyncLocal();
                           _getInfoSyncLocal();
                         });
                         dynamic data = await _getHome();
@@ -710,10 +708,14 @@ class _HomeActivityState extends State<HomeActivity> {
 
                   Future.delayed(Duration.zero, () => Utils.showProgress(context));
                   await Utils.syncLocalData();
-                  Navigator.pop(context);
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
 
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
+
+                  _getInfoSyncLocal();
                 }),
               ],
             )),

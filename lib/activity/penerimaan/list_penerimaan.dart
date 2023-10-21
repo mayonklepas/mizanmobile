@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -39,9 +40,9 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
           "${Utils.mainUrl}penerimaan/cari?iddept=$idDept&tgldari=2023-01-01&tglhingga=2023-01-31&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
-    print(url.toString());
+    log(url.toString());
     var jsonData = jsonDecode(response.body)["data"];
-    print(jsonDecode(response.body));
+    log(jsonDecode(response.body).toString());
     return jsonData;
   }
 

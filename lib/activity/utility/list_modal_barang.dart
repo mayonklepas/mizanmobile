@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -50,8 +51,8 @@ class _ListModalBarangState extends State<ListModalBarang> {
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(mainUrlString);
     Response response = await get(url, headers: Utils.setHeader());
-    print(mainUrlString);
-    print(jsonDecode(response.body));
+    log(mainUrlString);
+    log(jsonDecode(response.body).toString());
     var jsonData = jsonDecode(response.body)["data"]["item"];
     return jsonData;
   }

@@ -35,8 +35,9 @@ class _ListBarangState extends State<ListBarang> {
       url = Uri.parse(cariUrlString + keyword);
     }
     http.Response response = await http.get(url, headers: Utils.setHeader());
-    log(jsonDecode(response.body).toString());
-    var jsonData = jsonDecode(response.body)["data"];
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 
@@ -57,8 +58,9 @@ class _ListBarangState extends State<ListBarang> {
     Uri url = Uri.parse(urlString);
     http.Response response =
         await http.post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body);
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
     return jsonData;
   }

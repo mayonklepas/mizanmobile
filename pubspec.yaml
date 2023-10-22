@@ -44,8 +44,8 @@ dependencies:
   shared_preferences_foundation: 2.3.2
   printing: ^5.10.5
   sqflite: ^2.2.7
-  workmanager: ^0.5.0
   blue_thermal_printer: ^1.2.3
+
 
 
 dev_dependencies:

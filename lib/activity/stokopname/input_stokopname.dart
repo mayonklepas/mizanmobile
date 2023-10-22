@@ -43,8 +43,10 @@ class _InputStokOpnameState extends State<InputStokOpname> {
     String urlString = "${Utils.mainUrl}stokopname/rincian?idgenjur=$idTransaksi";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
+    log(url.toString());
+    String body = response.body;
+    log(body);
     var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
     return jsonData;
   }
 
@@ -53,7 +55,10 @@ class _InputStokOpnameState extends State<InputStokOpname> {
     String urlString = "${Utils.mainUrl}stokopname/" + urlPath;
     Uri url = Uri.parse(urlString);
     Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body);
+    log(url.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
     return jsonData;
   }
@@ -413,9 +418,11 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 "idsatuanpengali": idSatuanPengali,
                                 "qtysatuanpengali": qtySatuanPengali,
                                 "stokprogram":
-                                    double.parse(Utils.formatNumber(stokProgramCtrl.text)),
-                                "stokfisik": double.parse(Utils.formatNumber(stokFisikCtrl.text)),
-                                "jumlah": double.parse(Utils.formatNumber(selisihStokCtrl.text)),
+                                    double.parse(Utils.removeDotSeparator(stokProgramCtrl.text)),
+                                "stokfisik":
+                                    double.parse(Utils.removeDotSeparator(stokFisikCtrl.text)),
+                                "jumlah":
+                                    double.parse(Utils.removeDotSeparator(selisihStokCtrl.text)),
                               };
                               result = await _postStokOpname(mapData, "editdetail");
                             } else {
@@ -428,9 +435,11 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 "idsatuanpengali": idSatuanPengali,
                                 "qtysatuanpengali": qtySatuanPengali,
                                 "stokprogram":
-                                    double.parse(Utils.formatNumber(stokProgramCtrl.text)),
-                                "stokfisik": double.parse(Utils.formatNumber(stokFisikCtrl.text)),
-                                "jumlah": double.parse(Utils.formatNumber(selisihStokCtrl.text)),
+                                    double.parse(Utils.removeDotSeparator(stokProgramCtrl.text)),
+                                "stokfisik":
+                                    double.parse(Utils.removeDotSeparator(stokFisikCtrl.text)),
+                                "jumlah":
+                                    double.parse(Utils.removeDotSeparator(selisihStokCtrl.text)),
                               };
                               result = await _postStokOpname(mapData, "insertdetail");
                             }

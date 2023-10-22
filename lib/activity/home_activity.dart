@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:carousel_slider/carousel_slider.dart';
@@ -28,7 +29,6 @@ import 'package:http/http.dart';
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
-import 'package:workmanager/workmanager.dart';
 
 class HomeActivity extends StatefulWidget {
   const HomeActivity({Key? key}) : super(key: key);
@@ -51,10 +51,12 @@ class _HomeActivityState extends State<HomeActivity> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
         "${Utils.mainUrl}barang/getitemsync?tglupdate=$tglUpdate&idgudang=${Utils.idGudang}";
+    log(urlString);
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     Navigator.pop(context);
     return jsonData;
   }
@@ -175,37 +177,48 @@ class _HomeActivityState extends State<HomeActivity> {
                 top: 10, colorValue: Colors.green),
             Utils.labelValueSetter("Mizan Cloud Backup", "Aktif Sampai 21/05/2050",
                 colorValue: Colors.green, top: 10),
+            Utils.labelValueSetter("Sinkronasisi Terakhir", localLastUpdate,
+                colorValue: Colors.green, top: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Expanded(
                     flex: 1,
                     child: Text(
-                      "Sikronisasi Terakhir",
+                      "Total Sinkronisasi",
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     )),
                 Expanded(
                     flex: 1,
-                    child: Text(localLastUpdate,
+                    child: Text(totalData,
                         textAlign: TextAlign.end,
                         style: TextStyle(color: Colors.green, fontSize: 14))),
                 Expanded(
                     flex: 0,
                     child: IconButton(
                         onPressed: () async {
+                          bool ya = await Utils.showConfirmMessage(context,
+                              "Yakin ingin mereset data ? semua data sinkronisasi akan terhapus !");
+
+                          if (ya == false) {
+                            return;
+                          }
+
+                          Future.delayed(Duration.zero, () => Utils.showProgress(context));
                           String harikemerdekaaan = "1945-08-17 00:00:00";
                           await DatabaseHelper().writeDatabase(
                               "UPDATE sync_info SET last_updated = ? ",
                               params: [harikemerdekaaan]);
+                          await DatabaseHelper().writeDatabase("DELETE FROM barang_temp");
                           stateIn(() {
                             localLastUpdate = harikemerdekaaan;
+                            totalData = "0";
                           });
+                          Navigator.pop(context);
                         },
                         icon: Icon(Icons.refresh))),
               ],
             ),
-            Utils.labelValueSetter("Total Data Tersinkron", totalData,
-                colorValue: Colors.green, top: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -271,15 +284,27 @@ class _HomeActivityState extends State<HomeActivity> {
     });
   }
 
+  periodicTask() {
+    Timer.periodic(Duration(minutes: 3), (timer) async {
+      var db = DatabaseHelper();
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+      int status = lsSyncInfo[0]["status"];
+      if (status == 0) {
+        log("no active sync");
+      }
+      log("process sync-task");
+      await Utils.syncLocalData();
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
+    periodicTask();
     setDataHome();
     _getInfoSyncLocal();
     koneksi = Utils.connectionName;
     _setupProgramChecked();
-    Workmanager().registerPeriodicTask("sync-task", "sync-task",
-        frequency: Duration(minutes: 15), initialDelay: Duration(minutes: 1));
     super.initState();
   }
 

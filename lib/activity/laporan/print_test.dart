@@ -22,8 +22,9 @@ class _PrintTestState extends State<PrintTest> {
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     Uri url = Uri.parse(mainUrlString);
     http.Response response = await http.get(url, headers: Utils.setHeader());
-    log(jsonDecode(response.body).toString());
-    var jsonData = jsonDecode(response.body)["data"];
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 

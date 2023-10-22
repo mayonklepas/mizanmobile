@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:mizanmobile/activity/utility/print_enum.dart';
@@ -9,18 +10,24 @@ import '../../utils.dart';
 class PrinterUtils {
   printReceipt(List<dynamic> data) async {
     BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
-    var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
-    Uint8List bytesNetwork = response.bodyBytes;
-    Uint8List imageBytesFromNetwork =
-        bytesNetwork.buffer.asUint8List(bytesNetwork.offsetInBytes, bytesNetwork.lengthInBytes);
+    //var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
+    //Uint8List bytesNetwork = response.bodyBytes;
+    //Uint8List imageBytesFromNetwork =
+    //bytesNetwork.buffer.asUint8List(bytesNetwork.offsetInBytes, bytesNetwork.lengthInBytes);
 
-    if (bluetooth.isConnected == false) {
-      BluetoothDevice device = BluetoothDevice(Utils.bluetoothName, Utils.bluetoothId);
-      await bluetooth.connect(device);
+    bool? isConnected = await bluetooth.isConnected;
+    if (isConnected == false) {
+      try {
+        BluetoothDevice device = BluetoothDevice(Utils.bluetoothName, Utils.bluetoothId);
+        await bluetooth.connect(device);
+      } catch (e) {
+        log(e.toString());
+        return;
+      }
     }
 
-    bluetooth.printImageBytes(imageBytesFromNetwork);
-    bluetooth.printNewLine();
+    //bluetooth.printImageBytes(imageBytesFromNetwork);
+    //bluetooth.printNewLine();
     bluetooth.printCustom(Utils.connectionName, Size.boldMedium.val, Align.center.val);
     bluetooth.printNewLine();
     bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.bold.val);

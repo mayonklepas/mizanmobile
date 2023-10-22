@@ -27,8 +27,9 @@ class _ListPiutangPembayaranState extends State<ListPiutangPembayaran> {
         Uri.parse("${Utils.mainUrl}piutang/detail/pembayaran?idgenjur=${widget.idPiutangDetail}");
     Response response = await get(url, headers: Utils.setHeader());
     log(url.toString());
+    String body = response.body;
+    log(body);
     var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
     return jsonData;
   }
 

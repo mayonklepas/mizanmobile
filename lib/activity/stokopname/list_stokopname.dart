@@ -28,10 +28,11 @@ class _ListStokOpnameState extends State<ListStokOpname> {
     String urlString = "${Utils.mainUrl}transferbarang/" + urlPath;
     Uri url = Uri.parse(urlString);
     Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body);
+    log(url.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
-    log(urlString);
-    log(jsonData.toString());
     return jsonData;
   }
 
@@ -52,9 +53,10 @@ class _ListStokOpnameState extends State<ListStokOpname> {
           "${Utils.mainUrl}stokopname/cari?iddept=${Utils.idDept}&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
     log(url.toString());
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 

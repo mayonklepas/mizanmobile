@@ -44,9 +44,11 @@ class _ListPembelianState extends State<ListPembelian> {
           "${Utils.mainUrl}pembelian/cari?iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
     log(url.toString());
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
+
     return jsonData;
   }
 

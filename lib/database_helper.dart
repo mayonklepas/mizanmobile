@@ -10,7 +10,8 @@ class DatabaseHelper {
       onCreate: (db, version) async {
         await db.execute(
             "CREATE TABLE sync_info(id INTEGER PRIMARY KEY,status int,last_updated DATETIME)");
-        await db.execute("CREATE TABLE barang_temp(id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
+        await db.execute("CREATE TABLE barang_temp(" +
+            "id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
             "kode VARCHAR(100),nama TEXT, detail_barang TEXT,multi_satuan TEXT," +
             "multi_harga TEXT,harga_tanggal TEXT,date_created DATETIME)");
         await db.execute(
@@ -56,5 +57,10 @@ class DatabaseHelper {
       batch.rawQuery(d);
     }
     await batch.commit(noResult: true);
+  }
+
+  Future<void> execQuery(String sql) async {
+    Database database = await databaseConnection();
+    database.rawQuery(sql);
   }
 }

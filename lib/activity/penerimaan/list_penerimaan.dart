@@ -41,8 +41,9 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
     }
     Response response = await get(url, headers: Utils.setHeader());
     log(url.toString());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonDecode(response.body).toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 

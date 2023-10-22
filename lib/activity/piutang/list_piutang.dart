@@ -22,13 +22,14 @@ class _ListPiutangState extends State<ListPiutang> {
 
   Future<List<dynamic>> _getDataPiutang({String keyword = ""}) async {
     Uri url = Uri.parse("${Utils.mainUrl}piutang/daftar?iddept=${Utils.idDept}");
-    if (keyword != null && keyword != "") {
+    if (keyword.isNotEmpty) {
       url = Uri.parse("${Utils.mainUrl}piutang/cari?iddept=${Utils.idDept}&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     log(url.toString());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 

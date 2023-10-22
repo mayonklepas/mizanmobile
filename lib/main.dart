@@ -11,32 +11,11 @@ import 'package:mizanmobile/activity/utility/printer_util.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
-import 'package:workmanager/workmanager.dart';
 
 import 'database_helper.dart';
 
-void callBack() {
-  Workmanager().executeTask((taskName, inputData) async {
-    log("executing work manager: $taskName");
-    if (taskName == "sync-task") {
-      log("prepare sync-task");
-      var db = DatabaseHelper();
-      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
-      int status = lsSyncInfo[0]["status"];
-      if (status == 0) {
-        log("no active sync");
-        return Future.value(true);
-      }
-      log("process sync-task");
-      await Utils.syncLocalData();
-    }
-    return Future.value(true);
-  });
-}
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(callBack, isInDebugMode: false);
   runApp(const MyApp());
 }
 
@@ -91,6 +70,22 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     _setConnection();
     super.initState();
+  }
+
+  _initDatabaseTable() {
+    DatabaseHelper db = DatabaseHelper();
+    db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
+        "id int PRIMARY KEY AUTOINCREMENT," +
+        "default_company_code VARCHAR(200)," +
+        "default_connection_name VARCHAR(250)," +
+        "default_connection_url VARCHAR(250)," +
+        "default_image_url VARCHAR(250)," +
+        "list_connection TEXT," +
+        "id_user_login VARCHAR(200)," +
+        "id_user_login VARCHAR(200)," +
+        "nama_user_login VARCHAR(200)," +
+        "token_login TEXT," +
+        ")");
   }
 
   _setConnection() async {

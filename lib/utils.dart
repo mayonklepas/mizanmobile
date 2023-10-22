@@ -622,25 +622,41 @@ class Utils {
     String second = dt.second.toString();
 
     if (day.length == 1) {
-      day = "0" + day;
+      day = "0$day";
     }
 
     if (month.length == 1) {
-      month = "0" + month;
+      month = "0$month";
     }
 
-    String formattedDateTime =
-        year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+    if (hour.length == 1) {
+      hour = "0$hour";
+    }
+
+    if (minute.length == 1) {
+      minute = "0$minute";
+    }
+
+    if (second.length == 1) {
+      second = "0$second";
+    }
+
+    String formattedDateTime = "$year-$month-$day $hour:$minute:$second";
     return formattedDateTime;
   }
 
-  static Future<void> syncLocalData() async {
+  static Future<void> syncLocalData({bool isDebug = false}) async {
     try {
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
       String lastUpdate = lsSyncInfo[0]["last_updated"];
       String urlString =
           "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
+      if (isDebug == true) {
+        urlString =
+            "http://103.250.11.167:8081/api/barang/syncbarang?tglupdate=$lastUpdate&idgudang=1-1";
+      }
+      log(urlString);
       Response response = await get(Uri.parse(urlString), headers: Utils.setHeader());
       String responseBody = response.body;
       log(responseBody);

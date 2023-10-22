@@ -49,8 +49,9 @@ class _ListPenjualanBulananState extends State<ListPenjualanBulanan> {
     Uri url = Uri.parse(
         "${Utils.mainUrl}home/penjualanbulanan?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     _dataMastePenjualanBulanan = await jsonData["header"];
     return jsonData["detail"];
   }

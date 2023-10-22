@@ -58,9 +58,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    Navigator.pop(context);
     log(urlString);
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
+    Navigator.pop(context);
+
     return jsonData;
   }
 
@@ -714,9 +717,6 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
 
-                    var newlistShow = dataListShow;
-                    await PrinterUtils().printReceipt(newlistShow);
-
                     log(result.toString());
                     if (result != null) {
                       if (result["status"] == 0) {
@@ -724,6 +724,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Utils.labelSetter("Transaksi berhasil",
                                 color: Colors.green, size: 20)));
+                        List<dynamic> dataListPrint = dataListShow;
+                        await PrinterUtils().printReceipt(dataListPrint);
 
                         setState(() {
                           dataList.clear();
@@ -879,7 +881,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             setState(() {
                               dataList.removeAt(index);
                               dataListShow.removeAt(index);
-                              setTotalJual();
+                              recalculateListPenjualan();
                             });
                           }
                         },

@@ -55,8 +55,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
         "${Utils.mainUrl}barang/rincian?idgudang=${Utils.idGudang}&halaman=0&idbarang=$idBarang";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     Navigator.pop(context);
     return jsonData;
   }
@@ -71,9 +72,10 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
       body: postData,
       headers: Utils.setHeader(),
     );
-    var jsonData = jsonDecode(response.body);
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
-    log(jsonData.toString());
     return jsonData;
   }
 

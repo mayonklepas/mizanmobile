@@ -26,8 +26,10 @@ class _ListSuplierState extends State<ListSuplier> {
       url = Uri.parse("${Utils.mainUrl}suplier/cari?cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
+    log(url.toString());
+    String body = response.body;
+    log(body);
+    var jsonData = jsonDecode(body)["data"];
     return jsonData;
   }
 

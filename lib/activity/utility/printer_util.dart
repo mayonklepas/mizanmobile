@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../utils.dart';
 
 class PrinterUtils {
-  printReceipt(List<dynamic> data) async {
+  printReceipt(List<dynamic> data, dynamic additionalInfo) async {
     BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
     //var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
     //Uint8List bytesNetwork = response.bodyBytes;
@@ -29,25 +29,36 @@ class PrinterUtils {
     //bluetooth.printImageBytes(imageBytesFromNetwork);
     //bluetooth.printNewLine();
     bluetooth.printCustom(Utils.connectionName, Size.boldMedium.val, Align.center.val);
-    bluetooth.printNewLine();
-    bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.bold.val);
+    bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.medium.val, format: "%-20s %20s %n");
+    bluetooth.printLeftRight("Tanggal", Utils.currentDateTimeString(), Size.medium.val,
+        format: "%-20s %20s %n");
+    bluetooth.printLeftRight("Pelanggan", additionalInfo["namaPelanggan"], Size.medium.val,
+        format: "%-20s %20s %n");
     bluetooth.printNewLine();
     double result = 0.0;
+    int counter = 1;
     for (var d in data) {
       String nama = d["NAMA"];
       double harga = d["HARGA"];
       int qty = d["QTY"];
       double diskon = d["DISKON_NOMINAL"];
-      double total = (harga * qty) - diskon;
+      double total = (harga * qty) - (diskon * qty);
       result = result + total;
-      bluetooth.printCustom(nama, Size.medium.val, Align.left.val);
-      bluetooth.print3Column(Utils.formatNumber(qty), Utils.formatNumber(harga),
-          Utils.formatNumber(total), Size.medium.val,
-          format: "%-10s %10s %10s %n");
+      bluetooth.printCustom(
+          "${Utils.formatNumber(counter)}. $nama", Size.medium.val, Align.left.val);
+      bluetooth.print3Column(Utils.formatNumber(harga) + "x" + Utils.formatNumber(qty),
+          "disc:" + Utils.formatNumber(diskon), Utils.formatNumber(total), Size.medium.val,
+          format: "%-13s %10s %13s %n");
+      counter++;
     }
     bluetooth.printNewLine();
     bluetooth.printLeftRight("Total", Utils.formatNumber(result), Size.bold.val);
+    double jumlahUang = additionalInfo["jumlahUang"];
+    double kembalian = jumlahUang - result;
+    bluetooth.printLeftRight("Jumlah uang", Utils.formatNumber(jumlahUang), Size.bold.val);
+    bluetooth.printLeftRight("Kembalian", Utils.formatNumber(kembalian), Size.bold.val);
     bluetooth.printNewLine();
+    bluetooth.printCustom("--Terima kasih--", Size.medium.val, Align.center.val);
     bluetooth.paperCut();
   }
 

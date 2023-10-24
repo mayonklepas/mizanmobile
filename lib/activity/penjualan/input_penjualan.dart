@@ -80,12 +80,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
   dynamic _getDetailPenjualan() {
     List<dynamic> dataSample = [
       <String, Object>{
-        "NOINDEX": "123",
-        "NAMA": "bakso",
-        "KODE": "12345",
-        "SATUAN": "pcs",
-        "JUMLAH": 1,
-        "HARGA": 120000,
+        "NOINDEX": "",
+        "NAMA": "",
+        "KODE": "",
+        "SATUAN": "",
+        "JUMLAH": 0,
+        "HARGA": 0,
       }
     ];
 
@@ -134,6 +134,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
             List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
                 "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
                 params: [noIndex]);
+            log(listDetailBarang[0]["detail_barang"].toString());
             listValueSetter(listDetailBarang);
           }, focus: false, readOnly: true),
           actions: [
@@ -531,7 +532,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
       double harga = d["HARGA"];
       int qty = d["QTY"];
       double diskon = d["DISKON_NOMINAL"];
-      double total = (harga * qty) - diskon;
+      double total = (harga * qty) - (diskon * qty);
       result = result + total;
     }
     return result;
@@ -716,6 +717,35 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     }
                     Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
+                    List<dynamic> detailBarangPost = result["detail_barang"];
+
+                    DatabaseHelper dbh = DatabaseHelper();
+                    for (var d in detailBarangPost) {
+                      String idBarang = d["IDBARANG"];
+                      double stoktambahan = d["STOK"];
+
+                      List<dynamic> lsLocalUpdate = await dbh.readDatabase(
+                          "SELECT detail_barang FROM barang_temp WHERE idbarang =? ",
+                          params: [idBarang]);
+
+                      dynamic detailBarang = jsonDecode(lsLocalUpdate[0]["detail_barang"]);
+
+                      double stok = detailBarang["STOK"];
+
+                      detailBarang["STOK"] = stok + stoktambahan;
+
+                      String detailBarangStr = jsonEncode(detailBarang);
+
+                      await dbh.writeDatabase(
+                          "UDPATE barang_temp SET detail_barang=? WHERE idbarang=?",
+                          params: [detailBarangStr, idBarang]);
+                    }
+
+                    String listDataUpdateStr =
+                        detailBarangPost.map((data) => data["IDBARANG"]).join(",");
+
+                    List<dynamic> lsLocalUpdate = await dbh.readDatabase(
+                        "SELECT idbarang,detail_barang FROM barang_temp WHERE idbarang IN ($listDataUpdateStr)");
 
                     log(result.toString());
                     if (result != null) {
@@ -725,7 +755,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             content: Utils.labelSetter("Transaksi berhasil",
                                 color: Colors.green, size: 20)));
                         List<dynamic> dataListPrint = dataListShow;
-                        await PrinterUtils().printReceipt(dataListPrint);
+                        dynamic additionalInfo = {
+                          "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
+                          "totalUangMuka": Utils.strToDouble(uangMukaCtrl.text),
+                          "tanggal": tanggalCtrl.text,
+                          "kodePelanggan": Utils.idPelanggan,
+                          "namaPelanggan": Utils.namaPelanggan,
+                          "jumlahUang": Utils.strToDouble(jumlahUangCtrl.text)
+                        };
+
+                        await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
 
                         setState(() {
                           dataList.clear();

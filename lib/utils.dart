@@ -159,6 +159,24 @@ class Utils {
     return formattedDate;
   }
 
+  static double strToDouble(String value) {
+    try {
+      double result = double.parse(value);
+      return result;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  static int strToInt(String value) {
+    try {
+      int result = int.parse(value);
+      return result;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   static String formatStdDate(DateTime value) {
     String formattedDate = DateFormat('yyyy-MM-dd').format(value);
     return formattedDate;

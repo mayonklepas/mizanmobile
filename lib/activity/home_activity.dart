@@ -284,17 +284,19 @@ class _HomeActivityState extends State<HomeActivity> {
     });
   }
 
-  periodicTask() {
-    Timer.periodic(Duration(minutes: 3), (timer) async {
-      var db = DatabaseHelper();
-      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
-      int status = lsSyncInfo[0]["status"];
-      if (status == 0) {
-        log("no active sync");
-      }
-      log("process sync-task");
-      await Utils.syncLocalData();
-    });
+  periodicTask() async {
+    var db = DatabaseHelper();
+    List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+    int status = lsSyncInfo[0]["status"];
+    if (status == 1) {
+      Timer.periodic(Duration(minutes: 3), (timer) async {
+        if (status == 0) {
+          log("no active sync");
+        }
+        log("process sync-task");
+        await Utils.syncLocalData();
+      });
+    }
   }
 
   @override

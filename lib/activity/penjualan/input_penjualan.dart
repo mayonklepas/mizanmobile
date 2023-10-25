@@ -96,6 +96,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   void initState() {
     // TODO: implement initState
     tanggalCtrl.text = tanggalTransaksi;
+    keteranganCtrl.text = "Penjualan mobile";
     super.initState();
   }
 
@@ -717,7 +718,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     }
                     Map<String, Object> rootMap = {"header": headerMap, "detail": detailList};
                     var result = await _postPenjualan(rootMap, "insert");
-                    List<dynamic> detailBarangPost = result["detail_barang"];
+                    var dataResult = result["data"];
+                    List<dynamic> detailBarangPost = dataResult["detail_barang"];
 
                     DatabaseHelper dbh = DatabaseHelper();
                     for (var d in detailBarangPost) {
@@ -729,23 +731,19 @@ class _InputPenjualanState extends State<InputPenjualan> {
                           params: [idBarang]);
 
                       dynamic detailBarang = jsonDecode(lsLocalUpdate[0]["detail_barang"]);
-
-                      double stok = detailBarang["STOK"];
-
-                      detailBarang["STOK"] = stok + stoktambahan;
-
+                      detailBarang["STOK"] = stoktambahan;
                       String detailBarangStr = jsonEncode(detailBarang);
 
                       await dbh.writeDatabase(
-                          "UDPATE barang_temp SET detail_barang=? WHERE idbarang=?",
+                          "UPDATE barang_temp SET detail_barang=? WHERE idbarang=?",
                           params: [detailBarangStr, idBarang]);
+
+                      List<dynamic> lsLocalUpdateEnd = await dbh.readDatabase(
+                          "SELECT detail_barang FROM barang_temp WHERE idbarang =? ",
+                          params: [idBarang]);
+
+                      log(lsLocalUpdateEnd[0]["detail_barang"]);
                     }
-
-                    String listDataUpdateStr =
-                        detailBarangPost.map((data) => data["IDBARANG"]).join(",");
-
-                    List<dynamic> lsLocalUpdate = await dbh.readDatabase(
-                        "SELECT idbarang,detail_barang FROM barang_temp WHERE idbarang IN ($listDataUpdateStr)");
 
                     log(result.toString());
                     if (result != null) {

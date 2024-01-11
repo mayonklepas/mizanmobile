@@ -52,6 +52,8 @@ class _MainPageState extends State<MainPage> {
     String urlString = "${Utils.mainUrl}user/login";
     Uri url = Uri.parse(urlString);
 
+    log(urlString);
+
     Response response = await post(
       url,
       body: jsonEncode(postBody),
@@ -98,9 +100,9 @@ class _MainPageState extends State<MainPage> {
     List<dynamic> _lsData = [];
 
     _lsData.add(<String, String>{
-      "nama": "Mizan Cloud",
-      "url": "http://103.250.11.167:8081/api/",
-      "imageUrl": "http://103.250.11.167/mizan-assets/default/",
+      "nama": "Mizan Cloud Public",
+      "url": "http://mizancloud.com:8082/api/",
+      "imageUrl": "http://mizancloud.com/mizan-assets/default/",
       "companyCode": "public"
     });
     String jsData = jsonEncode(_lsData);

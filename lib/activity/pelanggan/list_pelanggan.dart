@@ -176,6 +176,8 @@ class _ListPelangganState extends State<ListPelanggan> {
     TextEditingController golongan2Ctrl = TextEditingController();
     TextEditingController klasifikasiCtrl = TextEditingController();
     TextEditingController deptCtrl = TextEditingController();
+    TextEditingController longitudeCtrl = TextEditingController();
+    TextEditingController latitudeCtrl = TextEditingController();
 
     dynamic popUpResult;
     String idGolongan1 = "";
@@ -336,6 +338,19 @@ class _ListPelangganState extends State<ListPelanggan> {
                       ),
                     ],
                   ),
+                  Utils.labelForm("Longitude"),
+                  TextField(
+                    controller: longitudeCtrl,
+                  ),
+                  Utils.labelForm("Latitude"),
+                  TextField(
+                    controller: latitudeCtrl,
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
+                  SizedBox(
+                      width: double.infinity,
+                      child:
+                          ElevatedButton(onPressed: () async {}, child: Text("Ambil Koordinat"))),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,
@@ -352,6 +367,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "idgolongan": idGolongan1,
                                 "idgolongan2": idGolongan2,
                                 "idklasifikasi": idKlasifikasi,
+                                "longitude": longitudeCtrl.text,
+                                "latitude": latitudeCtrl.text
                               };
                               result = await _postPelanggan(mapData, "edit");
                             } else {
@@ -362,6 +379,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "idgolongan": idGolongan1,
                                 "idgolongan2": idGolongan2,
                                 "idklasifikasi": idKlasifikasi,
+                                "longitude": longitudeCtrl.text,
+                                "latitude": latitudeCtrl.text
                               };
                               result = await _postPelanggan(mapData, "insert");
                             }

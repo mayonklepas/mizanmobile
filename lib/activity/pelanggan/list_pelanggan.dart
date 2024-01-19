@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
@@ -35,7 +34,8 @@ class _ListPelangganState extends State<ListPelanggan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}pelanggan/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response =
+        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
@@ -69,7 +69,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 padding: EdgeInsets.only(top: 10, bottom: 10),
                                 height: 100,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Column(
                                       children: [
@@ -78,7 +79,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                                               if (Navigator.canPop(context)) {
                                                 Navigator.pop(context);
                                               }
-                                              showModalInputPelanggan(param: dataList);
+                                              showModalInputPelanggan(
+                                                  param: dataList);
                                             },
                                             icon: Icon(
                                               Icons.edit,
@@ -91,17 +93,21 @@ class _ListPelangganState extends State<ListPelanggan> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
-                                              bool isConfirm = await Utils.showConfirmMessage(
-                                                  context, "Yakin ingin menghapus daa ini ?");
+                                              bool isConfirm = await Utils
+                                                  .showConfirmMessage(context,
+                                                      "Yakin ingin menghapus daa ini ?");
 
                                               if (isConfirm) {
                                                 Map<String, Object> mapData = {
-                                                  "noindex": dataList["NOINDEX"].toString()
+                                                  "noindex": dataList["NOINDEX"]
+                                                      .toString()
                                                 };
                                                 dynamic result =
-                                                    await _postPelanggan(mapData, "delete");
+                                                    await _postPelanggan(
+                                                        mapData, "delete");
                                                 setState(() {
-                                                  _dataPelanggan = _getDataPelanggan();
+                                                  _dataPelanggan =
+                                                      _getDataPelanggan();
                                                 });
                                                 if (Navigator.canPop(context)) {
                                                   Navigator.pop(context);
@@ -136,7 +142,9 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
+                                    Utils.labelSetter(
+                                        dataList["NAMA"].toString(),
+                                        bold: true),
                                     Utils.labelValueSetter(
                                       "GOL 1",
                                       dataList["NAMA_GOLONGAN"].toString(),
@@ -210,9 +218,11 @@ class _ListPelangganState extends State<ListPelanggan> {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -239,7 +249,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -267,7 +278,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -295,7 +307,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "klasifikasi");
                               },
@@ -323,7 +336,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "dept");
                               },
@@ -349,8 +363,19 @@ class _ListPelangganState extends State<ListPelanggan> {
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,
-                      child:
-                          ElevatedButton(onPressed: () async {}, child: Text("Ambil Koordinat"))),
+                      child: ElevatedButton(
+                          onPressed: () async {
+                            var geopos = await Geolocator.getCurrentPosition(
+                                desiredAccuracy: LocationAccuracy.medium);
+
+                            double latitude = geopos.latitude;
+                            double longitude = geopos.longitude;
+                            setState(() {
+                              longitudeCtrl.text = longitude.toString();
+                              latitudeCtrl.text = latitude.toString();
+                            });
+                          },
+                          child: Text("Ambil Koordinat"))),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,

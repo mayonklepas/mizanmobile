@@ -86,16 +86,21 @@ class _ListPenjualanState extends State<ListPenjualan> {
                       children: [
                         Utils.labelValueSetter("Periode",
                             "${Utils.formatDate(_dataMastePenjualan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualan["TANGGAL_HINGGA"])}"),
-                        Utils.labelValueSetter("Department", Utils.namaDeptTemp),
+                        Utils.labelValueSetter(
+                            "Department", Utils.namaDeptTemp),
                         Utils.labelValueSetter(
                           "Bagian Penjualan",
                           Utils.namaPenggunaTemp,
                         ),
-                        Utils.labelValueSetter("Total Penjualan Tunai",
-                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
+                        Utils.labelValueSetter(
+                            "Total Penjualan Tunai",
+                            Utils.formatNumber(
+                                _dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
                             boldValue: true),
-                        Utils.labelValueSetter("Total Penjualan Kredit",
-                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
+                        Utils.labelValueSetter(
+                            "Total Penjualan Kredit",
+                            Utils.formatNumber(
+                                _dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
                             boldValue: true)
                       ],
                     ),
@@ -107,41 +112,55 @@ class _ListPenjualanState extends State<ListPenjualan> {
                       dynamic dataList = snapshot.data![index];
                       return Container(
                         child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Utils.bagde((index + 1).toString()),
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 5),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Utils.labelSetter(
-                                          dataList["NOREF"],
-                                          bold: true,
-                                        ),
-                                        Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
-                                        Utils.labelSetter(dataList["KETERANGAN"]),
-                                        Utils.labelSetter(dataList["BAGIAN_PENJUALAN"]),
-                                        Utils.labelSetter(
-                                            Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
-                                            bold: true),
-                                        Container(
-                                          alignment: Alignment.bottomRight,
-                                          child: Utils.labelSetter(
-                                              Utils.formatDate(dataList["TANGGAL"]),
-                                              size: 12),
-                                        )
-                                      ],
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (contenxt) {
+                                return InputPenjualan(idTransaksi: dataList["NOINDEX"]);
+                              }));
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Utils.bagde((index + 1).toString()),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 5),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Utils.labelSetter(
+                                            dataList["NOREF"],
+                                            bold: true,
+                                          ),
+                                          Utils.labelSetter(
+                                              dataList["NAMA_PELANGGAN"]),
+                                          Utils.labelSetter(
+                                              dataList["KETERANGAN"]),
+                                          Utils.labelSetter(
+                                              dataList["BAGIAN_PENJUALAN"]),
+                                          Utils.labelSetter(
+                                              Utils.formatNumber(
+                                                  dataList["TOTAL_PENJUALAN"]),
+                                              bold: true),
+                                          Container(
+                                            alignment: Alignment.bottomRight,
+                                            child: Utils.labelSetter(
+                                                Utils.formatDate(
+                                                    dataList["TANGGAL"]),
+                                                size: 12),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

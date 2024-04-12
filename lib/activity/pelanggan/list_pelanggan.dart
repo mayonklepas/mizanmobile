@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
@@ -349,8 +350,24 @@ class _ListPelangganState extends State<ListPelanggan> {
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,
-                      child:
-                          ElevatedButton(onPressed: () async {}, child: Text("Ambil Koordinat"))),
+                      child: ElevatedButton(
+                          onPressed: () async {
+
+                            
+                            Position geoPosition = await Geolocator.getCurrentPosition(
+                                desiredAccuracy: LocationAccuracy.medium);
+
+
+
+                            double longitude = geoPosition.longitude;
+                            double latitude = geoPosition.latitude;
+
+                            log(longitude.toString());
+
+                            longitudeCtrl.text = longitude.toString();
+                            latitudeCtrl.text = latitude.toString();
+                          },
+                          child: Text("Ambil Koordinat"))),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,

@@ -52,7 +52,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   List<dynamic> dataList = [];
   List<dynamic> dataListShow = [];
 
-  Future<dynamic> _getBarangs(String keyword) async {
+  Future<dynamic> _getBarang(String keyword) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
@@ -77,15 +77,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
     return jsonData;
   }
 
-  dynamic _getDetailPenjualan() {
+  List<dynamic> _getDetailPenjualan() {
     List<dynamic> dataSample = [
       <String, Object>{
-        "NOINDEX": "",
-        "NAMA": "",
-        "KODE": "",
-        "SATUAN": "",
-        "JUMLAH": 0,
-        "HARGA": 0,
+        "NOINDEX": "1",
+        "NAMA": "BARANG",
+        "KODE": "0098",
+        "SATUAN": "PCS",
+        "QTY": 10,
+        "DISKON_NOMINAL": 0,
+        "HARGA": 150000,
       }
     ];
 
@@ -97,6 +98,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     // TODO: implement initState
     tanggalCtrl.text = tanggalTransaksi;
     keteranganCtrl.text = "Penjualan mobile";
+    dataListShow = _getDetailPenjualan();
     super.initState();
   }
 

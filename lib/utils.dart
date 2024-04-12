@@ -17,6 +17,8 @@ class Utils {
 
   static String mainUrl = "";
 
+  static String imageDefaultUrl = "";
+
   static String idDept = "";
 
   static String idDeptTemp = "";

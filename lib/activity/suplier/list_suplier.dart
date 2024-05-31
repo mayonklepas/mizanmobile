@@ -77,6 +77,10 @@ class _ListSuplierState extends State<ListSuplier> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               if (Navigator.canPop(context)) {
                                                 Navigator.pop(context);
                                               }
@@ -93,6 +97,10 @@ class _ListSuplierState extends State<ListSuplier> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               bool isConfirm = await Utils.showConfirmMessage(
                                                   context, "Yakin ingin menghapus dara ini ?");
 
@@ -102,12 +110,19 @@ class _ListSuplierState extends State<ListSuplier> {
                                                 };
                                                 dynamic result =
                                                     await _postSuplier(mapData, "delete");
-                                                setState(() {
-                                                  _dataSuplier = _getDataSuplier();
-                                                });
+
                                                 if (Navigator.canPop(context)) {
                                                   Navigator.pop(context);
                                                 }
+
+                                                if (result["status"] == 1) {
+                                                  Utils.showMessage(result["message"], context);
+                                                  return;
+                                                }
+
+                                                setState(() {
+                                                  _dataSuplier = _getDataSuplier();
+                                                });
                                               }
                                             },
                                             icon: Icon(
@@ -172,6 +187,7 @@ class _ListSuplierState extends State<ListSuplier> {
     TextEditingController golonganCtrl = TextEditingController();
     TextEditingController klasifikasiCtrl = TextEditingController();
     TextEditingController deptCtrl = TextEditingController();
+    TextEditingController alamatCtrl = TextEditingController();
 
     dynamic popUpResult;
     String idKlasifikasi = "";
@@ -180,6 +196,7 @@ class _ListSuplierState extends State<ListSuplier> {
     String namaDept = Utils.namaDept;
     String noIndex = "";
     String textMode = "Tambah Suplier";
+    String alamat = "";
 
     deptCtrl.text = namaDept;
 
@@ -206,7 +223,7 @@ class _ListSuplierState extends State<ListSuplier> {
                 children: [
                   Utils.labelSetter(textMode, size: 25),
                   Padding(padding: EdgeInsets.all(10)),
-                  Text("Kode"),
+                  Text("Kode (Kosongkan untuk auto generate)"),
                   TextField(
                     controller: kodeCtrl,
                   ),
@@ -298,11 +315,20 @@ class _ListSuplierState extends State<ListSuplier> {
                       ),
                     ],
                   ),
+                  Utils.labelForm("Alamat"),
+                  TextField(
+                    controller: alamatCtrl,
+                  ),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
+                            if (idGolongan.isEmpty) {
+                              Utils.showMessage("Golongan 1 tidak boleh kosong", context);
+                              return;
+                            }
+
                             Map<String, Object> mapData = {};
                             dynamic result;
                             if (param != null) {
@@ -313,6 +339,7 @@ class _ListSuplierState extends State<ListSuplier> {
                                 "idgolongan": idGolongan,
                                 "iddept": idDept,
                                 "idklasifikasi": idKlasifikasi,
+                                "alamat": alamatCtrl.text,
                               };
                               result = await _postSuplier(mapData, "edit");
                             } else {
@@ -322,10 +349,15 @@ class _ListSuplierState extends State<ListSuplier> {
                                 "idgolongan": idGolongan,
                                 "iddept": idDept,
                                 "idklasifikasi": idKlasifikasi,
+                                "alamat": alamatCtrl.text,
                               };
                               result = await _postSuplier(mapData, "insert");
                             }
                             Navigator.pop(context);
+                            if (result["status"] == 1) {
+                              Utils.showMessage(result["message"], context);
+                              return;
+                            }
                             setState(() {
                               _dataSuplier = _getDataSuplier();
                             });
@@ -343,15 +375,20 @@ class _ListSuplierState extends State<ListSuplier> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          size: 30,
-        ),
-        onPressed: () {
-          showModalInputSuplier();
-        },
-      ),
+      floatingActionButton: Utils.widgetSetter(() {
+        if (Utils.hakAkses["mobile_inputdatamaster"] == 0) {
+          return Container();
+        }
+        return FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            size: 30,
+          ),
+          onPressed: () {
+            showModalInputSuplier();
+          },
+        );
+      }),
       appBar: AppBar(
         title: customSearchBar,
         actions: [

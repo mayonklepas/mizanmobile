@@ -101,6 +101,21 @@ class _LoginState extends State<Login> {
                                 Utils.idUser = data["iduser"];
                                 Utils.token = data["token"];
                                 Utils.namaUser = data["username"];
+                                Utils.hakAkses = {
+                                  "MOBILE_DASHBOARD": data["MOBILE_DASHBOARD"],
+                                  "MOBILE_SETUPPROGRAM": data["MOBILE_SETUPPROGRAM"],
+                                  "MOBILE_INPUTDATAMASTER": data["MOBILE_INPUTDATAMASTER"],
+                                  "MOBILE_EDITDATAMASTER": data["MOBILE_EDITDATAMASTER"],
+                                  "MOBILE_EDITPENJUALAN": data["MOBILE_EDITPENJUALAN"],
+                                  "MOBILE_INPUTPEMBAYARANPIUTANG": data["MOBILE_INPUTPEMBAYARAN"],
+                                  "MOBILE_EDITPENERIMAANBARANG":
+                                      data["MOBILE_EDITPENERIMAANBARANG"],
+                                  "MOBILE_EDITPEMBELIAN": data["MOBILE_EDITPEMBELIAN"],
+                                  "MOBILE_INPUTPEMBAYARANHUTANG":
+                                      data["MOBILE_INPUTPEMBELIANHUTANG"],
+                                  "MOBILE_EDITSTOKOPNAME": data["MOBILE_EDITSTOKOPNAME"],
+                                  "MOBILE_EDITTRANSFERBARANG": data["MOBILE_EDITTRANSFERBARANG"]
+                                };
                                 Navigator.pushReplacement(context, MaterialPageRoute(
                                   builder: (context) {
                                     return HomeActivity();

@@ -79,6 +79,7 @@ class _ListHutangDetailState extends State<ListHutangDetail> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Utils.labelSetter(dataList["NOREF"], bold: true),
+                                    Utils.labelSetter(dataList["DEPTNAME"], bold: true),
                                     Utils.labelValueSetter(
                                         "Jatuh Tempo", Utils.formatDate(dataList["JATUH_TEMPO"])),
                                     Utils.labelValueSetter(

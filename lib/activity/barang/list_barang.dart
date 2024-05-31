@@ -28,12 +28,17 @@ class _ListBarangState extends State<ListBarang> {
   String imagePreview = "";
   String buttonText = "Ganti Gambar";
 
-  Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
+  Future<List<dynamic>> _getDataBarang({String keyword = "", String sort = ""}) async {
     Uri url = Uri.parse(mainUrlString);
     log(url.toString());
-    if (keyword != null && keyword != "") {
+    if (keyword != "") {
       url = Uri.parse(cariUrlString + keyword);
     }
+
+    if (sort != "") {
+      url = Uri.parse(mainUrlString + "&sort=" + sort);
+    }
+
     http.Response response = await http.get(url, headers: Utils.setHeader());
     String body = response.body;
     log(body);
@@ -117,6 +122,10 @@ class _ListBarangState extends State<ListBarang> {
                                       children: [
                                         IconButton(
                                             onPressed: () {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               if (Navigator.canPop(context)) {
                                                 Navigator.pop(context);
                                               }
@@ -139,6 +148,10 @@ class _ListBarangState extends State<ListBarang> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               bool isConfirm = await Utils.showConfirmMessage(
                                                   context, "Yakin ingin menghapus data ini ?");
 
@@ -275,7 +288,15 @@ class _ListBarangState extends State<ListBarang> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(dataList["NAMA"], bold: true),
+                                    Utils.widgetSetter(() {
+                                      double stokminimum = dataList["STOK_MINIMUM"];
+                                      double stok = dataList["STOK"];
+                                      if (stok <= stokminimum) {
+                                        return Utils.labelSetter(dataList["NAMA"],
+                                            bold: true, color: Colors.red);
+                                      }
+                                      return Utils.labelSetter(dataList["NAMA"], bold: true);
+                                    }),
                                     (Utils.labelSetter(dataList["KODE"])),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -283,10 +304,15 @@ class _ListBarangState extends State<ListBarang> {
                                         Utils.labelSetter(
                                             Utils.formatNumber(dataList["HARGA_JUAL"]),
                                             bold: true),
-                                        Utils.labelSetter("Stok : " +
-                                            Utils.formatNumber(dataList["STOK"]) +
-                                            " " +
-                                            dataList["KODE_SATUAN"]),
+                                        Utils.widgetSetter(() {
+                                          if (Utils.isShowStockProgram == "0") {
+                                            return Container();
+                                          }
+                                          return Utils.labelSetter("Stok : " +
+                                              Utils.formatNumber(dataList["STOK"]) +
+                                              " " +
+                                              dataList["KODE_SATUAN"]);
+                                        }),
                                       ],
                                     )
                                   ],
@@ -310,21 +336,26 @@ class _ListBarangState extends State<ListBarang> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          size: 30,
-        ),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(
-            builder: (context) {
-              return InputBarang(
-                idBarang: "",
-              );
-            },
-          ));
-        },
-      ),
+      floatingActionButton: Utils.widgetSetter(() {
+        if (Utils.hakAkses["mobile_inputdatamaster"] == 0) {
+          return Container();
+        }
+        return FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            size: 30,
+          ),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return InputBarang(
+                  idBarang: "",
+                );
+              },
+            ));
+          },
+        );
+      }),
       appBar: AppBar(
         title: customSearchBar,
         actions: [
@@ -355,7 +386,40 @@ class _ListBarangState extends State<ListBarang> {
                   _dataBarang = _getDataBarang(keyword: barcodeScanRes);
                 });
               },
-              icon: Icon(Icons.qr_code_scanner))
+              icon: Icon(Icons.qr_code_scanner)),
+          IconButton(
+              onPressed: () async {
+                List<Map<String, String>> itemsValue = [
+                  {"label": "Nama", "value": "nama"},
+                  {"label": "Modal", "value": "modal"},
+                  {"label": "Stok Minimum", "value": "stokminimum"},
+                ];
+
+                List<Widget> items = [];
+
+                for (var d in itemsValue) {
+                  Widget item = Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            _dataBarang = _getDataBarang(sort: d["value"]!);
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: ListTile(
+                          leading: Icon(Icons.sort),
+                          title: Utils.labelSetter(d["label"]!, size: 17),
+                        ),
+                      ),
+                      Divider()
+                    ],
+                  );
+                  items.add(item);
+                }
+                Utils.showListDialog("Urut Berdasarkan", items, context);
+              },
+              icon: Icon(Icons.sort_sharp))
         ],
       ),
       body: RefreshIndicator(

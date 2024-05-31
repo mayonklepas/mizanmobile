@@ -81,16 +81,19 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
       globalResultData = await resultData;
     }
 
-    dynamic header = resultData["header"];
     List<dynamic> detail = resultData["detail"];
     setState(() {
-      norefGlobal = header["NOREF"];
-      namaGudangDari = header["NAMA_GUDANG_DARI"];
-      idGudangDari = header["IDGUDANGDARI"];
-      namaGudangKe = header["NAMA_GUDANG_TUJUAN"];
-      idGudangKe = header["IDGUDANGTUJUAN"];
-      tanggalTransaksi = header["TANGGAL"];
-      keterangan = header["KETERANGAN"];
+      Map<String, dynamic> header = resultData["header"] ?? {};
+      if (header.isNotEmpty) {
+        norefGlobal = header["NOREF"] ?? norefGlobal;
+        namaGudangDari = header["NAMA_GUDANG_DARI"] ?? namaGudangDari;
+        idGudangDari = header["IDGUDANGDARI"] ?? idGudangDari;
+        namaGudangKe = header["NAMA_GUDANG_TUJUAN"] ?? namaGudangKe;
+        idGudangKe = header["IDGUDANGTUJUAN"] ?? idGudangKe;
+        tanggalTransaksi = header["TANGGAL"] ?? tanggalTransaksi;
+        keterangan = header["KETERANGAN"] ?? keterangan;
+      }
+
       listContainer = Container(
         child: ListView.builder(
             itemCount: detail.length,
@@ -222,7 +225,12 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Utils.labelSetter("Tambah Barang", size: 25, bold: true),
+                  Utils.widgetSetter(() {
+                    if (param == null) {
+                      return Utils.labelSetter("Tambah Barang", size: 25, bold: true);
+                    }
+                    return Utils.labelSetter("Edit Barang", size: 25, bold: true);
+                  }),
                   Padding(padding: EdgeInsets.all(10)),
                   Text("Kode Barang"),
                   Row(
@@ -350,12 +358,14 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                           onPressed: () async {
                             log(globalResultData.toString());
 
-                            if (globalResultData["detail"] != null) {
-                              List<dynamic> detail = globalResultData["detail"];
-                              for (var d in detail) {
-                                if (d["IDBARANG"] == idBarang) {
-                                  Utils.showMessage("Barang Sudah ada di daftar", context);
-                                  return;
+                            if (param == null) {
+                              if (globalResultData["detail"] != null) {
+                                List<dynamic> detail = globalResultData["detail"];
+                                for (var d in detail) {
+                                  if (d["IDBARANG"] == idBarang) {
+                                    Utils.showMessage("Barang Sudah ada di daftar", context);
+                                    return;
+                                  }
                                 }
                               }
                             }
@@ -383,8 +393,8 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                             } else {
                               mapData = {
                                 "idgenjur": idTransaksiGlobal,
-                                "gudangdari": idGudangDari,
-                                "gudangtujuan": idGudangKe,
+                                "idgudangdari": idGudangDari,
+                                "idgudangtujuan": idGudangKe,
                                 "idbarang": idBarang,
                                 "jumlah": double.parse(jumlahCtrl.text),
                                 "idsatuan": idSatuan,

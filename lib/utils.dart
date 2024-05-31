@@ -85,6 +85,28 @@ class Utils {
 
   static String bluetoothName = "";
 
+  static String isPdtMode = "0";
+
+  static String isShowStockProgram = "0";
+
+  static String footerStruk = "";
+
+  static String headerStruk = "";
+
+  static Map<String, dynamic> hakAkses = {
+    "mobile_dashboard": 0,
+    "mobile_setupprogram": 0,
+    "mobile_inputdatamaster": 0,
+    "mobile_editdatamaster": 0,
+    "mobile_editpenjualan": 0,
+    "mobile_inputpembayaranpiutang": 0,
+    "mobile_editpenerimaanbarang": 0,
+    "mobile_editpembelian": 0,
+    "mobile_inputpembayaranhutang": 0,
+    "mobile_editstokopname": 0,
+    "mobile_edittransferbarang": 0
+  };
+
   static getPref(String key) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? result = sp.getString(key);
@@ -184,6 +206,19 @@ class Utils {
     return formattedDate;
   }
 
+  static InputDecoration inputDecoration(String hint) {
+    InputDecoration decor = InputDecoration(
+        fillColor: Colors.white,
+        filled: true,
+        contentPadding: EdgeInsets.only(),
+        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+        hintText: hint,
+        prefixIcon: Icon(Icons.search),
+        hintStyle: TextStyle(color: Colors.black54));
+    return decor;
+  }
+
   static Widget appBarSearch(void Function(String keyword) search,
       {String hint = "Cari", bool focus = true}) {
     return Container(
@@ -209,26 +244,37 @@ class Utils {
   }
 
   static Widget appBarSearchDynamic(void Function(String keyword) search,
-      {String hint = "Cari", bool focus = true}) {
+      {String hint = "Cari", bool focus = true, String mode = "onChange"}) {
+    InputDecoration decor = InputDecoration(
+        fillColor: Colors.white,
+        filled: true,
+        contentPadding: EdgeInsets.only(),
+        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
+        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+        hintText: hint,
+        prefixIcon: Icon(Icons.search),
+        hintStyle: TextStyle(color: Colors.black54));
+    if (mode == "onChange") {
+      return Container(
+          height: 35,
+          child: TextField(
+              cursorColor: Colors.blueAccent,
+              style: TextStyle(color: Colors.black54),
+              decoration: decor,
+              textInputAction: TextInputAction.search,
+              autofocus: focus,
+              onChanged: search));
+    }
+
     return Container(
         height: 35,
         child: TextField(
           cursorColor: Colors.blueAccent,
           style: TextStyle(color: Colors.black54),
-          decoration: InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              contentPadding: EdgeInsets.only(),
-              enabledBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-              focusedBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
-              hintText: hint,
-              prefixIcon: Icon(Icons.search),
-              hintStyle: TextStyle(color: Colors.black54)),
+          decoration: decor,
           textInputAction: TextInputAction.search,
           autofocus: focus,
-          onChanged: search,
+          onSubmitted: search,
         ));
   }
 
@@ -479,6 +525,37 @@ class Utils {
         });
   }
 
+  static showListDialog(String title, List<Widget> items, BuildContext context,
+      {double size = 300}) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+              height: size,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Expanded(
+                    flex: 0,
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: labelSetter(title, size: 19),
+                    ),
+                  ),
+                  Expanded(
+                      child: ListView(
+                    children: items,
+                  ))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   static Future<List<dynamic>> getDataBarangByCode(String barcode) async {
     String urlString =
         "${Utils.mainUrl}datapopup/daftarbarang?idgudang=${Utils.idGudang}&cari=$barcode";
@@ -594,6 +671,11 @@ class Utils {
     Utils.namaKelompokTransaksi = "SEMUA";
   }
 
+  static Future<void> initHakAkses() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    Utils.hakAkses = jsonDecode(sp.getString("hakakses")!);
+  }
+
   static String removeDotSeparator(String src) {
     return src.replaceAll(".", "");
   }
@@ -603,9 +685,10 @@ class Utils {
     Utils.connectionName = sp.getString("defaultConnectionName").toString();
     Utils.mainUrl = sp.getString("defaultConnection").toString();
     Utils.imageUrl = sp.getString("defaultImageUrl").toString();
-    Utils.idUser = sp.getString("defaultIdUser").toString();
-    Utils.token = sp.getString("token").toString();
-    Utils.namaUser = sp.getString("namaUser").toString();
+    //Utils.idUser = sp.getString("defaultIdUser").toString();
+    //Utils.token = sp.getString("token").toString();
+    //Utils.namaUser = sp.getString("namauser").toString();
+    //Utils.hakAkses = jsonDecode(sp.getString("hakakses").toString()) ?? {};
 
     Utils.companyCode = sp.getString("defaultCompanyCode").toString();
 
@@ -629,6 +712,8 @@ class Utils {
       Utils.namaKelompok = mapSetup["defaultNamaKelompok"].toString();
       Utils.bluetoothId = mapSetup["defaultIdBluetoothDevice"].toString();
       Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toString();
+      Utils.isPdtMode = mapSetup["defaultIsPdtMode"] ?? "0";
+      Utils.isShowStockProgram = mapSetup["defaultIsShowStockProgram"] ?? "0";
     }
   }
 
@@ -668,10 +753,10 @@ class Utils {
   static Future<void> syncLocalData({bool isDebug = false}) async {
     try {
       var db = DatabaseHelper();
-      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
       String lastUpdate = lsSyncInfo[0]["last_updated"];
       String urlString =
-          "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${Utils.idGudang}";
+          "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${idGudang}";
       if (isDebug == true) {
         urlString =
             "http://103.250.11.167:8081/api/barang/syncbarang?tglupdate=$lastUpdate&idgudang=1-1";
@@ -687,7 +772,7 @@ class Utils {
       if (lsbarangTemp.isNotEmpty) {
         for (var d in dataBarang) {
           String idbarang = d["detail_barang"]["NOINDEX"].toString();
-          String query = "DELETE FROM barang_temp WHERE idbarang = '$idbarang' ";
+          String query = "DELETE FROM barang_temp WHERE idbarang = '$idbarang'";
           lsQueryDelete.add(query);
         }
         log("Deleting ${Utils.formatNumber(lsQueryDelete.length)} duplicate data");
@@ -712,11 +797,15 @@ class Utils {
       await db.writeBatchDatabase(lsQueryInsert);
 
       log("Updating sync info");
-      await db.writeDatabase("UPDATE sync_info SET last_updated = ? WHERE id = 1",
+      await db.writeDatabase("UPDATE sync_info SET last_updated = ?",
           params: [Utils.currentDateTimeString()]);
     } catch (e, stacktrace) {
       log(e.toString());
       log(stacktrace.toString());
     }
+  }
+
+  static Widget widgetSetter(Widget Function() setter) {
+    return setter();
   }
 }

@@ -113,6 +113,11 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                           children: [
                                             IconButton(
                                                 onPressed: () {
+                                                  if (Utils.hakAkses["mobile_editstokopname"] ==
+                                                      0) {
+                                                    return Utils.showMessage(
+                                                        "Akses ditolak", context);
+                                                  }
                                                   if (Navigator.canPop(context)) {
                                                     Navigator.pop(context);
                                                   }
@@ -135,6 +140,12 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                           children: [
                                             IconButton(
                                                 onPressed: () async {
+                                                  if (Utils.hakAkses["mobile_editstokopname"] ==
+                                                      0) {
+                                                    return Utils.showMessage(
+                                                        "Akses ditolak", context);
+                                                  }
+
                                                   Map<String, Object> mapData = {
                                                     "idgenjur": dataList["NOINDEX"]
                                                   };

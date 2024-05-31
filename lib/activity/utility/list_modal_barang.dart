@@ -21,15 +21,20 @@ class ListModalBarang extends StatefulWidget {
 
 class _ListModalBarangState extends State<ListModalBarang> {
   Future<List<dynamic>>? _dataBarang;
+  String inKeyword = "";
+  bool isShowLoading = false;
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     if (widget.isLocal) {
-      List<dynamic> listBarang = await DatabaseHelper()
-          .readDatabase("SELECT idbarang,detail_barang FROM barang_temp LIMIT 100");
-      if (keyword != "") {
+      isShowLoading = false;
+      List<dynamic> listBarang = [];
+      if (keyword.isEmpty) {
+        listBarang = await DatabaseHelper()
+            .readDatabase("SELECT idbarang,kode,nama,detail_barang FROM barang_temp LIMIT 100");
+      } else {
         listBarang = await DatabaseHelper().readDatabase(
-            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE nama LIKE ? LIMIT 100",
-            params: ["%$keyword%"]);
+            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE (nama LIKE ? OR kode LIKE ?) LIMIT 100",
+            params: ["%$keyword%", "%$keyword%"]);
       }
 
       List<dynamic> listBarangSort = List.of(listBarang);
@@ -47,6 +52,11 @@ class _ListModalBarangState extends State<ListModalBarang> {
       return listBarangContainer;
     }
 
+    List<dynamic> listBarangContainer = await __getDataBarangOnline(keyword);
+    return listBarangContainer;
+  }
+
+  Future<List<dynamic>> __getDataBarangOnline(String keyword) async {
     String mainUrlString =
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;
     Uri url = Uri.parse(mainUrlString);
@@ -57,8 +67,13 @@ class _ListModalBarangState extends State<ListModalBarang> {
     return jsonData;
   }
 
+  String mode = "onSubmit";
+
   @override
   void initState() {
+    if (widget.isLocal) {
+      mode = "onChange";
+    }
     _dataBarang = _getDataBarang(keyword: widget.keyword);
     super.initState();
   }
@@ -71,6 +86,26 @@ class _ListModalBarangState extends State<ListModalBarang> {
         if (snapshot.connectionState == ConnectionState.waiting && widget.isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
+          if (snap.isEmpty) {
+            return Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Utils.labelSetter("Data tidak ditemukan di penyimpanan lokal", size: 17),
+                    ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            isShowLoading = true;
+                            _dataBarang = __getDataBarangOnline(inKeyword);
+                          });
+                        },
+                        child: Text("Cari online"))
+                  ],
+                ),
+              ),
+            );
+          }
           return ListView.builder(
               itemCount: snap.length,
               itemBuilder: (BuildContext contex, int index) {
@@ -103,8 +138,14 @@ class _ListModalBarangState extends State<ListModalBarang> {
                                         Utils.labelSetter(
                                             Utils.formatNumber(dataList["HARGA_JUAL"]),
                                             bold: true),
-                                        Utils.labelSetter(
-                                            "Stok : " + Utils.formatNumber(dataList["STOK"])),
+                                        Utils.widgetSetter(() {
+                                          if (Utils.isShowStockProgram == "1") {
+                                            return Utils.labelSetter(
+                                                "Stok : " + Utils.formatNumber(dataList["STOK"]));
+                                          }
+
+                                          return Container();
+                                        }),
                                       ],
                                     )
                                   ],
@@ -130,9 +171,10 @@ class _ListModalBarangState extends State<ListModalBarang> {
       appBar: AppBar(
         title: Utils.appBarSearchDynamic((keyword) {
           setState(() {
+            inKeyword = keyword;
             _dataBarang = _getDataBarang(keyword: keyword);
           });
-        }),
+        }, hint: widget.keyword, mode: mode),
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.qr_code_scanner))],
       ),
       body: RefreshIndicator(

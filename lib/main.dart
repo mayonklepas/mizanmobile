@@ -101,7 +101,7 @@ class _MainPageState extends State<MainPage> {
 
     _lsData.add(<String, String>{
       "nama": "Mizan Cloud Public",
-      "url": "http://mizancloud.com:8082/api/",
+      "url": "http://mizancloud.com:8081/api/",
       "imageUrl": "http://mizancloud.com/mizan-assets/default/",
       "companyCode": "public"
     });
@@ -113,6 +113,7 @@ class _MainPageState extends State<MainPage> {
     sp.setString("defaultConnection", dataList["url"]);
     sp.setString("defaultImageUrl", dataList["imageUrl"]);
     sp.setString("defaultCompanyCode", dataList["companyCode"]);
+    //sp.setString("defaultHakAkses", jsonEncode(dataList["hakAkses"]));
     sp.reload();
 
     Utils.setAllPref();
@@ -218,9 +219,11 @@ class _MainPageState extends State<MainPage> {
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
+                                  sp.setString("hakakses", jsonEncode(data["hakakses"]));
                                   Utils.idUser = data["iduser"];
                                   Utils.token = data["token"];
                                   Utils.namaUser = data["username"];
+                                  Utils.hakAkses = data["hakakses"];
                                   Navigator.pushReplacement(context, MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();

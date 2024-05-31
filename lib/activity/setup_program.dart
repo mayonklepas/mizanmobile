@@ -34,6 +34,12 @@ class _SetupProgramState extends State<SetupProgram> {
   String idLokasi = "";
   TextEditingController bluetoothDeviceCtrl = TextEditingController();
   String idBluetoothDevice = "";
+  bool isPdtMode = false;
+  String isPdtModevalue = "0";
+  bool isShowStockProgram = false;
+  static String isShowStockProgramValue = "0";
+  TextEditingController footerStrukCtrl = TextEditingController();
+  TextEditingController headerStrukCtrl = TextEditingController();
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -57,6 +63,17 @@ class _SetupProgramState extends State<SetupProgram> {
       namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"].toString();
       bluetoothDeviceCtrl.text = mapSetup["defaultBluetoothDevice"].toString();
       idBluetoothDevice = mapSetup["defaultIdBluetoothDevice"].toString();
+      isPdtModevalue = mapSetup["defaultIsPdtMode"].toString();
+      if (isPdtModevalue == "1") {
+        isPdtMode = true;
+      }
+
+      isShowStockProgramValue = mapSetup["defaultIsShowStockProgram"].toString();
+      if (isShowStockProgramValue == "1") {
+        isShowStockProgram = true;
+      }
+      headerStrukCtrl.text = mapSetup["defaultHeaderStruk"].toString();
+      footerStrukCtrl.text = mapSetup["defaultFooterStruk"].toString();
     });
   }
 
@@ -324,6 +341,51 @@ class _SetupProgramState extends State<SetupProgram> {
                     ),
                   ],
                 ),
+                Padding(padding: EdgeInsets.all(5)),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isPdtMode,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isPdtMode = value!;
+                          if (value == true) {
+                            isPdtModevalue = "1";
+                          } else {
+                            isPdtModevalue = "0";
+                          }
+                        });
+                      },
+                    ),
+                    Text("Gunakan Mode PDT"),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isShowStockProgram,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isShowStockProgram = value!;
+                          if (value == true) {
+                            isShowStockProgramValue = "1";
+                          } else {
+                            isShowStockProgramValue = "0";
+                          }
+                        });
+                      },
+                    ),
+                    Text("Tampilkan Stok Program"),
+                  ],
+                ),
+                Utils.labelForm("Header Struk"),
+                TextField(
+                  controller: headerStrukCtrl,
+                ),
+                Utils.labelForm("Footer Struk"),
+                TextField(
+                  controller: footerStrukCtrl,
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -346,7 +408,11 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIdLokasi": idLokasi,
                           "defaultNamaLokasi": namaLokasiCtrl.text,
                           "defaultBluetoothDevice": bluetoothDeviceCtrl.text,
-                          "defaultIdBluetoothDevice": idBluetoothDevice
+                          "defaultIdBluetoothDevice": idBluetoothDevice,
+                          "defaultIsPdtMode": isPdtModevalue,
+                          "defaultIsShowStockProgram": isShowStockProgramValue,
+                          "defaultHeaderStruk": headerStrukCtrl.text,
+                          "defaultFooterStruk": footerStrukCtrl.text
                         };
 
                         String jsonSetup = jsonEncode(mapSetup);
@@ -373,6 +439,10 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.satuan = satuanCtrl.text;
                           Utils.bluetoothId = idBluetoothDevice;
                           Utils.bluetoothName = bluetoothDeviceCtrl.text;
+                          Utils.isPdtMode = isPdtModevalue;
+                          Utils.isShowStockProgram = isShowStockProgramValue;
+                          Utils.footerStruk = footerStrukCtrl.text;
+                          Utils.headerStruk = headerStrukCtrl.text;
                         });
                         sp.reload();
                         ScaffoldMessenger.of(context)

@@ -113,7 +113,6 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
       return;
     }
     dynamic dataDetail = await _getDataDetailBarang(idBarang);
-    List<dynamic> dataDetailList = dataDetail["detail_barang"];
     dynamic dataInfo = dataDetail["detail_barang"][0];
     List<dynamic> dataMultiSatuan = dataDetail["multi_satuan"];
     List<dynamic> dataMultiHarga = dataDetail["multi_harga"];
@@ -782,8 +781,13 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                       enabled: false,
                     )),
                     Expanded(
-                        flex: 0,
-                        child: IconButton(
+                      flex: 0,
+                      child: Utils.widgetSetter(() {
+                        if (!widget.idBarang.isEmpty) {
+                          return Container();
+                        }
+
+                        return IconButton(
                             onPressed: () async {
                               dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                                 builder: (context) {
@@ -797,7 +801,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                               _satuanCtrl.text = popUpResult["NAMA"];
                               _idSatuan = popUpResult["NOINDEX"];
                             },
-                            icon: Icon(Icons.search)))
+                            icon: Icon(Icons.search));
+                      }),
+                    )
                   ],
                 ),
                 Utils.labelForm("Gudang"),
@@ -960,6 +966,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                           context,
                           ElevatedButton(
                               onPressed: () {
+                                Navigator.pop(context);
                                 Navigator.pop(context);
                               },
                               child: Text("Ok")));

@@ -1,3 +1,4 @@
+import 'package:mizanmobile/utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -5,7 +6,7 @@ class DatabaseHelper {
   Future<Database> databaseConnection() async {
     //databaseFactory.deleteDatabase(join(await getDatabasesPath(), "mizan_temp.db"));
     Database _database = await openDatabase(
-      join(await getDatabasesPath(), "mizan_temp.db"),
+      join(await getDatabasesPath(), "${Utils.companyCode}_mizan_temp.db"),
       version: 1,
       onCreate: (db, version) async {
         await db.execute(

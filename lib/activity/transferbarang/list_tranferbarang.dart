@@ -113,6 +113,12 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
                                           children: [
                                             IconButton(
                                                 onPressed: () {
+                                                  if (Utils.hakAkses["mobile_edittransferbarang"] ==
+                                                      0) {
+                                                    return Utils.showMessage(
+                                                        "Akses ditolak", context);
+                                                  }
+
                                                   if (Navigator.canPop(context)) {
                                                     Navigator.pop(context);
                                                   }
@@ -135,6 +141,12 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
                                           children: [
                                             IconButton(
                                                 onPressed: () async {
+                                                  if (Utils.hakAkses["mobile_edittransferbarang"] ==
+                                                      0) {
+                                                    return Utils.showMessage(
+                                                        "Akses ditolak", context);
+                                                  }
+
                                                   Map<String, Object> mapData = {
                                                     "idgenjur": dataList["NOINDEX"]
                                                   };

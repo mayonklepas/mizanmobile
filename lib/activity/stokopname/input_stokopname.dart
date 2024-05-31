@@ -66,6 +66,7 @@ class _InputStokOpnameState extends State<InputStokOpname> {
   @override
   void initState() {
     // TODO: implement initState
+    Utils.initHakAkses();
     _setStokOpname(idTransaksi: widget.idTransaksi);
     super.initState();
   }
@@ -86,16 +87,19 @@ class _InputStokOpnameState extends State<InputStokOpname> {
       globalResultData = resultData;
     }
 
-    dynamic header = resultData["header"];
-    List<dynamic> detail = resultData["detail"];
+    List<dynamic> detail = resultData["detail"] ?? [];
     setState(() {
-      norefGlobal = header["NOREF"];
-      namaGudang = header["NAMA_GUDANG"];
-      idGudang = header["IDGUDANG"];
-      namaAkunOpname = header["NAMA_AKUN"];
-      idAkunOpname = header["KODE_AKUN"];
-      tanggalTransaksi = header["TANGGAL"];
-      keterangan = header["KETERANGAN"];
+      Map<String, dynamic> header = resultData["header"] ?? {};
+      if (header.isNotEmpty) {
+        norefGlobal = header["NOREF"] ?? norefGlobal;
+        namaGudang = header["NAMA_GUDANG"] ?? namaGudang;
+        idGudang = header["IDGUDANG"] ?? idGudang;
+        namaAkunOpname = header["NAMA_AKUN"] ?? namaAkunOpname;
+        idAkunOpname = header["KODE_AKUN"] ?? idAkunOpname;
+        tanggalTransaksi = header["TANGGAL"] ?? tanggalTransaksi;
+        keterangan = header["KETERANGAN"] ?? keterangan;
+      }
+
       listContainer = Container(
         child: ListView.builder(
             itemCount: detail.length,
@@ -175,12 +179,18 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                 children: [
                                   Utils.labelSetter(data["NAMA_BARANG"], bold: true),
                                   Utils.labelSetter(data["KODE_BARANG"]),
-                                  Utils.labelValueSetter(
-                                    "Stok Program",
-                                    Utils.formatNumber(data["STOK_PROGRAM"]) +
-                                        " " +
-                                        data["KODE_SATUAN"],
-                                  ),
+                                  Utils.widgetSetter(() {
+                                    if (Utils.isShowStockProgram == "1") {
+                                      return Utils.labelValueSetter(
+                                        "Stok Program",
+                                        Utils.formatNumber(data["STOK_PROGRAM"]) +
+                                            " " +
+                                            data["KODE_SATUAN"],
+                                      );
+                                    }
+
+                                    return Container();
+                                  }),
                                   Utils.labelValueSetter(
                                     "Stok Fisik",
                                     Utils.formatNumber(data["STOK_FISIK"]) +
@@ -359,12 +369,22 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                       ),
                     ],
                   ),
-                  Utils.labelForm("Stok Program"),
-                  TextField(
-                    controller: stokProgramCtrl,
-                    enabled: false,
-                    keyboardType: TextInputType.number,
-                  ),
+                  Utils.widgetSetter(() {
+                    if (Utils.isShowStockProgram == "1") {
+                      return Utils.labelForm("Stok Program");
+                    }
+                    return Container();
+                  }),
+                  Utils.widgetSetter(() {
+                    if (Utils.isShowStockProgram == "1") {
+                      return TextField(
+                        controller: stokProgramCtrl,
+                        enabled: false,
+                        keyboardType: TextInputType.number,
+                      );
+                    }
+                    return Container();
+                  }),
                   Utils.labelForm("Stok Fisik"),
                   TextField(
                     controller: stokFisikCtrl,
@@ -377,12 +397,22 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                       selisihStokCtrl.text = Utils.formatNumber(selisih);
                     },
                   ),
-                  Utils.labelForm("Selisih"),
-                  TextField(
-                    enabled: false,
-                    controller: selisihStokCtrl,
-                    keyboardType: TextInputType.number,
-                  ),
+                  Utils.widgetSetter(() {
+                    if (Utils.isShowStockProgram == "1") {
+                      return Utils.labelForm("Selisih");
+                    }
+                    return Container();
+                  }),
+                  Utils.widgetSetter(() {
+                    if (Utils.isShowStockProgram == "1") {
+                      return TextField(
+                        enabled: false,
+                        controller: selisihStokCtrl,
+                        keyboardType: TextInputType.number,
+                      );
+                    }
+                    return Container();
+                  }),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,

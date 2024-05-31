@@ -275,13 +275,15 @@ class _HomeActivityState extends State<HomeActivity> {
   double labaBulanan = 0;
 
   setDataHome() async {
-    dynamic data = await _getHome();
-    setState(() {
-      penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
-      penjualanBulanan = data["PENJUALAN_BULANAN"] ?? 0;
-      labaHarian = data["LABA_HARIAN"] ?? 0;
-      labaBulanan = data["LABA_BULANAN"] ?? 0;
-    });
+    if (Utils.hakAkses["mobile_dashboard"] == 1) {
+      dynamic data = await _getHome();
+      setState(() {
+        penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
+        penjualanBulanan = data["PENJUALAN_BULANAN"] ?? 0;
+        labaHarian = data["LABA_HARIAN"] ?? 0;
+        labaBulanan = data["LABA_BULANAN"] ?? 0;
+      });
+    }
   }
 
   periodicTask() async {
@@ -302,6 +304,8 @@ class _HomeActivityState extends State<HomeActivity> {
   @override
   void initState() {
     // TODO: implement initState
+    //Utils.initHakAkses();
+    log(jsonEncode(Utils.hakAkses));
     periodicTask();
     setDataHome();
     _getInfoSyncLocal();
@@ -407,6 +411,10 @@ class _HomeActivityState extends State<HomeActivity> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
+                        if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                          return;
+                        }
+
                         setState(() {
                           penjualanHarian = 0;
                           penjualanBulanan = 0;
@@ -436,6 +444,10 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
+                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return ListPenjualanHarian();
@@ -475,6 +487,10 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
+                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return ListPenjualanBulanan();
@@ -514,6 +530,10 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
+                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return ListLabaHarian();
@@ -553,6 +573,10 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
+                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
                           Navigator.push(context, MaterialPageRoute(
                             builder: (context) {
                               return ListLabaBulanan();
@@ -711,6 +735,10 @@ class _HomeActivityState extends State<HomeActivity> {
               children: [
                 setIconCard(Icons.print_outlined, Colors.blue, "Laporan", () {}),
                 setIconCard(Icons.settings, Colors.blue, "Setup Program", () {
+                  if (Utils.hakAkses["mobile_setupprogram"] == 0) {
+                    return Utils.showMessage("Akses ditolak", context);
+                  }
+
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return SetupProgram();

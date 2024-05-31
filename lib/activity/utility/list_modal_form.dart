@@ -140,7 +140,14 @@ class _ListModalFormState extends State<ListModalForm> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
-                                    Utils.labelSetter(dataList["KODE"].toString())
+                                    Utils.labelSetter(dataList["KODE"].toString()),
+                                    Utils.widgetSetter(() {
+                                      if (widget.type == "pelanggan" || widget.type == "suplier") {
+                                        return Utils.labelValueSetter(
+                                            "GOL", dataList["NAMA_GOLONGAN"].toString());
+                                      }
+                                      return Container();
+                                    })
                                   ],
                                 ),
                               ),

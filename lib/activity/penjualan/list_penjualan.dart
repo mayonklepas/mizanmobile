@@ -10,7 +10,9 @@ import 'package:mizanmobile/activity/penjualan/input_penjualan.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
+import '../../database_helper.dart';
 import '../component/bottom_modal_filter.dart';
+import '../utility/printer_util.dart';
 
 class ListPenjualan extends StatefulWidget {
   const ListPenjualan({Key? key}) : super(key: key);
@@ -67,6 +69,186 @@ class _ListPenjualanState extends State<ListPenjualan> {
     super.initState();
   }
 
+  _printStruck(noindex) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    String urlString = "${Utils.mainUrl}penjualan/rincian?noindex=${noindex}";
+    Uri url = Uri.parse(urlString);
+    Response response = await get(url, headers: Utils.setHeader());
+    String body = response.body;
+    var jsonData = jsonDecode(body)["data"];
+    dynamic headerData = jsonData["header"][0];
+
+    String idPelanggan = headerData["IDPELANGGAN"];
+    String namaPelanggan = headerData["NAMAPELANGGAN"];
+    double jumlahBayar = headerData["JUMLAHBAYAR"] ?? 0.0;
+    String idUserInput = headerData["USERINPUT"];
+    String idGudang = "";
+    String tanggal = headerData["TANGGAL"];
+    int isTunai = headerData["ISTUNAI"];
+    double uangMuka = headerData["TOTALUANGMUKA"];
+    String noref = headerData["NOREF"];
+    List<dynamic> dataListPrint = [];
+
+    List<dynamic> detailBarang = jsonData["detail"];
+
+    double totalBelanja = 0;
+
+    for (var d in detailBarang) {
+      String idBarang = d["IDBARANG"].toString();
+      List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
+          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =?",
+          params: [idBarang]);
+
+      dynamic detailBarang = listDetailBarang[0];
+      dynamic resultDataDetail = {
+        "detail_barang": jsonDecode(detailBarang["detail_barang"]),
+        "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
+        "multi_harga": jsonDecode(detailBarang["multi_harga"]),
+        "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
+      };
+
+      dataListPrint.add({
+        "IDBARANG": d["IDBARANG"].toString(),
+        "KODE": d["KODEBARANG"],
+        "NAMA": d["NAMABARANG"],
+        "IDSATUAN": d["IDSATUAN"],
+        "SATUAN": d["KODESATUAN"],
+        "QTY": d["QTY"],
+        "HARGA": d["HARGA"],
+        "DISKON_NOMINAL": d["DISKONNOMINAL"],
+        "IDGUDANG": d["IDGUDANG"],
+        "IDSATUANPENGALI": d["IDSATUANPENGALI"],
+        "QTYSATUANPENGALI": d["QTYSATUANPENGALI"]
+      });
+    }
+
+    dynamic additionalInfo = {
+      "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
+      "totalUangMuka": uangMuka,
+      "tanggal": tanggal,
+      "kodePelanggan": idPelanggan,
+      "namaPelanggan": namaPelanggan,
+      "jumlahUang": jumlahBayar
+    };
+
+    Map<String, String> printResult =
+        await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
+    Navigator.pop(context);
+    if (printResult["status"] == "error") {
+      Utils.showMessage(printResult["message"]!, context);
+      return;
+    }
+  }
+
+  Future<dynamic> _deletePenjualan(paramnoindex) async {
+    dynamic postBody = {"noindex": paramnoindex};
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    String urlString = "${Utils.mainUrl}penjualan/delete";
+    Uri url = Uri.parse(urlString);
+    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    var jsonData = jsonDecode(response.body);
+    Navigator.pop(context);
+    return jsonData;
+  }
+
+  Future<dynamic> showOption(noindex) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (BuildContext content) {
+          return Container(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            height: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    IconButton(
+                        onPressed: () async {
+                          _printStruck(noindex);
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(
+                          Icons.print,
+                          color: Colors.black54,
+                        )),
+                    Text("Print Struk")
+                  ],
+                ),
+                Column(
+                  children: [
+                    IconButton(
+                        onPressed: () async {
+                          if (Utils.hakAkses["mobile_editpenjualan"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
+                          Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
+                            return InputPenjualan(idTransaksi: noindex);
+                          }));
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.black54,
+                        )),
+                    Text("Edit")
+                  ],
+                ),
+                Column(
+                  children: [
+                    IconButton(
+                        onPressed: () async {
+                          if (Utils.hakAkses["mobile_editpenjualan"] == 0) {
+                            return Utils.showMessage("Akses ditolak", context);
+                          }
+
+                          bool isDelete = await Utils.showConfirmMessage(
+                              context, "ingin menghapus penjualan ini ");
+                          if (isDelete) {
+                            dynamic result = await _deletePenjualan(noindex);
+
+                            if (result["status"] == 1) {
+                              Utils.showMessage(result["message"], context);
+                              return;
+                            }
+
+                            List<dynamic> detailBarang = result["data"]["detail_barang"];
+
+                            for (var d in detailBarang) {
+                              List<dynamic> lsDetailBarang = await new DatabaseHelper()
+                                  .readDatabase(
+                                      "SELECT detail_barang FROM barang_temp WHERE idbarang = ? ",
+                                      params: [d["IDBARANG"].toString()]);
+
+                              dynamic detailBarang = jsonDecode(lsDetailBarang[0]["detail_barang"]);
+                              detailBarang["STOK"] = d["STOK"];
+
+                              String detailBarangStr = jsonEncode(detailBarang);
+
+                              await new DatabaseHelper().writeDatabase(
+                                  "UPDATE barang_temp SET detail_barang = ? WHERE idbarang =?",
+                                  params: [detailBarangStr, d["IDBARANG"]]);
+                            }
+
+                            setState(() {
+                              _dataPenjualan = _getDataPenjualan();
+                            });
+                          }
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.black54,
+                        )),
+                    Text("Delete")
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
     return FutureBuilder(
       future: _dataPenjualan,
@@ -86,21 +268,16 @@ class _ListPenjualanState extends State<ListPenjualan> {
                       children: [
                         Utils.labelValueSetter("Periode",
                             "${Utils.formatDate(_dataMastePenjualan["TANGGAL_DARI"])} - ${Utils.formatDate(_dataMastePenjualan["TANGGAL_HINGGA"])}"),
-                        Utils.labelValueSetter(
-                            "Department", Utils.namaDeptTemp),
+                        Utils.labelValueSetter("Department", Utils.namaDeptTemp),
                         Utils.labelValueSetter(
                           "Bagian Penjualan",
                           Utils.namaPenggunaTemp,
                         ),
-                        Utils.labelValueSetter(
-                            "Total Penjualan Tunai",
-                            Utils.formatNumber(
-                                _dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
+                        Utils.labelValueSetter("Total Penjualan Tunai",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_TUNAI"]),
                             boldValue: true),
-                        Utils.labelValueSetter(
-                            "Total Penjualan Kredit",
-                            Utils.formatNumber(
-                                _dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
+                        Utils.labelValueSetter("Total Penjualan Kredit",
+                            Utils.formatNumber(_dataMastePenjualan["TOTAL_PENJUALAN_KREDIT"]),
                             boldValue: true)
                       ],
                     ),
@@ -114,10 +291,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
                         child: Card(
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (contenxt) {
-                                return InputPenjualan(idTransaksi: dataList["NOINDEX"]);
-                              }));
+                              showOption(dataList["NOINDEX"]);
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(10),
@@ -131,28 +305,23 @@ class _ListPenjualanState extends State<ListPenjualan> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Utils.labelSetter(
                                             dataList["NOREF"],
                                             bold: true,
                                           ),
+                                          Utils.labelSetter(dataList["NAMA_PELANGGAN"]),
+                                          Utils.labelSetter(dataList["KETERANGAN"]),
                                           Utils.labelSetter(
-                                              dataList["NAMA_PELANGGAN"]),
+                                              dataList["BAGIAN_PENJUALAN"].toString()),
                                           Utils.labelSetter(
-                                              dataList["KETERANGAN"]),
-                                          Utils.labelSetter(
-                                              dataList["BAGIAN_PENJUALAN"]),
-                                          Utils.labelSetter(
-                                              Utils.formatNumber(
-                                                  dataList["TOTAL_PENJUALAN"]),
+                                              Utils.formatNumber(dataList["TOTAL_PENJUALAN"]),
                                               bold: true),
                                           Container(
                                             alignment: Alignment.bottomRight,
                                             child: Utils.labelSetter(
-                                                Utils.formatDate(
-                                                    dataList["TANGGAL"]),
+                                                Utils.formatDate(dataList["TANGGAL"]),
                                                 size: 12),
                                           )
                                         ],

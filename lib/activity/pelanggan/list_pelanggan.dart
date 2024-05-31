@@ -74,6 +74,10 @@ class _ListPelangganState extends State<ListPelanggan> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               if (Navigator.canPop(context)) {
                                                 Navigator.pop(context);
                                               }
@@ -90,6 +94,10 @@ class _ListPelangganState extends State<ListPelanggan> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
+                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                                return Utils.showMessage("Akses ditolak", context);
+                                              }
+
                                               bool isConfirm = await Utils.showConfirmMessage(
                                                   context, "Yakin ingin menghapus daa ini ?");
 
@@ -99,12 +107,16 @@ class _ListPelangganState extends State<ListPelanggan> {
                                                 };
                                                 dynamic result =
                                                     await _postPelanggan(mapData, "delete");
-                                                setState(() {
-                                                  _dataPelanggan = _getDataPelanggan();
-                                                });
                                                 if (Navigator.canPop(context)) {
                                                   Navigator.pop(context);
                                                 }
+                                                if (result["status"] == 1) {
+                                                  Utils.showMessage(result["message"], context);
+                                                  return;
+                                                }
+                                                setState(() {
+                                                  _dataPelanggan = _getDataPelanggan();
+                                                });
                                               }
                                             },
                                             icon: Icon(
@@ -136,6 +148,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
+                                    Utils.labelSetter(dataList["KODE"].toString()),
                                     Utils.labelValueSetter(
                                       "GOL 1",
                                       dataList["NAMA_GOLONGAN"].toString(),
@@ -177,6 +190,7 @@ class _ListPelangganState extends State<ListPelanggan> {
     TextEditingController deptCtrl = TextEditingController();
     TextEditingController longitudeCtrl = TextEditingController();
     TextEditingController latitudeCtrl = TextEditingController();
+    TextEditingController alamatCtrl = TextEditingController();
 
     dynamic popUpResult;
     String idGolongan1 = "";
@@ -186,6 +200,7 @@ class _ListPelangganState extends State<ListPelanggan> {
     String namaDept = Utils.namaDept;
     String noIndex = "";
     String textMode = "Tambah Pelanggan";
+    String alamat = "";
 
     deptCtrl.text = namaDept;
 
@@ -217,11 +232,11 @@ class _ListPelangganState extends State<ListPelanggan> {
                 children: [
                   Utils.labelSetter(textMode, size: 25),
                   Padding(padding: EdgeInsets.all(10)),
-                  Text("Kode Pelanggan"),
+                  Text("Kode (Kosongkan untuk auto generate)"),
                   TextField(
                     controller: kodeCtrl,
                   ),
-                  Utils.labelForm("Nama pelanggan"),
+                  Utils.labelForm("Nama"),
                   TextField(
                     controller: namaCtrl,
                   ),
@@ -345,6 +360,10 @@ class _ListPelangganState extends State<ListPelanggan> {
                   TextField(
                     controller: latitudeCtrl,
                   ),
+                  Utils.labelForm("Alamat"),
+                  TextField(
+                    controller: alamatCtrl,
+                  ),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(
                       width: double.infinity,
@@ -367,6 +386,11 @@ class _ListPelangganState extends State<ListPelanggan> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
+                            if (idGolongan1.isEmpty) {
+                              Utils.showMessage("Golongan 1 tidak boleh kosong", context);
+                              return;
+                            }
+
                             Map<String, Object> mapData = {};
                             dynamic result;
                             if (param != null) {
@@ -379,7 +403,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "idgolongan2": idGolongan2,
                                 "idklasifikasi": idKlasifikasi,
                                 "longitude": longitudeCtrl.text,
-                                "latitude": latitudeCtrl.text
+                                "latitude": latitudeCtrl.text,
+                                "alamat": alamatCtrl.text,
                               };
                               result = await _postPelanggan(mapData, "edit");
                             } else {
@@ -391,11 +416,17 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "idgolongan2": idGolongan2,
                                 "idklasifikasi": idKlasifikasi,
                                 "longitude": longitudeCtrl.text,
-                                "latitude": latitudeCtrl.text
+                                "latitude": latitudeCtrl.text,
+                                "alamat": alamatCtrl.text,
                               };
                               result = await _postPelanggan(mapData, "insert");
                             }
                             Navigator.pop(context);
+
+                            if (result["status"] == 1) {
+                              Utils.showMessage(result["message"], context);
+                              return;
+                            }
                             setState(() {
                               _dataPelanggan = _getDataPelanggan();
                             });
@@ -413,15 +444,20 @@ class _ListPelangganState extends State<ListPelanggan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.add,
-          size: 30,
-        ),
-        onPressed: () {
-          showModalInputPelanggan();
-        },
-      ),
+      floatingActionButton: Utils.widgetSetter(() {
+        if (Utils.hakAkses["mobile_inputdatamaster"] == 0) {
+          return Container();
+        }
+        return FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            size: 30,
+          ),
+          onPressed: () {
+            showModalInputPelanggan();
+          },
+        );
+      }),
       appBar: AppBar(
         title: customSearchBar,
         actions: [

@@ -54,6 +54,7 @@ class _ListPembelianState extends State<ListPembelian> {
 
   @override
   void initState() {
+    Utils.initAppParam();
     _dataPembelian = _getDataPembelian();
     super.initState();
   }

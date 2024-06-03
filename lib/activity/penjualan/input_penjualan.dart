@@ -1169,7 +1169,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
               "kreditOrTunai": (isTunai == 1) ? "Tunai" : "Kredit",
               "totalUangMuka": Utils.strToDouble(uangMukaCtrl.text),
               "tanggal": tanggalCtrl.text,
-              "kodePelanggan": idPelangganEdit,
+              "kodePelanggan": Utils.kodePelanggan,
               "namaPelanggan": namaPelangganEdit,
               "jumlahUang": jumlahBayarEdit
             };
@@ -1307,7 +1307,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
       "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
       "totalUangMuka": Utils.strToDouble(uangMukaCtrl.text),
       "tanggal": tanggalCtrl.text,
-      "kodePelanggan": Utils.idPelanggan,
+      "kodePelanggan": Utils.kodePelanggan,
       "namaPelanggan": Utils.namaPelanggan,
       "jumlahUang": Utils.strToDouble(jumlahUangCtrl.text)
     };

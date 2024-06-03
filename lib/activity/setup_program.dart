@@ -214,7 +214,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           if (popUpResult == null) return;
 
                           idPelanggan = popUpResult["NOINDEX"];
-                          kodePelanggan = popUpResult["KODEPELANGGAN"]; 
+                          kodePelanggan = popUpResult["KODE"]; 
                           idGolonganPelanggan = popUpResult["IDGOLONGAN"];
                           idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
                           namaPelangganCtrl.text = popUpResult["NAMA"];

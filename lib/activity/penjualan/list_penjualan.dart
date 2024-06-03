@@ -126,7 +126,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
       "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
       "totalUangMuka": uangMuka,
       "tanggal": tanggal,
-      "kodePelanggan": idPelanggan,
+      "kodePelanggan": Utils.kodePelanggan,
       "namaPelanggan": namaPelanggan,
       "jumlahUang": jumlahBayar
     };

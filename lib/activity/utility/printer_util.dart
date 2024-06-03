@@ -34,7 +34,7 @@ class PrinterUtils {
       bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.medium.val, format: "%-20s %20s %n");
       bluetooth.printLeftRight("Tanggal", Utils.currentDateTimeString(), Size.medium.val,
           format: "%-20s %20s %n");
-      bluetooth.printLeftRight("Pelanggan", additionalInfo["namaPelanggan"], Size.medium.val,
+      bluetooth.printLeftRight("Pelanggan", "("+additionalInfo["kodePelanggan"]+"-"+additionalInfo["namaPelanggan"]+")", Size.medium.val,
           format: "%-20s %20s %n");
       bluetooth.printNewLine();
       double result = 0.0;

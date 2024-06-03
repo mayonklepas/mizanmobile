@@ -9,11 +9,17 @@ import '../../utils.dart';
 
 class PrinterUtils {
   Future<Map<String, String>> printReceipt(List<dynamic> data, dynamic additionalInfo) async {
+
+    
+
     BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
     //var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
     //Uint8List bytesNetwork = response.bodyBytes;
     //Uint8List imageBytesFromNetwork =
     //bytesNetwork.buffer.asUint8List(bytesNetwork.offsetInBytes, bytesNetwork.lengthInBytes);
+
+    log(Utils.headerStruk);
+    log(Utils.footerStruk);
 
     bool? isConnected = await bluetooth.isConnected;
     if (isConnected == false) {

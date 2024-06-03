@@ -86,7 +86,7 @@ class _ListModalBarangState extends State<ListModalBarang> {
         if (snapshot.connectionState == ConnectionState.waiting && widget.isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
-          if (snap.isEmpty) {
+          /*if (snap.isEmpty) {
             return Container(
               child: Center(
                 child: Column(
@@ -105,7 +105,7 @@ class _ListModalBarangState extends State<ListModalBarang> {
                 ),
               ),
             );
-          }
+          }*/
           return ListView.builder(
               itemCount: snap.length,
               itemBuilder: (BuildContext contex, int index) {

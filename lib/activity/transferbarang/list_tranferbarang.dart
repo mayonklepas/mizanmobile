@@ -113,7 +113,7 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
                                           children: [
                                             IconButton(
                                                 onPressed: () {
-                                                  if (Utils.hakAkses["mobile_edittransferbarang"] ==
+                                                  if (Utils.hakAkses["MOBILE_EDITTRANSFERBARANG"] ==
                                                       0) {
                                                     return Utils.showMessage(
                                                         "Akses ditolak", context);
@@ -141,7 +141,7 @@ class _ListTransferBarangState extends State<ListTransferBarang> {
                                           children: [
                                             IconButton(
                                                 onPressed: () async {
-                                                  if (Utils.hakAkses["mobile_edittransferbarang"] ==
+                                                  if (Utils.hakAkses["MOBILE_EDITTRANSFERBARANG"] ==
                                                       0) {
                                                     return Utils.showMessage(
                                                         "Akses ditolak", context);

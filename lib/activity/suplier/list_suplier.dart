@@ -77,7 +77,7 @@ class _ListSuplierState extends State<ListSuplier> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
-                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
                                                 return Utils.showMessage("Akses ditolak", context);
                                               }
 
@@ -97,7 +97,7 @@ class _ListSuplierState extends State<ListSuplier> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
-                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
                                                 return Utils.showMessage("Akses ditolak", context);
                                               }
 
@@ -376,7 +376,7 @@ class _ListSuplierState extends State<ListSuplier> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Utils.widgetSetter(() {
-        if (Utils.hakAkses["mobile_inputdatamaster"] == 0) {
+        if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
           return Container();
         }
         return FloatingActionButton(

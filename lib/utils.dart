@@ -71,6 +71,8 @@ class Utils {
 
   static String namaPelanggan = "";
 
+  static String kodePelanggan = "";
+
   static String idGolonganPelanggan = "";
 
   static String idGolongan2Pelanggan = "";

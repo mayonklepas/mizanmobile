@@ -179,7 +179,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
                   children: [
                     IconButton(
                         onPressed: () async {
-                          if (Utils.hakAkses["mobile_editpenjualan"] == 0) {
+                          if (Utils.hakAkses["MOBILE_EDITPENJUALAN"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
@@ -198,7 +198,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
                   children: [
                     IconButton(
                         onPressed: () async {
-                          if (Utils.hakAkses["mobile_editpenjualan"] == 0) {
+                          if (Utils.hakAkses["MOBILE_EDITPENJUALAN"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 

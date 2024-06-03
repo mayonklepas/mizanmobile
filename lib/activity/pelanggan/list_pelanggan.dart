@@ -74,7 +74,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
-                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
                                                 return Utils.showMessage("Akses ditolak", context);
                                               }
 
@@ -94,7 +94,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                       children: [
                                         IconButton(
                                             onPressed: () async {
-                                              if (Utils.hakAkses["mobile_editdatamaster"] == 0) {
+                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
                                                 return Utils.showMessage("Akses ditolak", context);
                                               }
 
@@ -445,7 +445,7 @@ class _ListPelangganState extends State<ListPelanggan> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Utils.widgetSetter(() {
-        if (Utils.hakAkses["mobile_inputdatamaster"] == 0) {
+        if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
           return Container();
         }
         return FloatingActionButton(

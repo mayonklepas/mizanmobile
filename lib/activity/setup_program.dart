@@ -24,6 +24,7 @@ class _SetupProgramState extends State<SetupProgram> {
   String idAkunStokOpname = "";
   TextEditingController namaPelangganCtrl = TextEditingController();
   String idPelanggan = "";
+  String kodePelanggan = "";
   String idGolonganPelanggan = "";
   String idGolongan2Pelanggan = "";
   TextEditingController namaKelompokCtrl = TextEditingController();
@@ -55,6 +56,7 @@ class _SetupProgramState extends State<SetupProgram> {
       idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
       idGolongan2Pelanggan = mapSetup["defaultIdGolongan2Pelanggan"].toString();
       namaPelangganCtrl.text = mapSetup["defaultNamaPelanggan"].toString();
+      kodePelanggan = mapSetup["defaultKodePelanggan"].toString();
       idLokasi = mapSetup["defaultIdLokasi"].toString();
       namaLokasiCtrl.text = mapSetup["defaultNamaLokasi"].toString();
       satuanCtrl.text = mapSetup["defaultSatuan"].toString();
@@ -212,6 +214,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           if (popUpResult == null) return;
 
                           idPelanggan = popUpResult["NOINDEX"];
+                          kodePelanggan = popUpResult["KODEPELANGGAN"]; 
                           idGolonganPelanggan = popUpResult["IDGOLONGAN"];
                           idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
                           namaPelangganCtrl.text = popUpResult["NAMA"];
@@ -399,6 +402,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultNamaAkunStokOpname": akunStokOpnameCtrl.text,
                           "defaultIdPelanggan": idPelanggan,
                           "defaultNamaPelanggan": namaPelangganCtrl.text,
+                          "defaultKodePelanggan": kodePelanggan,
                           "defaultIdGolonganPelanggan": idGolonganPelanggan,
                           "defaultIdGolongan2Pelanggan": idGolonganPelanggan,
                           "defaultIdKelompok": idKelompok,
@@ -428,6 +432,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.idAkunStokOpname = idAkunStokOpname;
                           Utils.namaAkunStokOpname = akunStokOpnameCtrl.text;
                           Utils.idPelanggan = idPelanggan;
+                          Utils.kodePelanggan = kodePelanggan;
                           Utils.idGolonganPelanggan = idGolonganPelanggan;
                           Utils.idGolongan2Pelanggan = idGolongan2Pelanggan;
                           Utils.namaPelanggan = namaPelangganCtrl.text;

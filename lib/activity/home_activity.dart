@@ -275,7 +275,7 @@ class _HomeActivityState extends State<HomeActivity> {
   double labaBulanan = 0;
 
   setDataHome() async {
-    if (Utils.hakAkses["mobile_dashboard"] == 1) {
+    if (Utils.hakAkses["MOBILE_DASHBOARD"] == 1) {
       dynamic data = await _getHome();
       setState(() {
         penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
@@ -411,7 +411,7 @@ class _HomeActivityState extends State<HomeActivity> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                        if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
                           return;
                         }
 
@@ -444,7 +444,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
-                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                          if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
@@ -487,7 +487,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
-                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                          if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
@@ -530,7 +530,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
-                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                          if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
@@ -573,7 +573,7 @@ class _HomeActivityState extends State<HomeActivity> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
-                          if (Utils.hakAkses["mobile_dashboard"] == 0) {
+                          if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
@@ -735,7 +735,7 @@ class _HomeActivityState extends State<HomeActivity> {
               children: [
                 setIconCard(Icons.print_outlined, Colors.blue, "Laporan", () {}),
                 setIconCard(Icons.settings, Colors.blue, "Setup Program", () {
-                  if (Utils.hakAkses["mobile_setupprogram"] == 0) {
+                  if (Utils.hakAkses["MOBILE_SETUPPROGRAM"] == 0) {
                     return Utils.showMessage("Akses ditolak", context);
                   }
 

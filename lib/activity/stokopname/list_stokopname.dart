@@ -113,7 +113,7 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                           children: [
                                             IconButton(
                                                 onPressed: () {
-                                                  if (Utils.hakAkses["mobile_editstokopname"] ==
+                                                  if (Utils.hakAkses["MOBILE_EDITSTOKOPNAME"] ==
                                                       0) {
                                                     return Utils.showMessage(
                                                         "Akses ditolak", context);
@@ -140,7 +140,7 @@ class _ListStokOpnameState extends State<ListStokOpname> {
                                           children: [
                                             IconButton(
                                                 onPressed: () async {
-                                                  if (Utils.hakAkses["mobile_editstokopname"] ==
+                                                  if (Utils.hakAkses["MOBILE_EDITSTOKOPNAME"] ==
                                                       0) {
                                                     return Utils.showMessage(
                                                         "Akses ditolak", context);

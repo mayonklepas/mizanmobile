@@ -12,7 +12,7 @@ import 'package:mizanmobile/activity/laporan/summary/list_laba_bulanan.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_laba_harian.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_penjualan_bulanan.dart';
 import 'package:mizanmobile/activity/laporan/summary/list_penjualan_harian.dart';
-import 'package:mizanmobile/activity/pelanggan/list_pelanggan.dart';
+import 'package:mizanmobile/activity/pelanggan/pelanggan_view.dart';
 import 'package:mizanmobile/activity/pembelian/list_pembelian.dart';
 import 'package:mizanmobile/activity/penerimaan/list_penerimaan.dart';
 import 'package:mizanmobile/activity/penjualan/list_penjualan.dart';

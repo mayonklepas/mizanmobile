@@ -1,25 +1,21 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
+import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 
-import '../utility/list_modal_form.dart';
+import 'package:mizanmobile/utils.dart';
 
-class ListPelanggan extends StatefulWidget {
-  const ListPelanggan({Key? key}) : super(key: key);
+class PelangganController {
+  BuildContext context;
+  StateSetter setState;
 
-  @override
-  State<ListPelanggan> createState() => _ListPelangganState();
-}
+  PelangganController(this.context, this.setState);
 
-class _ListPelangganState extends State<ListPelanggan> {
-  Future<List<dynamic>>? _dataPelanggan;
+  Future<List<dynamic>>? dataPelanggan;
 
-  Future<List<dynamic>> _getDataPelanggan({String keyword = ""}) async {
+  Future<List<dynamic>> getData({String keyword = ""}) async {
     Uri url = Uri.parse("${Utils.mainUrl}pelanggan/daftar");
     if (keyword != "") {
       url = Uri.parse("${Utils.mainUrl}pelanggan/cari?cari=$keyword");
@@ -30,155 +26,50 @@ class _ListPelangganState extends State<ListPelanggan> {
     return jsonData;
   }
 
-  Future<dynamic> _postPelanggan(Map<String, Object> postBody, urlPath) async {
+  Future<dynamic> saveData(Map<String, Object> postBody, urlPath) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}pelanggan/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response =
+        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
   }
 
-  @override
-  void initState() {
-    _dataPelanggan = _getDataPelanggan();
-    super.initState();
+  void deleteData(dynamic dataList) async {
+    if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
+      return Utils.showMessage("Akses ditolak", context);
+    }
+
+    bool isConfirm = await Utils.showConfirmMessage(
+        context, "Yakin ingin menghapus daa ini ?");
+
+    if (isConfirm) {
+      Map<String, Object> mapData = {"noindex": dataList["NOINDEX"].toString()};
+      dynamic result = await saveData(mapData, "delete");
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      if (result["status"] == 1) {
+        Utils.showMessage(result["message"], context);
+        return;
+      }
+      setState(() {
+        dataPelanggan = getData();
+      });
+    }
   }
 
-  FutureBuilder<List<dynamic>> setListFutureBuilder() {
-    return FutureBuilder(
-      future: _dataPelanggan,
-      builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else {
-          return ListView.builder(
-              itemCount: snapshot.data!.length,
-              itemBuilder: (BuildContext contex, int index) {
-                dynamic dataList = snapshot.data![index];
-                return Container(
-                  child: Card(
-                    child: InkWell(
-                      onTap: () {
-                        showModalBottomSheet(
-                            context: context,
-                            builder: (BuildContext content) {
-                              return Container(
-                                padding: EdgeInsets.only(top: 10, bottom: 10),
-                                height: 100,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () async {
-                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
-                                                return Utils.showMessage("Akses ditolak", context);
-                                              }
+  void editData(dynamic dataList) async {
+    if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
+      return Utils.showMessage("Akses ditolak", context);
+    }
 
-                                              if (Navigator.canPop(context)) {
-                                                Navigator.pop(context);
-                                              }
-                                              showModalInputPelanggan(param: dataList);
-                                            },
-                                            icon: Icon(
-                                              Icons.edit,
-                                              color: Colors.black54,
-                                            )),
-                                        Text("Edit")
-                                      ],
-                                    ),
-                                    Column(
-                                      children: [
-                                        IconButton(
-                                            onPressed: () async {
-                                              if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
-                                                return Utils.showMessage("Akses ditolak", context);
-                                              }
-
-                                              bool isConfirm = await Utils.showConfirmMessage(
-                                                  context, "Yakin ingin menghapus daa ini ?");
-
-                                              if (isConfirm) {
-                                                Map<String, Object> mapData = {
-                                                  "noindex": dataList["NOINDEX"].toString()
-                                                };
-                                                dynamic result =
-                                                    await _postPelanggan(mapData, "delete");
-                                                if (Navigator.canPop(context)) {
-                                                  Navigator.pop(context);
-                                                }
-                                                if (result["status"] == 1) {
-                                                  Utils.showMessage(result["message"], context);
-                                                  return;
-                                                }
-                                                setState(() {
-                                                  _dataPelanggan = _getDataPelanggan();
-                                                });
-                                              }
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: Colors.black54,
-                                            )),
-                                        Text("Delete")
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Utils.bagde(
-                              dataList["NAMA"].toString().substring(0, 1),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
-                                    Utils.labelSetter(dataList["KODE"].toString()),
-                                    Utils.labelValueSetter(
-                                      "GOL 1",
-                                      dataList["NAMA_GOLONGAN"].toString(),
-                                    ),
-                                    Utils.labelValueSetter(
-                                      "GOL 2",
-                                      dataList["NAMA_GOLONGAN2"].toString(),
-                                    ),
-                                    Utils.labelValueSetter(
-                                      "Klasifikasi",
-                                      dataList["NAMA_KLASIFIKASI"].toString(),
-                                    ),
-                                    Utils.labelValueSetter(
-                                      "Department",
-                                      dataList["NAMA_DEPT"].toString(),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              });
-        }
-      }),
-    );
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+    showModalInputPelanggan(param: dataList);
   }
 
   Future<dynamic> showModalInputPelanggan({dynamic param = null}) {
@@ -224,9 +115,11 @@ class _ListPelangganState extends State<ListPelanggan> {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -253,7 +146,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -281,7 +175,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -309,7 +204,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "klasifikasi");
                               },
@@ -337,7 +233,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "dept");
                               },
@@ -369,8 +266,9 @@ class _ListPelangganState extends State<ListPelanggan> {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            Position geoPosition = await Geolocator.getCurrentPosition(
-                                desiredAccuracy: LocationAccuracy.medium);
+                            Position geoPosition =
+                                await Geolocator.getCurrentPosition(
+                                    desiredAccuracy: LocationAccuracy.medium);
 
                             double longitude = geoPosition.longitude;
                             double latitude = geoPosition.latitude;
@@ -387,7 +285,8 @@ class _ListPelangganState extends State<ListPelanggan> {
                       child: ElevatedButton(
                           onPressed: () async {
                             if (idGolongan1.isEmpty) {
-                              Utils.showMessage("Golongan 1 tidak boleh kosong", context);
+                              Utils.showMessage(
+                                  "Golongan 1 tidak boleh kosong", context);
                               return;
                             }
 
@@ -406,7 +305,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "latitude": latitudeCtrl.text,
                                 "alamat": alamatCtrl.text,
                               };
-                              result = await _postPelanggan(mapData, "edit");
+                              result = await saveData(mapData, "edit");
                             } else {
                               mapData = {
                                 "kode": kodeCtrl.text,
@@ -419,7 +318,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                 "latitude": latitudeCtrl.text,
                                 "alamat": alamatCtrl.text,
                               };
-                              result = await _postPelanggan(mapData, "insert");
+                              result = await saveData(mapData, "insert");
                             }
                             Navigator.pop(context);
 
@@ -428,7 +327,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                               return;
                             }
                             setState(() {
-                              _dataPelanggan = _getDataPelanggan();
+                              dataPelanggan = getData();
                             });
                           },
                           child: Text("Simpan")))
@@ -437,63 +336,5 @@ class _ListPelangganState extends State<ListPelanggan> {
             ),
           );
         });
-  }
-
-  Icon customIcon = Icon(Icons.search);
-  Widget customSearchBar = Text("Daftar Pelanggan");
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Utils.widgetSetter(() {
-        if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
-          return Container();
-        }
-        return FloatingActionButton(
-          child: Icon(
-            Icons.add,
-            size: 30,
-          ),
-          onPressed: () {
-            showModalInputPelanggan();
-          },
-        );
-      }),
-      appBar: AppBar(
-        title: customSearchBar,
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  if (customIcon.icon == Icons.search) {
-                    customIcon = Icon(Icons.clear);
-                    customSearchBar = Utils.appBarSearch((keyword) {
-                      setState(() {
-                        _dataPelanggan = _getDataPelanggan(keyword: keyword);
-                      });
-                    }, hint: "Cari");
-                  } else {
-                    customIcon = Icon(Icons.search);
-                    customSearchBar = Text("Daftar Pelanggan");
-                  }
-                });
-              },
-              icon: customIcon)
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () {
-          return Future.sync(() {
-            setState(() {
-              customIcon = Icon(Icons.search);
-              customSearchBar = Text("Daftar Pelanggan");
-              _dataPelanggan = _getDataPelanggan();
-            });
-          });
-        },
-        child: Container(
-          child: setListFutureBuilder(),
-        ),
-      ),
-    );
   }
 }

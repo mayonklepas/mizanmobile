@@ -11,8 +11,6 @@ class ListPelanggan extends StatefulWidget {
 
 class _ListPelangganState extends State<ListPelanggan> {
   late PelangganController ctrl;
-  Icon customIcon = Icon(Icons.search);
-  Widget customSearchBar = Text("Daftar Pelanggan");
 
   @override
   void initState() {
@@ -21,6 +19,8 @@ class _ListPelangganState extends State<ListPelanggan> {
     super.initState();
   }
 
+  Icon customIcon = Icon(Icons.search);
+  Widget customSearchBar = Text("Daftar Pelanggan");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,8 +45,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                     customIcon = Icon(Icons.clear);
                     customSearchBar = Utils.appBarSearch((keyword) {
                       setState(() {
-                        ctrl.dataPelanggan =
-                            ctrl.getData(keyword: keyword);
+                        ctrl.dataPelanggan = ctrl.getData(keyword: keyword);
                       });
                     }, hint: "Cari");
                   } else {

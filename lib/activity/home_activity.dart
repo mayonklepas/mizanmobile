@@ -21,7 +21,7 @@ import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/activity/setup_user.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
-import 'package:mizanmobile/activity/suplier/list_suplier.dart';
+import 'package:mizanmobile/activity/suplier/suplier_view.dart';
 import 'package:mizanmobile/activity/transferbarang/list_tranferbarang.dart';
 import 'package:mizanmobile/database_helper.dart';
 import 'package:mizanmobile/utils.dart';

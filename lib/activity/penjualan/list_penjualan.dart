@@ -128,6 +128,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
       "tanggal": tanggal,
       "kodePelanggan": Utils.kodePelanggan,
       "namaPelanggan": namaPelanggan,
+      "noref" : noref,
       "jumlahUang": jumlahBayar
     };
 

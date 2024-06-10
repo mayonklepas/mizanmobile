@@ -36,9 +36,11 @@ class PrinterUtils {
     //bluetooth.printNewLine();
     try {
       bluetooth.printCustom(Utils.connectionName, Size.boldMedium.val, Align.center.val);
-      bluetooth.printCustom(Utils.headerStruk, Size.boldMedium.val, Align.center.val);
+      bluetooth.printCustom(Utils.headerStruk, Size.medium.val, Align.center.val);
       bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.medium.val, format: "%-20s %20s %n");
       bluetooth.printLeftRight("Tanggal", Utils.currentDateTimeString(), Size.medium.val,
+          format: "%-20s %20s %n");
+      bluetooth.printLeftRight("No ", additionalInfo["noref"] , Size.medium.val,
           format: "%-20s %20s %n");
       bluetooth.printLeftRight("Pelanggan", "("+additionalInfo["kodePelanggan"]+"-"+additionalInfo["namaPelanggan"]+")", Size.medium.val,
           format: "%-20s %20s %n");

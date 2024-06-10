@@ -221,7 +221,7 @@ class _ListModalFormState extends State<ListModalForm> {
           return Future.sync(() {
             setState(() {
               customIcon = Icon(Icons.search);
-              customSearchBar = Text("Daftar ${widget.type}");
+              customSearchBar = Text("Daftar $headerBar");
               _dataModal = _dataModal;
             });
           });

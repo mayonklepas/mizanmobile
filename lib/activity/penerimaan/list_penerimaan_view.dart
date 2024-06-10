@@ -6,56 +6,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:mizanmobile/activity/penerimaan/list_penerimaan_controller.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
-class ListPenerimaan extends StatefulWidget {
-  const ListPenerimaan({Key? key}) : super(key: key);
+class ListPenerimaanView extends StatefulWidget {
+  const ListPenerimaanView({Key? key}) : super(key: key);
 
   @override
-  State<ListPenerimaan> createState() => _ListPenerimaanState();
+  State<ListPenerimaanView> createState() => _ListPenerimaanViewState();
 }
 
-class _ListPenerimaanState extends State<ListPenerimaan> {
-  Future<List<dynamic>>? _dataPenerimaan;
-
-  Future<List<dynamic>> _getDataPenerimaan(
-      {String keyword = "", String tglDari = "", String tglHingga = "", String idDept = ""}) async {
-    if (tglDari == "") {
-      tglDari = Utils.formatStdDate(DateTime.now());
-    }
-
-    if (tglHingga == "") {
-      tglHingga = Utils.formatStdDate(DateTime.now());
-    }
-
-    if (idDept == "") {
-      idDept = Utils.idDeptTemp;
-    }
-
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}penerimaan/daftar?iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
-    if (keyword != null && keyword != "") {
-      url = Uri.parse(
-          "${Utils.mainUrl}penerimaan/cari?iddept=$idDept&tgldari=2023-01-01&tglhingga=2023-01-31&cari=$keyword");
-    }
-    Response response = await get(url, headers: Utils.setHeader());
-    log(url.toString());
-    String body = response.body;
-    log(body);
-    var jsonData = jsonDecode(body)["data"];
-    return jsonData;
-  }
+class _ListPenerimaanViewState extends State<ListPenerimaanView> {
+  late listPenerimaanController ctrl;
 
   @override
   void initState() {
-    _dataPenerimaan = _getDataPenerimaan();
+    ctrl = new listPenerimaanController(context, setState);
+    ctrl.dataPenerimaan = ctrl.getDataPenerimaan();
     super.initState();
   }
 
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
     return FutureBuilder(
-      future: _dataPenerimaan,
+      future: ctrl.dataPenerimaan,
       builder: ((context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -118,6 +92,17 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Utils.widgetSetter(() {
+        /*if (Utils.hakAkses["MOBILE_EDITPENERIMAAN"] == 0) {
+          return Container();
+        }*/
+        return FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              size: 30,
+            ),
+            onPressed: () => ctrl.showInput());
+      }),
       appBar: AppBar(
         title: customSearchBar,
         actions: [
@@ -128,7 +113,10 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                     customIcon = Icon(Icons.clear);
                     customSearchBar = Utils.appBarSearch((keyword) {
                       setState(() {
-                        _dataPenerimaan = _getDataPenerimaan(keyword: keyword);
+                        ctrl.dataPenerimaan = ctrl.getDataPenerimaan(
+                            keyword: keyword,
+                            tglDari: ctrl.tanggalDariCtrl.text,
+                            tglHingga: ctrl.tanggalHinggaCtrl.text);
                       });
                     }, hint: "Cari");
                   } else {
@@ -137,7 +125,8 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                   }
                 });
               },
-              icon: customIcon)
+              icon: customIcon),
+          IconButton(onPressed: () => ctrl.dateBottomModal(context), icon: Icon(Icons.date_range))
         ],
       ),
       body: Container(

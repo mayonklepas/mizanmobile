@@ -14,7 +14,7 @@ import 'package:mizanmobile/activity/laporan/summary/list_penjualan_bulanan.dart
 import 'package:mizanmobile/activity/laporan/summary/list_penjualan_harian.dart';
 import 'package:mizanmobile/activity/pelanggan/pelanggan_view.dart';
 import 'package:mizanmobile/activity/pembelian/list_pembelian.dart';
-import 'package:mizanmobile/activity/penerimaan/list_penerimaan.dart';
+import 'package:mizanmobile/activity/penerimaan/list_penerimaan_view.dart';
 import 'package:mizanmobile/activity/penjualan/list_penjualan.dart';
 import 'package:mizanmobile/activity/piutang/list_piutang.dart';
 import 'package:mizanmobile/activity/setup_connection.dart';
@@ -635,14 +635,14 @@ class _HomeActivityState extends State<HomeActivity> {
                 setIconCard(Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
-                      return ListPelanggan();
+                      return PelangganView();
                     },
                   ));
                 }),
                 setIconCard(Icons.supervisor_account, Colors.blue, "Suplier", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
-                      return ListSuplier();
+                      return ListSuplierView();
                     },
                   ));
                 }),
@@ -675,21 +675,11 @@ class _HomeActivityState extends State<HomeActivity> {
                   ));
                 }),
                 setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return AlertDialog(
-                          title: Text("Informasi"),
-                          content: Text("Fitur dalam pengerjaan"),
-                          actions: [
-                            TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text("OK"))
-                          ],
-                        );
-                      });
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return ListPenerimaanView();
+                    },
+                  ));
                 }),
                 setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian", () {
                   Navigator.push(context, MaterialPageRoute(

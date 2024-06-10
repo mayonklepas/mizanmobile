@@ -13,13 +13,15 @@ class ListModalForm extends StatefulWidget {
   final String keyword;
   final bool isExtra;
   final bool withAll;
+  final String idSuplier;
   const ListModalForm(
       {Key? key,
       required this.type,
       this.idBarang = "",
       this.keyword = "",
       this.isExtra = false,
-      this.withAll = false});
+      this.withAll = false,
+      this.idSuplier = ""});
 
   @override
   State<ListModalForm> createState() => _ListModalFormState();
@@ -29,6 +31,7 @@ class _ListModalFormState extends State<ListModalForm> {
   Future<List<dynamic>>? _dataModal;
   List<dynamic>? _dataCache;
   bool isLocal = false;
+  String headerBar = "";
 
   Future<List<dynamic>> _getDataModal({String keyword = ""}) async {
     String mainUrlString = "";
@@ -37,46 +40,70 @@ class _ListModalFormState extends State<ListModalForm> {
 
     if (type == "satuan") {
       mainUrlString = "${Utils.mainUrl}datapopup/satuan?cari=";
+      headerBar = "Satuan";
     } else if (type == "kelompokbarang") {
       mainUrlString = "${Utils.mainUrl}datapopup/kelompokbarang?cari=";
+      headerBar = "Kelompok Barang";
     } else if (type == "suplier") {
       mainUrlString = "${Utils.mainUrl}datapopup/suplier?cari=";
+      headerBar = "Suplier";
     } else if (type == "merk") {
       mainUrlString = "${Utils.mainUrl}datapopup/merek?cari=";
-    } else if (type == "satuan") {
-      mainUrlString = "${Utils.mainUrl}datapopup/satuan?cari";
+      headerBar = "Merk";
     } else if (type == "gudang") {
       mainUrlString = "${Utils.mainUrl}datapopup/gudang?cari=";
+      headerBar = "Gudang";
     } else if (type == "lokasi") {
       mainUrlString = "${Utils.mainUrl}datapopup/lokasi?cari=";
+      headerBar = "Lokasi";
     } else if (type == "dept") {
       mainUrlString = "${Utils.mainUrl}datapopup/dept?cari";
+      headerBar = "Department";
     } else if (type == "golongan") {
       mainUrlString = "${Utils.mainUrl}datapopup/golongan?cari=";
+      headerBar = "Golongan";
     } else if (type == "golongansuplier") {
       mainUrlString = "${Utils.mainUrl}datapopup/golongansuplier?cari=";
+      headerBar = "Golongan Suplier";
     } else if (type == "golonganpelanggan") {
       mainUrlString = "${Utils.mainUrl}datapopup/golonganpelanggan?cari=";
+      headerBar = "Golongan Pelanggan";
     } else if (type == "klasifikasi") {
       mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
+      headerBar = "Klasifikasi";
     } else if (type == "satuanbarang") {
       mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
+      headerBar = "Satuan Barang";
     } else if (type == "akun") {
       mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
+      headerBar = "Akun";
     } else if (type == "pengguna") {
       mainUrlString = "${Utils.mainUrl}datapopup/pengguna?cari=";
+      headerBar = "Pengguan";
     } else if (type == "pelanggan") {
       mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
+      headerBar = "Pelanggan";
     } else if (type == "top") {
       mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
+      headerBar = "TOP";
+    } else if (type == "orderpembelian") {
+      mainUrlString = "${Utils.mainUrl}orderpembelian/daftar?idsuplier=${widget.idSuplier}";
+      headerBar = "Order Pembelian";
     }
     if (type == "kelompoktransaksi") {
       mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
+      headerBar = "Kelompok Transaksi";
     }
 
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());
     List<dynamic> jsonData = jsonDecode(response.body)["data"];
+    if (type == "orderpembelian") {
+      for (int i = 0; i < jsonData.length; i++) {
+        jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
+        jsonData[i]["KODE"] = jsonData[i]["NOREF"];
+      }
+    }
     if (widget.withAll) {
       Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
       jsonData.insert(0, map);
@@ -103,8 +130,8 @@ class _ListModalFormState extends State<ListModalForm> {
 
   @override
   void initState() {
-    customSearchBar = Text("Data ${widget.type}");
     _dataModal = _getDataModal();
+    customSearchBar = Text("Data ${widget.type}");
     super.initState();
   }
 

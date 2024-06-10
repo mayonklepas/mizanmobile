@@ -4,15 +4,14 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/suplier/suplier_controller.dart';
 import 'package:mizanmobile/utils.dart';
 
-
-class ListSuplier extends StatefulWidget {
-  const ListSuplier({Key? key}) : super(key: key);
+class ListSuplierView extends StatefulWidget {
+  const ListSuplierView({Key? key}) : super(key: key);
 
   @override
-  State<ListSuplier> createState() => _ListSuplierState();
+  State<ListSuplierView> createState() => _ListSuplierViewState();
 }
 
-class _ListSuplierState extends State<ListSuplier> {
+class _ListSuplierViewState extends State<ListSuplierView> {
   late SupplierController ctrl;
 
   @override
@@ -90,18 +89,15 @@ class _ListSuplierState extends State<ListSuplier> {
                                   context: context,
                                   builder: (BuildContext content) {
                                     return Container(
-                                      padding:
-                                          EdgeInsets.only(top: 10, bottom: 10),
+                                      padding: EdgeInsets.only(top: 10, bottom: 10),
                                       height: 100,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Column(
                                             children: [
                                               IconButton(
-                                                  onPressed: () =>
-                                                      ctrl.editData(dataList),
+                                                  onPressed: () => ctrl.editData(dataList),
                                                   icon: Icon(
                                                     Icons.edit,
                                                     color: Colors.black54,
@@ -112,8 +108,7 @@ class _ListSuplierState extends State<ListSuplier> {
                                           Column(
                                             children: [
                                               IconButton(
-                                                  onPressed: () =>
-                                                      ctrl.deleteData(dataList),
+                                                  onPressed: () => ctrl.deleteData(dataList),
                                                   icon: Icon(
                                                     Icons.delete,
                                                     color: Colors.black54,
@@ -132,31 +127,24 @@ class _ListSuplierState extends State<ListSuplier> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Utils.bagde(dataList["NAMA"]
-                                      .toString()
-                                      .substring(0, 1)),
+                                  Utils.bagde(dataList["NAMA"].toString().substring(0, 1)),
                                   Expanded(
                                     flex: 2,
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Utils.labelSetter(
-                                              dataList["NAMA"].toString(),
+                                          Utils.labelSetter(dataList["NAMA"].toString(),
                                               bold: true),
-                                          Utils.labelSetter(
-                                              dataList["KODE"].toString()),
+                                          Utils.labelSetter(dataList["KODE"].toString()),
                                           Utils.labelValueSetter(
                                             "Golongan",
-                                            dataList["NAMA_GOLONGAN"]
-                                                .toString(),
+                                            dataList["NAMA_GOLONGAN"].toString(),
                                           ),
                                           Utils.labelValueSetter(
                                             "Klasifikasi",
-                                            dataList["NAMA_KLASIFIKASI"]
-                                                .toString(),
+                                            dataList["NAMA_KLASIFIKASI"].toString(),
                                           ),
                                           Utils.labelValueSetter(
                                             "Department",

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:mizanmobile/activity/pelanggan/pelanggan_controller.dart';
 import 'package:mizanmobile/utils.dart';
 
-class ListPelanggan extends StatefulWidget {
-  const ListPelanggan({Key? key}) : super(key: key);
+class PelangganView extends StatefulWidget {
+  const PelangganView({Key? key}) : super(key: key);
 
   @override
-  State<ListPelanggan> createState() => _ListPelangganState();
+  State<PelangganView> createState() => _PelangganViewState();
 }
 
-class _ListPelangganState extends State<ListPelanggan> {
+class _PelangganViewState extends State<PelangganView> {
   late PelangganController ctrl;
 
   @override
@@ -86,18 +86,15 @@ class _ListPelangganState extends State<ListPelanggan> {
                                   context: context,
                                   builder: (BuildContext content) {
                                     return Container(
-                                      padding:
-                                          EdgeInsets.only(top: 10, bottom: 10),
+                                      padding: EdgeInsets.only(top: 10, bottom: 10),
                                       height: 100,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Column(
                                             children: [
                                               IconButton(
-                                                  onPressed: () =>
-                                                      ctrl.editData(dataList),
+                                                  onPressed: () => ctrl.editData(dataList),
                                                   icon: Icon(
                                                     Icons.edit,
                                                     color: Colors.black54,
@@ -108,8 +105,7 @@ class _ListPelangganState extends State<ListPelanggan> {
                                           Column(
                                             children: [
                                               IconButton(
-                                                  onPressed: () =>
-                                                      ctrl.deleteData(dataList),
+                                                  onPressed: () => ctrl.deleteData(dataList),
                                                   icon: Icon(
                                                     Icons.delete,
                                                     color: Colors.black54,
@@ -136,28 +132,22 @@ class _ListPelangganState extends State<ListPelanggan> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Utils.labelSetter(
-                                              dataList["NAMA"].toString(),
+                                          Utils.labelSetter(dataList["NAMA"].toString(),
                                               bold: true),
-                                          Utils.labelSetter(
-                                              dataList["KODE"].toString()),
+                                          Utils.labelSetter(dataList["KODE"].toString()),
                                           Utils.labelValueSetter(
                                             "GOL 1",
-                                            dataList["NAMA_GOLONGAN"]
-                                                .toString(),
+                                            dataList["NAMA_GOLONGAN"].toString(),
                                           ),
                                           Utils.labelValueSetter(
                                             "GOL 2",
-                                            dataList["NAMA_GOLONGAN2"]
-                                                .toString(),
+                                            dataList["NAMA_GOLONGAN2"].toString(),
                                           ),
                                           Utils.labelValueSetter(
                                             "Klasifikasi",
-                                            dataList["NAMA_KLASIFIKASI"]
-                                                .toString(),
+                                            dataList["NAMA_KLASIFIKASI"].toString(),
                                           ),
                                           Utils.labelValueSetter(
                                             "Department",

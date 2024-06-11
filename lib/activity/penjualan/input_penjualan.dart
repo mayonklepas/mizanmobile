@@ -167,7 +167,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
           "SATUAN": d["KODESATUAN"],
           "QTY": d["QTY"],
           "HARGA": d["HARGA"],
-          "DISKON_NOMINAL": 0.0,
+          "DISKONNOMINAL": 0.0,
           "IDGUDANG": idGudang,
           "IDSATUANPENGALI": d["IDSATUANPENGALI"],
           "QTYSATUANPENGALI": d["QTYSATUANPENGALI"]
@@ -283,7 +283,6 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                   ));
 
                                   if (popUpResult == null) return;
-                                  log(popUpResult.toString());
 
                                   setState(() {
                                     pelangganCtrl.text = popUpResult["NAMA"];
@@ -429,7 +428,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
           "SATUAN": db["KODE_SATUAN"],
           "QTY": 1.0,
           "HARGA": hargaUpdate["HARGA"],
-          "DISKON_NOMINAL": 0.0,
+          "DISKONNOMINAL": 0.0,
           "IDGUDANG": idGudang,
           "IDSATUANPENGALI": hargaUpdate["IDSATUANPENGALI"],
           "QTYSATUANPENGALI": hargaUpdate["QTYSATUANPENGALI"]
@@ -496,7 +495,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                   Utils.labelSetter(
                                       "Disc : " +
                                           Utils.formatNumber(
-                                              data["DISKON_NOMINAL"]),
+                                              data["DISKONNOMINAL"]),
                                       bold: false),
                                   Utils.labelSetter("Jumlah : " +
                                       Utils.formatNumber(data["QTY"]) +
@@ -726,7 +725,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
       log(d.toString());
       double harga = d["HARGA"];
       double qty = d["QTY"];
-      double diskon = d["DISKON_NOMINAL"];
+      double diskon = d["DISKONNOMINAL"];
       double total = (harga * qty) - (diskon * qty);
       result = result + total;
     }
@@ -910,7 +909,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     satuanCtrl.text = data["SATUAN"];
     String idSatuan = data["IDSATUAN"];
     jumlahCtrl.text = Utils.formatNumber(data["QTY"]);
-    diskonCtrl.text = Utils.formatNumber(data["DISKON_NOMINAL"]);
+    diskonCtrl.text = Utils.formatNumber(data["DISKONNOMINAL"]);
     return SingleChildScrollView(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -1023,7 +1022,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
                             dataListShow[index]["IDSATUAN"] = idSatuan;
                             dataListShow[index]["SATUAN"] = satuanCtrl.text;
-                            dataListShow[index]["DISKON_NOMINAL"] =
+                            dataListShow[index]["DISKONNOMINAL"] =
                                 double.parse(
                                     Utils.removeDotSeparator(diskonCtrl.text));
 
@@ -1263,7 +1262,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
       "TANGGAL": tanggalCtrl.text,
       "IDPELANGGAN": idPelanggan,
       "ISTUNAI": isTunai,
-      "DISKON_NOMINAL": 0,
+      "DISKONNOMINAL": 0,
       "IDTOP": idTop,
       "TOTAL_UANGMUKA": Utils.strToDouble(uangMukaCtrl.text),
       "JUMLAHBAYAR": Utils.strToDouble(jumlahUangCtrl.text),
@@ -1278,7 +1277,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
         "QTY": dataMap["QTY"],
         "HARGA": dataMap["HARGA"],
         "IDSATUAN": dataMap["IDSATUAN"],
-        "DISKON_NOMINAL": dataMap["DISKON_NOMINAL"],
+        "DISKONNOMINAL": dataMap["DISKONNOMINAL"],
         "IDGUDANG": idGudang,
         "IDSATUANPENGALI": dataMap["IDSATUANPENGALI"],
         "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"]

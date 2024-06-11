@@ -72,7 +72,8 @@ class _ListModalFormState extends State<ListModalForm> {
       mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
       headerBar = "Klasifikasi";
     } else if (type == "satuanbarang") {
-      mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
+      mainUrlString =
+          "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
       headerBar = "Satuan Barang";
     } else if (type == "akun") {
       mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
@@ -86,9 +87,10 @@ class _ListModalFormState extends State<ListModalForm> {
     } else if (type == "top") {
       mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
       headerBar = "TOP";
-    } else if (type == "orderpembelian") {
-      mainUrlString = "${Utils.mainUrl}orderpembelian/daftar?idsuplier=${widget.idSuplier}";
-      headerBar = "Order Pembelian";
+    } else if (type == "penerimaanbarang") {
+      mainUrlString =
+          "${Utils.mainUrl}penerimaanbarang/daftarorder?idsuplier=${widget.idSuplier}";
+      headerBar = "Order Penerimaan Barang";
     }
     if (type == "kelompoktransaksi") {
       mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
@@ -98,14 +100,18 @@ class _ListModalFormState extends State<ListModalForm> {
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());
     List<dynamic> jsonData = jsonDecode(response.body)["data"];
-    if (type == "orderpembelian") {
+    if (type == "penerimaanbarang") {
       for (int i = 0; i < jsonData.length; i++) {
         jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
         jsonData[i]["KODE"] = jsonData[i]["NOREF"];
       }
     }
     if (widget.withAll) {
-      Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
+      Map<String, dynamic> map = {
+        "NAMA": "SEMUA",
+        "KODE": "SEMUA",
+        "NOINDEX": "-1"
+      };
       jsonData.insert(0, map);
     }
     _dataCache = jsonData;
@@ -139,7 +145,8 @@ class _ListModalFormState extends State<ListModalForm> {
     return FutureBuilder(
       future: _dataModal,
       builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting && isLocal == false) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            isLocal == false) {
           return Center(child: CircularProgressIndicator());
         } else {
           return ListView.builder(
@@ -158,7 +165,8 @@ class _ListModalFormState extends State<ListModalForm> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Utils.bagde(Utils.koooosong(dataList["NAMA"]).substring(0, 1)),
+                            Utils.bagde(Utils.koooosong(dataList["NAMA"])
+                                .substring(0, 1)),
                             Expanded(
                               flex: 3,
                               child: Padding(
@@ -166,13 +174,26 @@ class _ListModalFormState extends State<ListModalForm> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Utils.labelSetter(dataList["NAMA"].toString(), bold: true),
-                                    Utils.labelSetter(dataList["KODE"].toString()),
+                                    Utils.labelSetter(
+                                        dataList["NAMA"].toString(),
+                                        bold: true),
+                                    Utils.labelSetter(
+                                        dataList["KODE"].toString()),
                                     Utils.widgetSetter(() {
-                                      if (widget.type == "pelanggan" || widget.type == "suplier") {
-                                        return Utils.labelValueSetter(
-                                            "GOL", dataList["NAMA_GOLONGAN"].toString());
-                                      }
+                                      if (widget.type == "pelanggan" ||
+                                          widget.type == "suplier") {
+                                        return Utils.labelValueSetter("GOL",
+                                            dataList["NAMA_GOLONGAN"] ?? "");
+                                      } else if (widget.type ==
+                                          "penerimaanbarang") {
+                                            return Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Utils.labelSetter(dataList["KETERANGAN"])
+                                              ],
+                                            );
+                                          }
+
                                       return Container();
                                     })
                                   ],
@@ -202,14 +223,15 @@ class _ListModalFormState extends State<ListModalForm> {
                 setState(() {
                   if (customIcon.icon == Icons.search) {
                     customIcon = Icon(Icons.clear);
-                    customSearchBar = Utils.appBarSearchDynamic((keyword) async {
+                    customSearchBar =
+                        Utils.appBarSearchDynamic((keyword) async {
                       setState(() {
                         _dataModal = _searchDataModal(keyword);
                       });
                     }, hint: "Cari ${widget.type}");
                   } else {
                     customIcon = Icon(Icons.search);
-                    customSearchBar = Text("Data " + widget.type);
+                    customSearchBar = Text("Data $headerBar");
                   }
                 });
               },
@@ -221,7 +243,7 @@ class _ListModalFormState extends State<ListModalForm> {
           return Future.sync(() {
             setState(() {
               customIcon = Icon(Icons.search);
-              customSearchBar = Text("Daftar $headerBar");
+              customSearchBar = Text("Data$headerBar");
               _dataModal = _dataModal;
             });
           });

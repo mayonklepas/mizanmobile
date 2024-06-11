@@ -3,8 +3,6 @@ import 'dart:developer';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/list_barang.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
 import 'package:mizanmobile/activity/laporan/print_test.dart';
@@ -14,10 +12,9 @@ import 'package:mizanmobile/activity/laporan/summary/list_penjualan_bulanan.dart
 import 'package:mizanmobile/activity/laporan/summary/list_penjualan_harian.dart';
 import 'package:mizanmobile/activity/pelanggan/pelanggan_view.dart';
 import 'package:mizanmobile/activity/pembelian/list_pembelian.dart';
-import 'package:mizanmobile/activity/penerimaan/list_penerimaan_view.dart';
+import 'package:mizanmobile/activity/penerimaan/list_penerimaan.dart';
 import 'package:mizanmobile/activity/penjualan/list_penjualan.dart';
 import 'package:mizanmobile/activity/piutang/list_piutang.dart';
-import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/activity/setup_user.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
@@ -677,7 +674,7 @@ class _HomeActivityState extends State<HomeActivity> {
                 setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
-                      return ListPenerimaanView();
+                      return ListPenerimaan();
                     },
                   ));
                 }),

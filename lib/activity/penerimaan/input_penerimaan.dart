@@ -135,6 +135,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
     dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
     dataMapView["IDGUDANG"] = idGudang;
+    dataMapView["HARGABELI"] =
+        (detailBarang["HARGA_BELI"] * qtySetter["qty_satuan_pengali"]);
 
     setState(() {
       dataListview.add(dataMapView);
@@ -538,6 +540,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                                         Utils.labelSetter(data["NAMA"],
                                             bold: true),
                                         Utils.labelSetter(data["KODE"]),
+                                        Utils.labelSetter("Harga Beli: " +
+                                            Utils.formatNumber(
+                                                data["HARGABELI"])),
                                         Utils.labelSetter("Jumlah Order: " +
                                             Utils.formatNumber(
                                                 data["QTYORDER"]) +

@@ -8,8 +8,8 @@ import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
 class InputPenerimaan extends StatefulWidget {
-  final String idTransaksi;
-  const InputPenerimaan({super.key, this.idTransaksi = ""});
+  final String idPenerimaan;
+  const InputPenerimaan({super.key, this.idPenerimaan = ""});
 
   @override
   State<InputPenerimaan> createState() => _InputPenerimaanState();
@@ -36,67 +36,97 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   TextEditingController keteranganCtrl = TextEditingController();
   TextEditingController gudangCtrl = TextEditingController();
 
-  Future<List<dynamic>> getRincianOrder(String noindex) async {
-    Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    Uri url = Uri.parse("${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
-    Response response = await get(url, headers: Utils.setHeader());
-    String body = response.body;
-    var jsonData = jsonDecode(body)["data"]["detail"];
-    Navigator.pop(context);
-    return jsonData;
-  }
-
-  Future<dynamic> getDataDetailBarang(String idBarang) async {
-    Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    String urlString =
-        "${Utils.mainUrl}barang/rincian?idgudang=${Utils.idGudang}&halaman=0&idbarang=$idBarang";
-    Uri url = Uri.parse(urlString);
+  Future getRincianPenerimaan() async {
+    Uri url = Uri.parse(
+        "${Utils.mainUrl}penerimaanbarang/rincian?noindex=${widget.idPenerimaan}");
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
     var jsonData = jsonDecode(body)["data"];
+    dynamic header = jsonData["header"];
+    List<dynamic> detail = jsonData["detail"];
+    setState(() {
+      suplierData = {
+        "id": header["IDSUPLIER"],
+        "code": header["KODESUPLIER"],
+        "name": header["NAMASUPLIER"]
+      };
+      orderData = {
+        "id": header["IDORDER"],
+        "code": header["NOMORORDER"],
+        "name": header["NOMORORDER"]
+      };
+      dataListview.addAll(detail);
+    });
+  }
+
+  Future<dynamic> getRincianOrder(String noindex) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    Uri url = Uri.parse(
+        "${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
+    Response response = await get(url, headers: Utils.setHeader());
+    String body = response.body;
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
     return jsonData;
   }
 
-  gotoModalBarang() async {
+  selectBarang({keyword = ""}) async {
     qtySetter = {};
     if (suplierData["code"] == "" || orderData["code"] == "") {
       Utils.showMessage("Anda belum melengkapi inputan", context);
       return;
     }
-    dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-      builder: (context) {
-        return ListModalBarang(
-          isLocal: true,
-        );
-      },
-    ));
 
-    if (popUpResult == null) return;
+    dynamic result = null;
 
-    String noIndex = popUpResult["NOINDEX"];
-
-    dynamic getOrderData =
-        listOrderBarang.firstWhere((element) => element["IDBARANG"] == noIndex, orElse: () => null);
-
-    bool isAddToList = false;
-    if (getOrderData != null) {
-      isAddToList = true;
+    if (keyword.isEmpty) {
+      result = await Navigator.push(context, MaterialPageRoute(
+        builder: (context) {
+          return ListModalBarang(
+            isLocal: true,
+          );
+        },
+      ));
     } else {
+      result = await DatabaseHelper().readDatabase(
+          "SELECT idbarang AS NOINDEX FROM barang_temp WHERE kode =?",
+          params: [keyword]);
+      if (result.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Utils.labelSetter("Data tidak ditemukan",
+                color: Colors.red, size: 20)));
+        setState(() {
+          searchBarctrl.text = "";
+          searchBarFocus.requestFocus();
+        });
+
+        return;
+      }
+      result = result[0];
+    }
+
+    if (result == null || result.isEmpty) return;
+
+    String noIndex = result["NOINDEX"];
+
+    dynamic getOrderData = listOrderBarang.firstWhere(
+        (element) => element["IDBARANG"] == noIndex,
+        orElse: () => null);
+
+    if (getOrderData == null) {
       bool addConfirm = await Utils.showConfirmMessage(
           context, "Data tidak ada dalam pesanan, apakah ingin ditambahkan?");
       if (!addConfirm) {
         return;
       }
-      isAddToList = true;
     }
 
     List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
-        "SELECT detail_barang,multi_satuan FROM barang_temp WHERE idbarang =?",
+        "SELECT detail_barang FROM barang_temp WHERE idbarang =?",
         params: [noIndex]);
 
-    Map<String, dynamic> detailBarang = jsonDecode(listDetailBarang[0]["detail_barang"]);
-    List<dynamic> multiSatuan = jsonDecode(listDetailBarang[0]["multi_satuan"]);
+    Map<String, dynamic> detailBarang =
+        jsonDecode(listDetailBarang[0]["detail_barang"]);
 
     qtySetter = {
       "is_set": false,
@@ -108,7 +138,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       "qty_order": getOrderData?["QTY"] ?? 0.0,
       "satuan": getOrderData?["KODE_SATUAN"] ?? detailBarang["KODE_SATUAN"],
       "id_satuan": getOrderData?["IDSATUAN"] ?? detailBarang["IDSATUAN"],
-      "id_satuan_pengali": getOrderData?["IDSATUANPENGALI"] ?? detailBarang["IDSATUAN"],
+      "id_satuan_pengali":
+          getOrderData?["IDSATUANPENGALI"] ?? detailBarang["IDSATUAN"],
       "qty_satuan_pengali": getOrderData?["QTYSATUANPENGALI"] ?? 1.0,
     };
 
@@ -135,10 +166,13 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
     dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
     dataMapView["IDGUDANG"] = idGudang;
-    dataMapView["HARGA"] = (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
+    dataMapView["HARGA"] =
+        (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
 
     setState(() {
       dataListview.add(dataMapView);
+      searchBarctrl.text = "";
+      searchBarFocus.requestFocus();
     });
   }
 
@@ -149,12 +183,21 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     double qtySatuanPengali = qtySetter["qty_satuan_pengali"];
     TextEditingController qtyOrderCtrl = TextEditingController();
     TextEditingController qtyTerimaCtrl = TextEditingController();
+    FocusNode qtyTerimFocus = FocusNode();
     qtyOrderCtrl.text = Utils.formatNumber(qtySetter["qty_order"]);
-    qtyTerimaCtrl.text = Utils.formatNumber(qtySetter["qty_terima"]);
+    if (qtySetter["qty_terima"] == 0.0) {
+      qtyTerimaCtrl.text = "";
+    } else {
+      qtyTerimaCtrl.text = (Utils.formatNumber(qtySetter["qty_terima"]));
+    }
+
+    qtyTerimFocus.requestFocus();
+
     satuanCtrl.text = qtySetter["satuan"];
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -169,6 +212,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
             Utils.labelForm("Qty Terima"),
             TextField(
               controller: qtyTerimaCtrl,
+              focusNode: qtyTerimFocus,
             ),
             Utils.labelForm("Satuan"),
             Row(
@@ -182,7 +226,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                 Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult =
+                          await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "satuanbarang",
@@ -208,8 +253,10 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
               child: ElevatedButton(
                   onPressed: () async {
                     qtySetter["is_set"] = true;
-                    qtySetter["qty_terima"] = Utils.strToDouble(qtyTerimaCtrl.text);
-                    qtySetter["qty_order"] = Utils.strToDouble(qtyOrderCtrl.text);
+                    qtySetter["qty_terima"] =
+                        Utils.strToDouble(qtyTerimaCtrl.text);
+                    qtySetter["qty_order"] =
+                        Utils.strToDouble(qtyOrderCtrl.text);
                     qtySetter["satuan"] = satuanCtrl.text;
                     qtySetter["id_satuan"] = idSatuan;
                     qtySetter["is_satuan_pengali"] = idSatuanPengali;
@@ -226,7 +273,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   }
 
   savePenerimaan(String action) async {
-    if (dataListview.isEmpty || suplierData["code"] == "" || orderData["code"] == "") {
+    if (dataListview.isEmpty ||
+        suplierData["code"] == "" ||
+        orderData["code"] == "") {
       Utils.showMessage("Anda belum melengkapi inputan", context);
       return;
     }
@@ -248,7 +297,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penerimaanbarang/$action";
     Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
+    Response response = await post(url,
+        body: jsonEncode(bodyparam), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
 
@@ -272,7 +322,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Utils.labelSetter("Data berhasil disimpan", color: Colors.green, size: 20)));
+        content: Utils.labelSetter("Data berhasil disimpan",
+            color: Colors.green, size: 20)));
   }
 
   Future<dynamic> showModalHeader() async {
@@ -280,7 +331,83 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
-          return modalHeader();
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.labelSetter("Input Informasi", size: 25),
+                  Padding(padding: EdgeInsets.all(10)),
+                  Text("Tanggal"),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 10,
+                          child: TextField(
+                            controller: tanggalCtrl,
+                            enabled: false,
+                          )),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            setTextDateRange(tanggalCtrl);
+                          },
+                          icon: Icon(Icons.date_range),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Utils.labelForm("Departemen"),
+                  TextField(
+                    controller: deptCtrl,
+                    enabled: false,
+                  ),
+                  Utils.labelForm("Gudang"),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 10,
+                          child: TextField(
+                            controller: gudangCtrl,
+                            enabled: false,
+                          )),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            dynamic popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return ListModalForm(
+                                  type: "gudang",
+                                );
+                              },
+                            ));
+
+                            if (popUpResult == null) return;
+
+                            gudangCtrl.text = popUpResult["NAMA"];
+                            idGudang = popUpResult["NOINDEX"];
+                            namaGudang = popUpResult["NAMA"];
+                          },
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Utils.labelForm("Keterangan"),
+                  TextField(
+                    controller: keteranganCtrl,
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
+                ],
+              ),
+            ),
+          );
+          ;
         });
   }
 
@@ -293,171 +420,103 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     }
   }
 
-  SingleChildScrollView modalHeader() {
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.labelSetter("Input Informasi", size: 25),
-            Padding(padding: EdgeInsets.all(10)),
-            Text("Tanggal"),
-            Row(
-              children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: tanggalCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () async {
-                      setTextDateRange(tanggalCtrl);
-                    },
-                    icon: Icon(Icons.date_range),
-                  ),
-                ),
-              ],
-            ),
-            Utils.labelForm("Departemen"),
-            TextField(
-              controller: deptCtrl,
-              enabled: false,
-            ),
-            Utils.labelForm("Gudang"),
-            Row(
-              children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: gudangCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () async {
-                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ListModalForm(
-                            type: "gudang",
-                          );
-                        },
-                      ));
-
-                      if (popUpResult == null) return;
-
-                      gudangCtrl.text = popUpResult["NAMA"];
-                      idGudang = popUpResult["NOINDEX"];
-                      namaGudang = popUpResult["NAMA"];
-                    },
-                    icon: Icon(Icons.search),
-                  ),
-                ),
-              ],
-            ),
-            Utils.labelForm("Keterangan"),
-            TextField(
-              controller: keteranganCtrl,
-            ),
-            Padding(padding: EdgeInsets.all(5)),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<dynamic> showOption(int index, dynamic mapDataFromList) {
     return showModalBottomSheet(
         context: context,
         builder: (BuildContext content) {
-          return Container(
-            padding: EdgeInsets.only(top: 10, bottom: 10),
-            height: 100,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    IconButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          qtySetter = {
-                            "is_set": false,
-                            "id_barang": mapDataFromList?["IDBARANG"],
-                            "kode_barang": mapDataFromList?["KODE"],
-                            "nama_barang": mapDataFromList?["NAMA"],
-                            "harga":
-                                (mapDataFromList?["HARGA"] / mapDataFromList["QTYSATUANPENGALI"]),
-                            "qty_terima": mapDataFromList?["QTY"],
-                            "qty_order": mapDataFromList?["QTYORDER"],
-                            "satuan": mapDataFromList?["SATUAN"],
-                            "id_satuan": mapDataFromList?["IDSATUAN"],
-                            "id_satuan_pengali": mapDataFromList["IDSATUANPENGALI"],
-                            "qty_satuan_pengali": mapDataFromList["QTYSATUANPENGALI"],
-                          };
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              height: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            qtySetter = {
+                              "is_set": false,
+                              "id_barang": mapDataFromList?["IDBARANG"],
+                              "kode_barang": mapDataFromList?["KODE"],
+                              "nama_barang": mapDataFromList?["NAMA"],
+                              "harga": (mapDataFromList?["HARGA"] /
+                                  mapDataFromList["QTYSATUANPENGALI"]),
+                              "qty_terima": mapDataFromList?["QTY"],
+                              "qty_order": mapDataFromList?["QTYORDER"],
+                              "satuan": mapDataFromList?["SATUAN"],
+                              "id_satuan": mapDataFromList?["IDSATUAN"],
+                              "id_satuan_pengali":
+                                  mapDataFromList["IDSATUANPENGALI"],
+                              "qty_satuan_pengali":
+                                  mapDataFromList["QTYSATUANPENGALI"],
+                            };
 
-                          await showModalBottomSheet(
-                            isScrollControlled: true,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return modalSetQty();
-                            },
-                          );
+                            await showModalBottomSheet(
+                              isScrollControlled: true,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return modalSetQty();
+                              },
+                            );
 
-                          if (!qtySetter["is_set"]) {
-                            return;
-                          }
-                          Map<String, dynamic> dataMapView = {};
-                          dataMapView["IDBARANG"] = qtySetter["id_barang"];
-                          dataMapView["KODE"] = qtySetter["kode_barang"];
-                          dataMapView["NAMA"] = qtySetter["nama_barang"];
-                          dataMapView["QTY"] = qtySetter["qty_terima"];
-                          dataMapView["QTYORDER"] = qtySetter["qty_order"];
-                          dataMapView["SATUAN"] = qtySetter["satuan"];
-                          dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
-                          dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
-                          dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
-                          dataMapView["IDGUDANG"] = idGudang;
-                          dataMapView["HARGA"] =
-                              (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
+                            if (!qtySetter["is_set"]) {
+                              return;
+                            }
+                            Map<String, dynamic> dataMapView = {};
+                            dataMapView["IDBARANG"] = qtySetter["id_barang"];
+                            dataMapView["KODE"] = qtySetter["kode_barang"];
+                            dataMapView["NAMA"] = qtySetter["nama_barang"];
+                            dataMapView["QTY"] = qtySetter["qty_terima"];
+                            dataMapView["QTYORDER"] = qtySetter["qty_order"];
+                            dataMapView["SATUAN"] = qtySetter["satuan"];
+                            dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
+                            dataMapView["IDSATUANPENGALI"] =
+                                qtySetter["id_satuan_pengali"];
+                            dataMapView["QTYSATUANPENGALI"] =
+                                qtySetter["qty_satuan_pengali"];
+                            dataMapView["IDGUDANG"] = idGudang;
+                            dataMapView["HARGA"] = (qtySetter["harga"] *
+                                qtySetter["qty_satuan_pengali"]);
 
-                          setState(() {
-                            dataListview[index] = dataMapView;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.edit,
-                          color: Colors.black54,
-                        )),
-                    Text("Edit")
-                  ],
-                ),
-                Column(
-                  children: [
-                    IconButton(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          bool isOk =
-                              await Utils.showConfirmMessage(context, "ingin menghapus data ini ?");
-                          if (!isOk) {
-                            return;
-                          }
+                            setState(() {
+                              dataListview[index] = dataMapView;
+                            });
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.black54,
+                          )),
+                      Text("Edit")
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            bool isOk = await Utils.showConfirmMessage(
+                                context, "ingin menghapus data ini ?");
+                            if (!isOk) {
+                              return;
+                            }
 
-                          setState(() {
-                            dataListview.removeAt(index);
-                          });
-                        },
-                        icon: Icon(
-                          Icons.delete,
-                          color: Colors.black54,
-                        )),
-                    Text("Delete")
-                  ],
-                ),
-              ],
+                            setState(() {
+                              dataListview.removeAt(index);
+                            });
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.black54,
+                          )),
+                      Text("Delete")
+                    ],
+                  ),
+                ],
+              ),
             ),
           );
         });
@@ -465,6 +524,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
   @override
   void initState() {
+    if (widget.idPenerimaan != "") {
+      getRincianPenerimaan();
+    }
     tanggalCtrl.text = tanggalTransaksi;
     deptCtrl.text = namaDept;
     gudangCtrl.text = namaGudang;
@@ -478,23 +540,25 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
         elevation: 0,
         title: Utils.widgetSetter(() {
           if (Utils.isPdtMode == "0") {
-            return Utils.appBarSearchStatic(() => gotoModalBarang(), focus: false, readOnly: true);
+            return Utils.appBarSearchStatic(() => selectBarang(),
+                focus: false, readOnly: true);
           }
-          return Container(
-              height: 35,
-              child: TextField(
-                  cursorColor: Colors.blueAccent,
-                  style: TextStyle(color: Colors.black54),
-                  decoration: Utils.inputDecoration("Cari"),
-                  textInputAction: TextInputAction.search,
-                  autofocus: true,
-                  focusNode: searchBarFocus,
-                  controller: searchBarctrl,
-                  onSubmitted: (keyword) => {}));
+          return TextField(
+              cursorColor: Colors.blueAccent,
+              style: TextStyle(color: Colors.black54),
+              decoration: Utils.inputDecoration("Cari"),
+              textInputAction: TextInputAction.search,
+              autofocus: true,
+              focusNode: searchBarFocus,
+              controller: searchBarctrl,
+              onSubmitted: (keyword) => selectBarang(keyword: keyword));
         }),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.qr_code_scanner_rounded)),
-          IconButton(onPressed: () => showModalHeader(), icon: Icon(Icons.note_add_rounded))
+          IconButton(
+              onPressed: () {}, icon: Icon(Icons.qr_code_scanner_rounded)),
+          IconButton(
+              onPressed: () => showModalHeader(),
+              icon: Icon(Icons.note_add_rounded))
         ],
       ),
       body: Column(
@@ -527,8 +591,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                           child: IconButton(
                               alignment: Alignment.centerRight,
                               onPressed: () async {
-                                dynamic popUpResult =
-                                    await Navigator.push(context, MaterialPageRoute(
+                                dynamic popUpResult = await Navigator.push(
+                                    context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
                                       type: "suplier",
@@ -563,11 +627,12 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                               alignment: Alignment.centerRight,
                               onPressed: () async {
                                 if (suplierData["code"] == "") {
-                                  Utils.showMessage("Anda belum memilih suplier", context);
+                                  Utils.showMessage(
+                                      "Anda belum memilih suplier", context);
                                   return;
                                 }
-                                dynamic popUpResult =
-                                    await Navigator.push(context, MaterialPageRoute(
+                                dynamic popUpResult = await Navigator.push(
+                                    context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
                                       type: "penerimaanbarang",
@@ -578,7 +643,14 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
                                 if (popUpResult == null) return;
 
-                                listOrderBarang = await getRincianOrder(popUpResult["NOINDEX"]);
+                                dynamic result = await getRincianOrder(
+                                    popUpResult["NOINDEX"]);
+                                if (result["status"] == 1) {
+                                  Utils.showMessage(result["message"], context);
+                                  return;
+                                }
+
+                                listOrderBarang = result["data"]["detail"];
 
                                 setState(() {
                                   orderData["id"] = popUpResult["NOINDEX"];
@@ -615,20 +687,25 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(data["NAMA"], bold: true),
+                                        Utils.labelSetter(data["NAMA"],
+                                            bold: true),
                                         Utils.labelSetter(data["KODE"]),
-                                        Utils.labelSetter(
-                                            "Harga Beli: " + Utils.formatNumber(data["HARGA"])),
-                                        Utils.labelSetter("Jumlah Order: " +
-                                            Utils.formatNumber(data["QTYORDER"]) +
-                                            " " +
-                                            data["SATUAN"]),
-                                        Utils.labelSetter("Jumlah Terima: " +
+                                        Utils.labelValueSetter("Harga Beli " , 
+                                            Utils.formatNumber(data["HARGA"]),boldValue: true),
+                                        Utils.labelValueSetter(
+                                            "Jumlah Order ",
+                                            Utils.formatNumber(
+                                                    data["QTYORDER"]) +
+                                                " " +
+                                                data["SATUAN"]),
+                                        Utils.labelValueSetter(
+                                            "Jumlah Terima ",
                                             Utils.formatNumber(data["QTY"]) +
-                                            " " +
-                                            data["SATUAN"])
+                                                " " +
+                                                data["SATUAN"])
                                       ],
                                     ),
                                   ),

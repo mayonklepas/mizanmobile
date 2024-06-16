@@ -26,7 +26,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   String idGudang = Utils.idGudang;
   String namaGudang = Utils.namaGudang;
   String tanggalTransaksi = Utils.currentDateString();
-  String keterangan = "";
+  String keterangan = "Penerimaan mobile";
   Map<String, String> suplierData = {"id": "", "code": "", "name": ""};
   Map<String, String> orderData = {"id": "", "code": "", "name": ""};
   Map<String, dynamic> qtySetter = {};
@@ -119,14 +119,16 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       return;
     }
 
-    dynamic getOrderData =
-        listOrderBarang.firstWhere((element) => element["IDBARANG"] == noIndex, orElse: () => null);
-
-    if (getOrderData == null) {
-      bool addConfirm = await Utils.showConfirmMessage(
-          context, "Data tidak ada dalam pesanan, apakah ingin ditambahkan?");
-      if (!addConfirm) {
-        return;
+    dynamic getOrderData = {};
+    if (suplierData["code"] != "") {
+      getOrderData = listOrderBarang.firstWhere((element) => element["IDBARANG"] == noIndex,
+          orElse: () => null);
+      if (getOrderData == null) {
+        bool addConfirm = await Utils.showConfirmMessage(
+            context, "Data tidak ada dalam pesanan, apakah ingin ditambahkan?");
+        if (!addConfirm) {
+          return;
+        }
       }
     }
 
@@ -552,6 +554,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
   @override
   void initState() {
+    tanggalCtrl.text = tanggalTransaksi;
+    keteranganCtrl.text = keterangan;
+
     if (widget.idPenerimaan != "") {
       getRincianPenerimaan();
     }

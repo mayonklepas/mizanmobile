@@ -120,7 +120,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     }
 
     dynamic getOrderData = {};
-    if (suplierData["code"] != "") {
+    if (orderData["code"] != "") {
       getOrderData = listOrderBarang.firstWhere((element) => element["IDBARANG"] == noIndex,
           orElse: () => null);
       if (getOrderData == null) {

@@ -9,9 +9,6 @@ import '../../utils.dart';
 
 class PrinterUtils {
   Future<Map<String, String>> printReceipt(List<dynamic> data, dynamic additionalInfo) async {
-
-    
-
     BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
     //var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
     //Uint8List bytesNetwork = response.bodyBytes;
@@ -34,16 +31,28 @@ class PrinterUtils {
 
     //bluetooth.printImageBytes(imageBytesFromNetwork);
     //bluetooth.printNewLine();
+    String fmtHead = "%-20s %20s %n";
+    String fmtList = "%-13s %10s %13s %n";
+    String toko = Utils.connectionName;
+    String tanggal = Utils.currentDateTimeString();
+    String kasir = Utils.namaUser;
+    String header = Utils.headerStruk;
+    String kodePelanggan = additionalInfo["kodePelanggan"];
+    String namaPelanggan = additionalInfo["namaPelanggan"];
+    double jumlahUang = additionalInfo["jumlahUang"];
+    int fontMedium = Size.medium.val;
+    int fontMediumBold = Size.boldMedium.val;
+    int alignLeft = Align.left.val;
+    int alignCenter = Align.center.val;
+
     try {
-      bluetooth.printCustom(Utils.connectionName, Size.boldMedium.val, Align.center.val);
-      bluetooth.printCustom(Utils.headerStruk, Size.medium.val, Align.center.val);
-      bluetooth.printLeftRight("Kasir", Utils.namaUser, Size.medium.val, format: "%-20s %20s %n");
-      bluetooth.printLeftRight("Tanggal", Utils.currentDateTimeString(), Size.medium.val,
-          format: "%-20s %20s %n");
-      bluetooth.printLeftRight("No ", additionalInfo["noref"] , Size.medium.val,
-          format: "%-20s %20s %n");
-      bluetooth.printLeftRight("Pelanggan", "("+additionalInfo["kodePelanggan"]+"-"+additionalInfo["namaPelanggan"]+")", Size.medium.val,
-          format: "%-20s %20s %n");
+      bluetooth.printCustom(toko, fontMediumBold, alignCenter);
+      bluetooth.printCustom(header, fontMedium, alignCenter);
+      bluetooth.printLeftRight("Kasir", kasir, fontMedium, format: fmtHead);
+      bluetooth.printLeftRight("Tanggal", tanggal, fontMedium, format: fmtHead);
+      bluetooth.printLeftRight("No ", additionalInfo["noref"], fontMedium, format: fmtHead);
+      bluetooth.printLeftRight("Pelanggan", "(${kodePelanggan} - ${namaPelanggan} )", fontMedium,
+          format: fmtHead);
       bluetooth.printNewLine();
       double result = 0.0;
       int counter = 1;
@@ -51,24 +60,33 @@ class PrinterUtils {
         String nama = d["NAMA"];
         double harga = d["HARGA"];
         double qty = d["QTY"];
-        double diskon = d["DISKON_NOMINAL"];
+        double diskon = d["DISKONNOMINAL"];
         double total = (harga * qty) - (diskon * qty);
         result = result + total;
-        bluetooth.printCustom(
-            "${Utils.formatNumber(counter)}. $nama", Size.medium.val, Align.left.val);
-        bluetooth.print3Column(Utils.formatNumber(harga) + "x" + Utils.formatNumber(qty),
-            "disc:" + Utils.formatNumber(diskon), Utils.formatNumber(total), Size.medium.val,
-            format: "%-13s %10s %13s %n");
+
+        String fmtCounter = Utils.formatNumber(counter);
+        String fmtHarga = Utils.formatNumber(harga);
+        String fmtQty = Utils.formatNumber(qty);
+        String fmtDiskon = Utils.formatNumber(diskon);
+        String fmtTotal = Utils.formatNumber(total);
+
+        bluetooth.printCustom("$fmtCounter $nama", fontMedium, alignLeft);
+        bluetooth.print3Column(fmtHarga + "x" + fmtQty, "disc:" + fmtDiskon, fmtTotal, fontMedium,
+            format: fmtList);
         counter++;
       }
-      bluetooth.printNewLine();
-      bluetooth.printLeftRight("Total", Utils.formatNumber(result), Size.bold.val);
-      double jumlahUang = additionalInfo["jumlahUang"];
+      String fmtResult = Utils.formatNumber(result);
+      String fmtJumlahUang = Utils.formatNumber(jumlahUang);
       double kembalian = jumlahUang - result;
-      bluetooth.printLeftRight("Jumlah uang", Utils.formatNumber(jumlahUang), Size.bold.val);
-      bluetooth.printLeftRight("Kembalian", Utils.formatNumber(kembalian), Size.bold.val);
+      String fmtKembalian = Utils.formatNumber(kembalian);
+
       bluetooth.printNewLine();
-      bluetooth.printCustom(Utils.footerStruk, Size.medium.val, Align.center.val);
+      bluetooth.printLeftRight("Total", fmtResult, Size.bold.val);
+
+      bluetooth.printLeftRight("Jumlah uang", fmtJumlahUang, Size.bold.val);
+      bluetooth.printLeftRight("Kembalian", fmtKembalian, Size.bold.val);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(Utils.footerStruk, fontMedium, alignCenter);
       bluetooth.paperCut();
       return {"status": "success", "message": "printing success"};
     } catch (e) {

@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
@@ -175,7 +176,23 @@ class _ListModalBarangState extends State<ListModalBarang> {
             _dataBarang = _getDataBarang(keyword: keyword);
           });
         }, hint: widget.keyword, mode: mode),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.qr_code_scanner))],
+        actions: [
+          IconButton(
+              onPressed: () async {
+                String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                    "#ff6666", "Cancel", true, ScanMode.BARCODE);
+
+                if (barcodeScanRes.isEmpty) {
+                  Utils.showMessage("Data tidak ditemukan, coba ulangi", context);
+                  return;
+                }
+
+                setState(() {
+                  _dataBarang = _getDataBarang(keyword: barcodeScanRes);
+                });
+              },
+              icon: Icon(Icons.qr_code_scanner))
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () {

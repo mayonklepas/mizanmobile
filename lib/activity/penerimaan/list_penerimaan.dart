@@ -25,10 +25,7 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
   TextEditingController tanggalHinggaCtrl = TextEditingController();
 
   Future<List<dynamic>> _getDataPenerimaan(
-      {String keyword = "",
-      String tglDari = "",
-      String tglHingga = "",
-      String idDept = ""}) async {
+      {String keyword = "", String tglDari = "", String tglHingga = "", String idDept = ""}) async {
     if (tglDari == "") {
       tglDari = Utils.formatStdDate(DateTime.now());
     }
@@ -58,8 +55,7 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
     Map<String, String> bodyparam = {"NOINDEX": noindex};
     String urlString = "${Utils.mainUrl}penerimaanbarang/delete";
     Uri url = Uri.parse(urlString);
-    Response response = await post(url,
-        body: jsonEncode(bodyparam), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     return jsonData;
   }
@@ -69,8 +65,7 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
         context: context,
         builder: (BuildContext content) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
               padding: EdgeInsets.only(top: 10, bottom: 10),
               height: 100,
@@ -81,11 +76,15 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                     children: [
                       IconButton(
                           onPressed: () async {
-                            Navigator.push(context, MaterialPageRoute(
+                            Navigator.pop(context);
+                            await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return InputPenerimaan(idPenerimaan: idPenerimaan);
                               },
                             ));
+                            setState(() {
+                              _dataPenerimaan = _getDataPenerimaan();
+                            });
                           },
                           icon: Icon(
                             Icons.edit,
@@ -181,24 +180,18 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Utils.labelSetter(dataList["NOREF"],
-                                              bold: true),
+                                          Utils.labelSetter(dataList["NOREF"], bold: true),
+                                          Utils.labelSetter(dataList["NAMA_SUPLIER"]),
+                                          Utils.labelSetter(dataList["KETERANGAN"] ?? ""),
                                           Utils.labelSetter(
-                                              dataList["NAMA_SUPLIER"]),
-                                          Utils.labelSetter(
-                                              dataList["KETERANGAN"] ?? ""),
-                                          Utils.labelSetter(
-                                              Utils.formatNumber(
-                                                  dataList["TOTAL_PEMBELIAN"]),
+                                              Utils.formatNumber(dataList["TOTAL_PEMBELIAN"]),
                                               bold: true),
                                           Container(
                                             alignment: Alignment.bottomRight,
                                             child: Text(
-                                              Utils.formatDate(
-                                                  dataList["TANGGAL"]),
+                                              Utils.formatDate(dataList["TANGGAL"]),
                                               style: TextStyle(fontSize: 11),
                                             ),
                                           )
@@ -231,12 +224,15 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
           Icons.add,
           size: 30,
         ),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(
             builder: (context) {
               return InputPenerimaan();
             },
           ));
+          setState(() {
+            _dataPenerimaan = _getDataPenerimaan();
+          });
         },
       ),
       appBar: AppBar(
@@ -301,8 +297,7 @@ class _ListPenerimaanState extends State<ListPenerimaan> {
                 Future.delayed(Duration(seconds: 2));
                 setState(() {
                   _dataPenerimaan = _getDataPenerimaan(
-                      tglDari: tanggalDariCtrl.text,
-                      tglHingga: tanggalHinggaCtrl.text);
+                      tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
                 });
               });
         });

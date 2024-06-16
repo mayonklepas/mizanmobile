@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 import 'package:mizanmobile/database_helper.dart';
@@ -25,6 +26,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   String idGudang = Utils.idGudang;
   String namaGudang = Utils.namaGudang;
   String tanggalTransaksi = Utils.currentDateString();
+  String keterangan = "";
   Map<String, String> suplierData = {"id": "", "code": "", "name": ""};
   Map<String, String> orderData = {"id": "", "code": "", "name": ""};
   Map<String, dynamic> qtySetter = {};
@@ -37,23 +39,26 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   TextEditingController gudangCtrl = TextEditingController();
 
   Future getRincianPenerimaan() async {
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}penerimaanbarang/rincian?noindex=${widget.idPenerimaan}");
+    Uri url = Uri.parse("${Utils.mainUrl}penerimaanbarang/rincian?noindex=${widget.idPenerimaan}");
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
     var jsonData = jsonDecode(body)["data"];
-    dynamic header = jsonData["header"];
+    dynamic header = jsonData["header"][0];
     List<dynamic> detail = jsonData["detail"];
     setState(() {
+      keterangan = header["KETERANGAN"];
+      tanggalTransaksi = header["TANGGAL"];
+      keteranganCtrl.text = keterangan;
+      tanggalCtrl.text = tanggalTransaksi;
       suplierData = {
         "id": header["IDSUPLIER"],
         "code": header["KODESUPLIER"],
         "name": header["NAMASUPLIER"]
       };
       orderData = {
-        "id": header["IDORDER"],
-        "code": header["NOMORORDER"],
-        "name": header["NOMORORDER"]
+        "id": header["IDORDER"] ?? "",
+        "code": header["NOMORORDER"] ?? "",
+        "name": header["NOMORORDER"] ?? ""
       };
       dataListview.addAll(detail);
     });
@@ -61,8 +66,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
   Future<dynamic> getRincianOrder(String noindex) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
+    Uri url = Uri.parse("${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
     var jsonData = jsonDecode(body);
@@ -72,7 +76,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
   selectBarang({keyword = ""}) async {
     qtySetter = {};
-    if (suplierData["code"] == "" || orderData["code"] == "") {
+    if (suplierData["code"] == "") {
       Utils.showMessage("Anda belum melengkapi inputan", context);
       return;
     }
@@ -93,8 +97,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
           params: [keyword]);
       if (result.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Utils.labelSetter("Data tidak ditemukan",
-                color: Colors.red, size: 20)));
+            content: Utils.labelSetter("Data tidak ditemukan", color: Colors.red, size: 20)));
         setState(() {
           searchBarctrl.text = "";
           searchBarFocus.requestFocus();
@@ -109,9 +112,15 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
     String noIndex = result["NOINDEX"];
 
-    dynamic getOrderData = listOrderBarang.firstWhere(
-        (element) => element["IDBARANG"] == noIndex,
-        orElse: () => null);
+    //check duplicate data
+    bool isDataExistAtList = dataListview.any((element) => element["IDBARANG"] == noIndex);
+    if (isDataExistAtList) {
+      Utils.showMessage("Barang sudah ada pada daftar", context);
+      return;
+    }
+
+    dynamic getOrderData =
+        listOrderBarang.firstWhere((element) => element["IDBARANG"] == noIndex, orElse: () => null);
 
     if (getOrderData == null) {
       bool addConfirm = await Utils.showConfirmMessage(
@@ -121,12 +130,10 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       }
     }
 
-    List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
-        "SELECT detail_barang FROM barang_temp WHERE idbarang =?",
-        params: [noIndex]);
+    List<dynamic> listDetailBarang = await DatabaseHelper()
+        .readDatabase("SELECT detail_barang FROM barang_temp WHERE idbarang =?", params: [noIndex]);
 
-    Map<String, dynamic> detailBarang =
-        jsonDecode(listDetailBarang[0]["detail_barang"]);
+    Map<String, dynamic> detailBarang = jsonDecode(listDetailBarang[0]["detail_barang"]);
 
     qtySetter = {
       "is_set": false,
@@ -136,10 +143,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       "harga": detailBarang["HARGA_BELI"],
       "qty_terima": 0.0,
       "qty_order": getOrderData?["QTY"] ?? 0.0,
-      "satuan": getOrderData?["KODE_SATUAN"] ?? detailBarang["KODE_SATUAN"],
+      "kode_satuan": getOrderData?["KODE_SATUAN"] ?? detailBarang["KODE_SATUAN"],
       "id_satuan": getOrderData?["IDSATUAN"] ?? detailBarang["IDSATUAN"],
-      "id_satuan_pengali":
-          getOrderData?["IDSATUANPENGALI"] ?? detailBarang["IDSATUAN"],
+      "id_satuan_pengali": getOrderData?["IDSATUANPENGALI"] ?? detailBarang["IDSATUAN"],
       "qty_satuan_pengali": getOrderData?["QTYSATUANPENGALI"] ?? 1.0,
     };
 
@@ -157,17 +163,16 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
     Map<String, dynamic> dataMapView = {};
     dataMapView["IDBARANG"] = qtySetter["id_barang"];
-    dataMapView["KODE"] = qtySetter["kode_barang"];
-    dataMapView["NAMA"] = qtySetter["nama_barang"];
+    dataMapView["KODEBARANG"] = qtySetter["kode_barang"];
+    dataMapView["NAMABARANG"] = qtySetter["nama_barang"];
     dataMapView["QTY"] = qtySetter["qty_terima"];
     dataMapView["QTYORDER"] = qtySetter["qty_order"];
-    dataMapView["SATUAN"] = qtySetter["satuan"];
+    dataMapView["KODESATUAN"] = qtySetter["kode_satuan"];
     dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
     dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
     dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
     dataMapView["IDGUDANG"] = idGudang;
-    dataMapView["HARGA"] =
-        (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
+    dataMapView["HARGA"] = (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
 
     setState(() {
       dataListview.add(dataMapView);
@@ -177,10 +182,14 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   }
 
   SingleChildScrollView modalSetQty() {
+    TextEditingController kodeBarangCtrl = TextEditingController();
+    TextEditingController namaBarangCtrl = TextEditingController();
     TextEditingController satuanCtrl = TextEditingController();
     String idSatuan = qtySetter["id_satuan"];
     String idSatuanPengali = qtySetter["id_satuan_pengali"];
     double qtySatuanPengali = qtySetter["qty_satuan_pengali"];
+    kodeBarangCtrl.text = qtySetter["kode_barang"];
+    namaBarangCtrl.text = qtySetter["nama_barang"];
     TextEditingController qtyOrderCtrl = TextEditingController();
     TextEditingController qtyTerimaCtrl = TextEditingController();
     FocusNode qtyTerimFocus = FocusNode();
@@ -193,11 +202,10 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
     qtyTerimFocus.requestFocus();
 
-    satuanCtrl.text = qtySetter["satuan"];
+    satuanCtrl.text = qtySetter["kode_satuan"];
 
     return SingleChildScrollView(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -205,14 +213,26 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
           children: [
             Utils.labelSetter("Input QTY", size: 25),
             Padding(padding: EdgeInsets.all(10)),
+            Utils.labelForm("Kode Barang"),
+            TextField(
+              controller: kodeBarangCtrl,
+              readOnly: true,
+            ),
+            Utils.labelForm("Nama Barang"),
+            TextField(
+              controller: namaBarangCtrl,
+              readOnly: true,
+            ),
             Utils.labelForm("Qty Order"),
             TextField(
               controller: qtyOrderCtrl,
+              keyboardType: TextInputType.number,
             ),
             Utils.labelForm("Qty Terima"),
             TextField(
               controller: qtyTerimaCtrl,
               focusNode: qtyTerimFocus,
+              keyboardType: TextInputType.number,
             ),
             Utils.labelForm("Satuan"),
             Row(
@@ -223,11 +243,10 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                       controller: satuanCtrl,
                       enabled: false,
                     )),
-                Expanded(
+                /*Expanded(
                   child: IconButton(
                     onPressed: () async {
-                      dynamic popUpResult =
-                          await Navigator.push(context, MaterialPageRoute(
+                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                         builder: (context) {
                           return ListModalForm(
                             type: "satuanbarang",
@@ -244,7 +263,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                     },
                     icon: Icon(Icons.search),
                   ),
-                ),
+                )*/
               ],
             ),
             SizedBox(height: 5),
@@ -253,10 +272,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
               child: ElevatedButton(
                   onPressed: () async {
                     qtySetter["is_set"] = true;
-                    qtySetter["qty_terima"] =
-                        Utils.strToDouble(qtyTerimaCtrl.text);
-                    qtySetter["qty_order"] =
-                        Utils.strToDouble(qtyOrderCtrl.text);
+                    qtySetter["qty_terima"] = Utils.strToDouble(qtyTerimaCtrl.text);
+                    qtySetter["qty_order"] = Utils.strToDouble(qtyOrderCtrl.text);
                     qtySetter["satuan"] = satuanCtrl.text;
                     qtySetter["id_satuan"] = idSatuan;
                     qtySetter["is_satuan_pengali"] = idSatuanPengali;
@@ -272,10 +289,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     );
   }
 
-  savePenerimaan(String action) async {
-    if (dataListview.isEmpty ||
-        suplierData["code"] == "" ||
-        orderData["code"] == "") {
+  savePenerimaan() async {
+    if (dataListview.isEmpty || suplierData["code"] == "") {
       Utils.showMessage("Anda belum melengkapi inputan", context);
       return;
     }
@@ -289,6 +304,12 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       "IDORDER": orderData["id"]
     };
 
+    String action = "insert";
+    if (widget.idPenerimaan != "") {
+      action = "edit";
+      headerParam["NOINDEX"] = widget.idPenerimaan;
+    }
+
     dynamic bodyparam = {
       "header": headerParam,
       "detail": dataListview,
@@ -297,9 +318,9 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penerimaanbarang/$action";
     Uri url = Uri.parse(urlString);
-    Response response = await post(url,
-        body: jsonEncode(bodyparam), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
+
     Navigator.pop(context);
 
     if (action == "edit") {
@@ -314,29 +335,32 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       suplierData = {"id": "", "code": "", "name": ""};
       orderData = {"id": "", "code": "", "name": ""};
       qtySetter = {};
+      tanggalTransaksi = Utils.currentDateString();
       tanggalCtrl.text = tanggalTransaksi;
       idGudang = Utils.idGudang;
       namaGudang = Utils.namaGudang;
       gudangCtrl.text = namaGudang;
+      keterangan = "";
       keteranganCtrl.text = "";
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Utils.labelSetter("Data berhasil disimpan",
-            color: Colors.green, size: 20)));
+        content: Utils.labelSetter("Data berhasil disimpan", color: Colors.green, size: 20)));
   }
 
   Future<dynamic> showModalHeader() async {
+    deptCtrl.text = namaDept;
+    gudangCtrl.text = namaGudang;
+    keteranganCtrl.text = keterangan;
+    tanggalCtrl.text = tanggalTransaksi;
     showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding:
-                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -378,8 +402,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            dynamic popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(
                                   type: "gudang",
@@ -401,6 +424,16 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                   Utils.labelForm("Keterangan"),
                   TextField(
                     controller: keteranganCtrl,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          tanggalTransaksi = tanggalCtrl.text;
+                          keterangan = keteranganCtrl.text;
+                          Navigator.pop(context);
+                        },
+                        child: Text("Oke")),
                   ),
                   Padding(padding: EdgeInsets.all(5)),
                 ],
@@ -425,8 +458,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
         context: context,
         builder: (BuildContext content) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
               padding: EdgeInsets.only(top: 10, bottom: 10),
               height: 100,
@@ -441,18 +473,16 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                             qtySetter = {
                               "is_set": false,
                               "id_barang": mapDataFromList?["IDBARANG"],
-                              "kode_barang": mapDataFromList?["KODE"],
-                              "nama_barang": mapDataFromList?["NAMA"],
-                              "harga": (mapDataFromList?["HARGA"] /
-                                  mapDataFromList["QTYSATUANPENGALI"]),
+                              "kode_barang": mapDataFromList?["KODEBARANG"],
+                              "nama_barang": mapDataFromList?["NAMABARANG"],
+                              "harga":
+                                  (mapDataFromList?["HARGA"] / mapDataFromList["QTYSATUANPENGALI"]),
                               "qty_terima": mapDataFromList?["QTY"],
                               "qty_order": mapDataFromList?["QTYORDER"],
-                              "satuan": mapDataFromList?["SATUAN"],
+                              "kode_satuan": mapDataFromList?["KODESATUAN"],
                               "id_satuan": mapDataFromList?["IDSATUAN"],
-                              "id_satuan_pengali":
-                                  mapDataFromList["IDSATUANPENGALI"],
-                              "qty_satuan_pengali":
-                                  mapDataFromList["QTYSATUANPENGALI"],
+                              "id_satuan_pengali": mapDataFromList["IDSATUANPENGALI"],
+                              "qty_satuan_pengali": mapDataFromList["QTYSATUANPENGALI"],
                             };
 
                             await showModalBottomSheet(
@@ -468,19 +498,17 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                             }
                             Map<String, dynamic> dataMapView = {};
                             dataMapView["IDBARANG"] = qtySetter["id_barang"];
-                            dataMapView["KODE"] = qtySetter["kode_barang"];
-                            dataMapView["NAMA"] = qtySetter["nama_barang"];
+                            dataMapView["KODEBARANG"] = qtySetter["kode_barang"];
+                            dataMapView["NAMABARANG"] = qtySetter["nama_barang"];
                             dataMapView["QTY"] = qtySetter["qty_terima"];
                             dataMapView["QTYORDER"] = qtySetter["qty_order"];
-                            dataMapView["SATUAN"] = qtySetter["satuan"];
+                            dataMapView["KODESATUAN"] = qtySetter["kode_satuan"];
                             dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
-                            dataMapView["IDSATUANPENGALI"] =
-                                qtySetter["id_satuan_pengali"];
-                            dataMapView["QTYSATUANPENGALI"] =
-                                qtySetter["qty_satuan_pengali"];
+                            dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
+                            dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
                             dataMapView["IDGUDANG"] = idGudang;
-                            dataMapView["HARGA"] = (qtySetter["harga"] *
-                                qtySetter["qty_satuan_pengali"]);
+                            dataMapView["HARGA"] =
+                                (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
 
                             setState(() {
                               dataListview[index] = dataMapView;
@@ -527,9 +555,6 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
     if (widget.idPenerimaan != "") {
       getRincianPenerimaan();
     }
-    tanggalCtrl.text = tanggalTransaksi;
-    deptCtrl.text = namaDept;
-    gudangCtrl.text = namaGudang;
     super.initState();
   }
 
@@ -540,25 +565,41 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
         elevation: 0,
         title: Utils.widgetSetter(() {
           if (Utils.isPdtMode == "0") {
-            return Utils.appBarSearchStatic(() => selectBarang(),
-                focus: false, readOnly: true);
+            return Utils.appBarSearchStatic(() => selectBarang(), focus: false, readOnly: true);
           }
-          return TextField(
-              cursorColor: Colors.blueAccent,
-              style: TextStyle(color: Colors.black54),
-              decoration: Utils.inputDecoration("Cari"),
-              textInputAction: TextInputAction.search,
-              autofocus: true,
-              focusNode: searchBarFocus,
-              controller: searchBarctrl,
-              onSubmitted: (keyword) => selectBarang(keyword: keyword));
+          return Container(
+            height: 35,
+            child: TextField(
+                cursorColor: Colors.blueAccent,
+                style: TextStyle(color: Colors.black54),
+                decoration: Utils.inputDecoration("Cari"),
+                textInputAction: TextInputAction.search,
+                autofocus: true,
+                focusNode: searchBarFocus,
+                controller: searchBarctrl,
+                onSubmitted: (keyword) => selectBarang(keyword: keyword)),
+          );
         }),
         actions: [
-          IconButton(
-              onPressed: () {}, icon: Icon(Icons.qr_code_scanner_rounded)),
-          IconButton(
-              onPressed: () => showModalHeader(),
-              icon: Icon(Icons.note_add_rounded))
+          Utils.widgetSetter(() {
+            if (Utils.isPdtMode == "0") {
+              return IconButton(
+                  onPressed: () async {
+                    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+                        "#ff6666", "Cancel", true, ScanMode.BARCODE);
+
+                    if (barcodeScanRes.isEmpty) {
+                      Utils.showMessage("Data tidak ditemukan, coba ulangi", context);
+                      return;
+                    }
+
+                    selectBarang(keyword: barcodeScanRes);
+                  },
+                  icon: Icon(Icons.qr_code_scanner_rounded));
+            }
+            return IconButton(onPressed: () => selectBarang(), icon: Icon(Icons.list_alt_sharp));
+          }),
+          IconButton(onPressed: () => showModalHeader(), icon: Icon(Icons.note_add_rounded))
         ],
       ),
       body: Column(
@@ -591,8 +632,8 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                           child: IconButton(
                               alignment: Alignment.centerRight,
                               onPressed: () async {
-                                dynamic popUpResult = await Navigator.push(
-                                    context, MaterialPageRoute(
+                                dynamic popUpResult =
+                                    await Navigator.push(context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
                                       type: "suplier",
@@ -627,12 +668,11 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                               alignment: Alignment.centerRight,
                               onPressed: () async {
                                 if (suplierData["code"] == "") {
-                                  Utils.showMessage(
-                                      "Anda belum memilih suplier", context);
+                                  Utils.showMessage("Anda belum memilih suplier", context);
                                   return;
                                 }
-                                dynamic popUpResult = await Navigator.push(
-                                    context, MaterialPageRoute(
+                                dynamic popUpResult =
+                                    await Navigator.push(context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
                                       type: "penerimaanbarang",
@@ -643,8 +683,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
                                 if (popUpResult == null) return;
 
-                                dynamic result = await getRincianOrder(
-                                    popUpResult["NOINDEX"]);
+                                dynamic result = await getRincianOrder(popUpResult["NOINDEX"]);
                                 if (result["status"] == 1) {
                                   Utils.showMessage(result["message"], context);
                                   return;
@@ -671,6 +710,12 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                   itemCount: dataListview.length,
                   itemBuilder: (BuildContext context, int index) {
                     dynamic data = dataListview[index];
+                    String namaBarang = data["NAMABARANG"];
+                    String kodeBarang = data["KODEBARANG"];
+                    String satuan = data["KODESATUAN"];
+                    String harga = Utils.formatNumber(data["HARGA"]);
+                    String qtyOrder = Utils.formatNumber(data["QTYORDER"]);
+                    String qtyTerima = Utils.formatNumber(data["QTY"]);
                     return Container(
                       child: Card(
                         child: InkWell(
@@ -687,25 +732,15 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(data["NAMA"],
-                                            bold: true),
-                                        Utils.labelSetter(data["KODE"]),
-                                        Utils.labelValueSetter("Harga Beli " , 
-                                            Utils.formatNumber(data["HARGA"]),boldValue: true),
+                                        Utils.labelSetter(namaBarang, bold: true),
+                                        Utils.labelSetter(kodeBarang),
+                                        Utils.labelValueSetter("Harga", harga, boldValue: true),
                                         Utils.labelValueSetter(
-                                            "Jumlah Order ",
-                                            Utils.formatNumber(
-                                                    data["QTYORDER"]) +
-                                                " " +
-                                                data["SATUAN"]),
+                                            "Qty Order ", qtyOrder + " " + satuan),
                                         Utils.labelValueSetter(
-                                            "Jumlah Terima ",
-                                            Utils.formatNumber(data["QTY"]) +
-                                                " " +
-                                                data["SATUAN"])
+                                            "Qty Terima ", qtyTerima + " " + satuan)
                                       ],
                                     ),
                                   ),
@@ -734,7 +769,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                       width: double.maxFinite,
                       height: 45,
                       child: ElevatedButton(
-                        onPressed: () => savePenerimaan("insert"),
+                        onPressed: () => savePenerimaan(),
                         child: Utils.labelSetter("SIMPAN", color: Colors.white),
                       ),
                     ),

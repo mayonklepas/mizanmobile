@@ -115,7 +115,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
         "SATUAN": d["KODESATUAN"],
         "QTY": d["QTY"],
         "HARGA": d["HARGA"],
-        "DISKON_NOMINAL": d["DISKONNOMINAL"],
+        "DISKONNOMINAL": d["DISKONNOMINAL"],
         "IDGUDANG": d["IDGUDANG"],
         "IDSATUANPENGALI": d["IDSATUANPENGALI"],
         "QTYSATUANPENGALI": d["QTYSATUANPENGALI"]
@@ -128,7 +128,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
       "tanggal": tanggal,
       "kodePelanggan": Utils.kodePelanggan,
       "namaPelanggan": namaPelanggan,
-      "noref" : noref,
+      "noref": noref,
       "jumlahUang": jumlahBayar
     };
 
@@ -184,9 +184,12 @@ class _ListPenjualanState extends State<ListPenjualan> {
                             return Utils.showMessage("Akses ditolak", context);
                           }
 
-                          Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
+                          await Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
                             return InputPenjualan(idTransaksi: noindex);
                           }));
+                          setState(() {
+                            _dataPenjualan = _getDataPenjualan();
+                          });
                         },
                         icon: Icon(
                           Icons.edit,
@@ -350,10 +353,14 @@ class _ListPenjualanState extends State<ListPenjualan> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
             return InputPenjualan();
           }));
+
+          setState(() {
+            _dataPenjualan = _getDataPenjualan();
+          });
         },
         child: Icon(
           Icons.add,

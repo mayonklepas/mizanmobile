@@ -288,7 +288,7 @@ class _HomeActivityState extends State<HomeActivity> {
     List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
     int status = lsSyncInfo[0]["status"];
     if (status == 1) {
-      Timer.periodic(Duration(minutes: 3), (timer) async {
+      Timer.periodic(Duration(minutes: 10), (timer) async {
         if (status == 0) {
           log("no active sync");
         }

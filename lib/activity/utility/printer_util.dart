@@ -34,8 +34,9 @@ class PrinterUtils {
     String fmtHead = "%-20s %20s %n";
     String fmtList = "%-13s %10s %13s %n";
     String toko = Utils.connectionName;
-    String tanggal = Utils.currentDateTimeString();
-    String kasir = Utils.namaUser;
+    String tanggal = additionalInfo["tanggal"];
+    String tanggalPrint = Utils.currentDateTimeString();
+    String kasir = additionalInfo["kasir"];
     String header = Utils.headerStruk;
     String kodePelanggan = additionalInfo["kodePelanggan"];
     String namaPelanggan = additionalInfo["namaPelanggan"];
@@ -50,6 +51,7 @@ class PrinterUtils {
       bluetooth.printCustom(header, fontMedium, alignCenter);
       bluetooth.printLeftRight("Kasir", kasir, fontMedium, format: fmtHead);
       bluetooth.printLeftRight("Tanggal", tanggal, fontMedium, format: fmtHead);
+      bluetooth.printLeftRight("Tanggal Print", tanggalPrint, fontMedium, format: fmtHead);
       bluetooth.printLeftRight("No ", additionalInfo["noref"], fontMedium, format: fmtHead);
       bluetooth.printLeftRight("Pelanggan", "(${kodePelanggan} - ${namaPelanggan} )", fontMedium,
           format: fmtHead);
@@ -87,6 +89,8 @@ class PrinterUtils {
       bluetooth.printLeftRight("Kembalian", fmtKembalian, Size.bold.val);
       bluetooth.printNewLine();
       bluetooth.printCustom(Utils.footerStruk, fontMedium, alignCenter);
+      bluetooth.printNewLine();
+      bluetooth.printCustom(tanggalPrint, fontMedium, alignCenter);
       bluetooth.paperCut();
       return {"status": "success", "message": "printing success"};
     } catch (e) {

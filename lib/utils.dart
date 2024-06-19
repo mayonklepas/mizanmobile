@@ -128,10 +128,14 @@ class Utils {
     if (value.isNaN) {
       return "0";
     }
-    NumberFormat nf =
-        NumberFormat.currency(locale: "id", symbol: symbol, decimalDigits: decimalDigit);
+    NumberFormat nf = NumberFormat.currency(locale: "id", symbol: symbol);
+    String result = nf.format(value);
+    List resultArray = result.split(",");
+    if (resultArray[1] == "00") {
+      result = resultArray[0];
+    }
 
-    return nf.format(value);
+    return result;
   }
 
   static String currentDateString() {
@@ -191,6 +195,7 @@ class Utils {
 
   static double strToDouble(String value) {
     try {
+      value = value.replaceAll(",", ".");
       double result = double.parse(value);
       return result;
     } catch (e) {
@@ -223,6 +228,16 @@ class Utils {
         prefixIcon: Icon(Icons.search),
         hintStyle: TextStyle(color: Colors.black54));
     return decor;
+  }
+
+  static void setTextDateRange(
+      BuildContext context, TextEditingController tgl, StateSetter setState) async {
+    DateTime? pickedDate = await Utils.getDatePicker(context);
+    if (pickedDate != null) {
+      setState(() {
+        tgl.text = formatStdDate(pickedDate);
+      });
+    }
   }
 
   static Widget appBarSearch(void Function(String keyword) search,
@@ -682,8 +697,10 @@ class Utils {
     Utils.hakAkses = jsonDecode(sp.getString("hakakses")!);
   }
 
-  static String removeDotSeparator(String src) {
-    return src.replaceAll(".", "");
+  static String decimalisasi(String src) {
+    String result = src.replaceAll(".", "");
+    result = result.replaceAll(",", ".");
+    return result;
   }
 
   static void setAllPref() async {

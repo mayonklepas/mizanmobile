@@ -74,14 +74,20 @@ class _ListPenjualanState extends State<ListPenjualan> {
     String urlString = "${Utils.mainUrl}penjualan/rincian?noindex=${noindex}";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
-    String body = response.body;
-    var jsonData = jsonDecode(body)["data"];
-    dynamic headerData = jsonData["header"][0];
+    Map result = jsonDecode(response.body);
+    if (result["status"] == 1) {
+      Navigator.pop(context);
+      Utils.showMessage(result["message"], context);
+      return;
+    }
+    Map data = result["data"];
+    dynamic headerData = data["header"][0];
 
     String idPelanggan = headerData["IDPELANGGAN"];
     String namaPelanggan = headerData["NAMAPELANGGAN"];
     double jumlahBayar = headerData["JUMLAHBAYAR"] ?? 0.0;
     String idUserInput = headerData["USERINPUT"];
+    String namaKasir = headerData["NAMAKASIR"];
     String idGudang = "";
     String tanggal = headerData["TANGGAL"];
     int isTunai = headerData["ISTUNAI"];
@@ -89,7 +95,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
     String noref = headerData["NOREF"];
     List<dynamic> dataListPrint = [];
 
-    List<dynamic> detailBarang = jsonData["detail"];
+    List<dynamic> detailBarang = data["detail"];
 
     double totalBelanja = 0;
 
@@ -128,6 +134,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
       "tanggal": tanggal,
       "kodePelanggan": Utils.kodePelanggan,
       "namaPelanggan": namaPelanggan,
+      "kasir": namaKasir,
       "noref": noref,
       "jumlahUang": jumlahBayar
     };

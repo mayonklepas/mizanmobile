@@ -285,7 +285,7 @@ class _HomeActivityState extends State<HomeActivity> {
 
   periodicTask() async {
     var db = DatabaseHelper();
-    List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info WHERE id=1");
+    List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
     int status = lsSyncInfo[0]["status"];
     if (status == 1) {
       Timer.periodic(Duration(minutes: 10), (timer) async {

@@ -357,9 +357,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                               mapData = {
                                 "noindex": noIndex,
                                 "idgolongan": idGolongan,
-                                "dari": Utils.removeDotSeparator(dariCtrl.text),
-                                "hingga": Utils.removeDotSeparator(hinggaCtrl.text),
-                                "harga_jual": Utils.removeDotSeparator(hargaCtrl.text),
+                                "dari": Utils.decimalisasi(dariCtrl.text),
+                                "hingga": Utils.decimalisasi(hinggaCtrl.text),
+                                "harga_jual": Utils.decimalisasi(hargaCtrl.text),
                                 "idsatuan": idSatuan,
                                 "idbarang": idBarangGlobal,
                                 "persen_harga_jual": 0,
@@ -370,9 +370,9 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                             } else {
                               mapData = {
                                 "idgolongan": idGolongan,
-                                "dari": Utils.removeDotSeparator(dariCtrl.text),
-                                "hingga": Utils.removeDotSeparator(hinggaCtrl.text),
-                                "harga_jual": Utils.removeDotSeparator(hargaCtrl.text),
+                                "dari": Utils.decimalisasi(dariCtrl.text),
+                                "hingga": Utils.decimalisasi(hinggaCtrl.text),
+                                "harga_jual": Utils.decimalisasi(hargaCtrl.text),
                                 "idsatuan": idSatuan,
                                 "idbarang": idBarangGlobal,
                                 "persen_harga_jual": 0,
@@ -502,7 +502,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                                 "idbarang": idBarangGlobal,
                                 "idsatuan": idSatuan,
                                 "idsatuanpengali": idSatuanPengali,
-                                "qtysatuanpengali": Utils.removeDotSeparator(isiPengaliCtrl.text),
+                                "qtysatuanpengali": Utils.decimalisasi(isiPengaliCtrl.text),
                                 "barcode": barcodeCtrl.text,
                               };
                               result = await _postDetailDataBarang(mapData, "multisatuan/edit");
@@ -511,7 +511,7 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                                 "idbarang": idBarangGlobal,
                                 "barcode": barcodeCtrl.text,
                                 "idsatuan": idSatuan,
-                                "qtysatuanpengali": Utils.removeDotSeparator(isiPengaliCtrl.text),
+                                "qtysatuanpengali": Utils.decimalisasi(isiPengaliCtrl.text),
                                 "idsatuanpengali": idSatuanPengali,
                               };
                               result = await _postDetailDataBarang(mapData, "multisatuan/insert");
@@ -955,8 +955,8 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         "iddept": _idDept,
                         "metodehpp": _metodeHpp,
                         "stok_minimum": _stokMinimalCtrl.text,
-                        "harga_beli": Utils.removeDotSeparator(_hargaBeliTerakhirCtrl.text),
-                        "harga_jual": Utils.removeDotSeparator(_hargaJualCtrl.text)
+                        "harga_beli": Utils.decimalisasi(_hargaBeliTerakhirCtrl.text),
+                        "harga_jual": Utils.decimalisasi(_hargaJualCtrl.text)
                       };
                       result = await _postDetailDataBarang(mapData, "insert");
                       dynamic data = result["data"];
@@ -985,8 +985,8 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         "iddept": _idDept,
                         "metodehpp": _metodeHpp,
                         "stok_minimum": _stokMinimalCtrl.text,
-                        "harga_beli": Utils.removeDotSeparator(_hargaBeliTerakhirCtrl.text),
-                        "harga_jual": Utils.removeDotSeparator(_hargaJualCtrl.text)
+                        "harga_beli": Utils.decimalisasi(_hargaBeliTerakhirCtrl.text),
+                        "harga_jual": Utils.decimalisasi(_hargaJualCtrl.text)
                       };
                       result = await _postDetailDataBarang(mapData, "edit");
                       Utils.showMessageAction(

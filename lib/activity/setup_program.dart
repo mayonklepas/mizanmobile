@@ -38,7 +38,9 @@ class _SetupProgramState extends State<SetupProgram> {
   bool isPdtMode = false;
   String isPdtModevalue = "0";
   bool isShowStockProgram = false;
-  static String isShowStockProgramValue = "0";
+  String isShowStockProgramValue = "0";
+  bool isShowSyncNotif = false;
+  String isShowSyncNotifValue = "0";
   TextEditingController footerStrukCtrl = TextEditingController();
   TextEditingController headerStrukCtrl = TextEditingController();
 
@@ -73,6 +75,10 @@ class _SetupProgramState extends State<SetupProgram> {
       isShowStockProgramValue = mapSetup["defaultIsShowStockProgram"].toString();
       if (isShowStockProgramValue == "1") {
         isShowStockProgram = true;
+      }
+      isShowSyncNotifValue = mapSetup["defaultIsShowSyncNotif"].toString();
+      if (isShowSyncNotifValue == "1") {
+        isShowSyncNotif = true;
       }
       headerStrukCtrl.text = mapSetup["defaultHeaderStruk"].toString();
       footerStrukCtrl.text = mapSetup["defaultFooterStruk"].toString();
@@ -214,7 +220,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           if (popUpResult == null) return;
 
                           idPelanggan = popUpResult["NOINDEX"];
-                          kodePelanggan = popUpResult["KODE"]; 
+                          kodePelanggan = popUpResult["KODE"];
                           idGolonganPelanggan = popUpResult["IDGOLONGAN"];
                           idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
                           namaPelangganCtrl.text = popUpResult["NAMA"];
@@ -381,6 +387,24 @@ class _SetupProgramState extends State<SetupProgram> {
                     Text("Tampilkan Stok Program"),
                   ],
                 ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isShowSyncNotif,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isShowSyncNotif = value!;
+                          if (value == true) {
+                            isShowSyncNotifValue = "1";
+                          } else {
+                            isShowSyncNotifValue = "0";
+                          }
+                        });
+                      },
+                    ),
+                    Text("Tampilkan notif Sinkronisasi"),
+                  ],
+                ),
                 Utils.labelForm("Header Struk"),
                 TextField(
                   controller: headerStrukCtrl,
@@ -415,6 +439,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIdBluetoothDevice": idBluetoothDevice,
                           "defaultIsPdtMode": isPdtModevalue,
                           "defaultIsShowStockProgram": isShowStockProgramValue,
+                          "defaultIsShowSyncNotif": isShowSyncNotifValue,
                           "defaultHeaderStruk": headerStrukCtrl.text,
                           "defaultFooterStruk": footerStrukCtrl.text
                         };
@@ -446,6 +471,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.bluetoothName = bluetoothDeviceCtrl.text;
                           Utils.isPdtMode = isPdtModevalue;
                           Utils.isShowStockProgram = isShowStockProgramValue;
+                          Utils.isShowSyncNotif = isShowSyncNotifValue;
                           Utils.footerStruk = footerStrukCtrl.text;
                           Utils.headerStruk = headerStrukCtrl.text;
                         });

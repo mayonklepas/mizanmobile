@@ -7,6 +7,7 @@ import 'package:mizanmobile/activity/home_activity.dart';
 import 'package:mizanmobile/activity/login_activity.dart';
 import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
+import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/printer_util.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -257,7 +258,34 @@ class _MainPageState extends State<MainPage> {
                               ),
                             ],
                           ),
-                        )
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Utils.labelSetter("Transaksi tapi koneksi mati ?"),
+                              Padding(padding: EdgeInsets.all(3)),
+                              InkWell(
+                                onTap: () async {
+                                  await Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) {
+                                      return ListModalBarang(
+                                        isLocal: true,
+                                      );
+                                    },
+                                  ));
+                                },
+                                child: Text(
+                                  "Cek barang local",
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),

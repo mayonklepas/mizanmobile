@@ -850,7 +850,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                   flex: 5,
                   child: TextField(
                     controller: jumlahCtrl,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                   ),
                 ),
                 SizedBox(width: 10),

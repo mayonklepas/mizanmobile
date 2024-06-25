@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,16 @@ class HomeActivity extends StatefulWidget {
 }
 
 class _HomeActivityState extends State<HomeActivity> {
+  double penjualanHarian = 0;
+  double penjualanBulanan = 0;
+  double labaHarian = 0;
+  double labaBulanan = 0;
+
+  String koneksi = "";
+  String localLastUpdate = "";
+  bool sinkronisasiOnOff = false;
+  String totalData = "0";
+
   Future<dynamic> _getHome() async {
     String urlString =
         "${Utils.mainUrl}home/daftar?tgl=${Utils.currentDateString()}&iddept=${Utils.idDept}";
@@ -58,11 +69,6 @@ class _HomeActivityState extends State<HomeActivity> {
     return jsonData;
   }
 
-  String koneksi = "";
-  String localLastUpdate = "";
-  bool sinkronisasiOnOff = false;
-  String totalData = "0";
-
   _getInfoSyncLocal() async {
     var db = DatabaseHelper();
     List<dynamic> getInfo =
@@ -74,41 +80,6 @@ class _HomeActivityState extends State<HomeActivity> {
       sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
       totalData = Utils.formatNumber(getInfoBarang[0]["total"]);
     });
-  }
-
-  Container setIconCard(
-      IconData icon, MaterialColor color, String label, void Function() tapAction) {
-    return Container(
-      child: Column(
-        children: [
-          Card(
-            margin: EdgeInsets.only(top: 15),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.all(Radius.circular(100)),
-              onTap: tapAction,
-              child: Container(
-                width: 75,
-                height: 75,
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 50,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            height: 50,
-            padding: EdgeInsets.only(top: 10),
-            child: Utils.labelSetter(label, size: 13, bold: true, align: TextAlign.center),
-          )
-        ],
-      ),
-    );
   }
 
   _setupProgramChecked() {
@@ -127,6 +98,49 @@ class _HomeActivityState extends State<HomeActivity> {
                 },
                 child: Text("Lakukan Setup")));
       });
+    }
+  }
+
+  setDataHome() async {
+    if (Utils.hakAkses["MOBILE_DASHBOARD"] == 1) {
+      dynamic data = await _getHome();
+      setState(() {
+        penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
+        penjualanBulanan = data["PENJUALAN_BULANAN"] ?? 0;
+        labaHarian = data["LABA_HARIAN"] ?? 0;
+        labaBulanan = data["LABA_BULANAN"] ?? 0;
+      });
+    }
+  }
+
+  periodicTask() async {
+    try {
+      var db = DatabaseHelper();
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
+      int status = lsSyncInfo[0]["status"];
+      if (status == 1) {
+        if (Utils.isShowSyncNotif == "1") {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi aktif")));
+        }
+        Timer.periodic(Duration(minutes: 1), (timer) async {
+          if (status == 0) {
+            log("no active sync");
+          }
+          log("process sync-task");
+          await Utils.syncLocalData();
+          if (Utils.isShowSyncNotif == "1") {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text("data telah diperbaharui dari sinkronisasi")));
+          }
+        });
+      } else {
+        if (Utils.isShowSyncNotif == "1") {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Sinkronisasi tidak aktif")));
+        }
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 
@@ -257,7 +271,9 @@ class _HomeActivityState extends State<HomeActivity> {
             SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      exit(0);
+                    },
                     child: Text("Logout"),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent)))
           ],
@@ -266,48 +282,51 @@ class _HomeActivityState extends State<HomeActivity> {
     );
   }
 
-  double penjualanHarian = 0;
-  double penjualanBulanan = 0;
-  double labaHarian = 0;
-  double labaBulanan = 0;
-
-  setDataHome() async {
-    if (Utils.hakAkses["MOBILE_DASHBOARD"] == 1) {
-      dynamic data = await _getHome();
-      setState(() {
-        penjualanHarian = data["PENJUALAN_HARIAN"] ?? 0;
-        penjualanBulanan = data["PENJUALAN_BULANAN"] ?? 0;
-        labaHarian = data["LABA_HARIAN"] ?? 0;
-        labaBulanan = data["LABA_BULANAN"] ?? 0;
-      });
-    }
-  }
-
-  periodicTask() async {
-    var db = DatabaseHelper();
-    List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
-    int status = lsSyncInfo[0]["status"];
-    if (status == 1) {
-      Timer.periodic(Duration(minutes: 10), (timer) async {
-        if (status == 0) {
-          log("no active sync");
-        }
-        log("process sync-task");
-        await Utils.syncLocalData();
-      });
-    }
+  Container setIconCard(
+      IconData icon, MaterialColor color, String label, void Function() tapAction) {
+    return Container(
+      child: Column(
+        children: [
+          Card(
+            margin: EdgeInsets.only(top: 15),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.all(Radius.circular(100)),
+              onTap: tapAction,
+              child: Container(
+                width: 75,
+                height: 75,
+                child: Icon(
+                  icon,
+                  color: color,
+                  size: 50,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            height: 50,
+            padding: EdgeInsets.only(top: 10),
+            child: Utils.labelSetter(label, size: 13, bold: true, align: TextAlign.center),
+          )
+        ],
+      ),
+    );
   }
 
   @override
   void initState() {
     // TODO: implement initState
     //Utils.initHakAkses();
-    log(jsonEncode(Utils.hakAkses));
-    periodicTask();
+    Utils.setAllPref();
+    _setupProgramChecked();
     setDataHome();
     _getInfoSyncLocal();
+    periodicTask();
     koneksi = Utils.connectionName;
-    _setupProgramChecked();
     super.initState();
   }
 

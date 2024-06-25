@@ -349,7 +349,7 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                   Utils.labelForm("Jumlah"),
                   TextField(
                     controller: jumlahCtrl,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                   ),
                   Padding(padding: EdgeInsets.all(5)),
                   SizedBox(

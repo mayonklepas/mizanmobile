@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -215,6 +216,14 @@ class _SetupConnectionState extends State<SetupConnection> {
                                                     }
 
                                                     Utils.setAllPref();
+
+                                                    bool isClose = await Utils.showConfirmMessage(
+                                                        context,
+                                                        "Setup koneksi mengharuskan restart aplikasi!!");
+
+                                                    if (isClose) {
+                                                      exit(0);
+                                                    }
                                                   },
                                                   icon: Icon(
                                                     Icons.check,

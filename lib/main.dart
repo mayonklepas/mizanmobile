@@ -48,6 +48,8 @@ class _MainPageState extends State<MainPage> {
   TextEditingController passwordCtrl = TextEditingController();
   String image = "";
 
+  int imageClickCount = 0;
+
   Future<dynamic> _postLogin(Map<String, Object> postBody) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}user/login";
@@ -156,8 +158,19 @@ class _MainPageState extends State<MainPage> {
                               return Column(
                                 children: [
                                   InkWell(
-                                    onTap: () {
-                                      PrinterUtils().printTestDevice();
+                                    onTap: () async {
+                                      imageClickCount = imageClickCount + 1;
+                                      if (imageClickCount == 3) {
+                                        await Navigator.push(context, MaterialPageRoute(
+                                          builder: (context) {
+                                            return ListModalBarang(
+                                              isLocal: true,
+                                            );
+                                          },
+                                        ));
+                                      } else if (imageClickCount == 4) {
+                                        PrinterUtils().printTestDevice();
+                                      }
                                     },
                                     child: Image.network(
                                       Utils.imageUrl + "logo.png",
@@ -261,31 +274,7 @@ class _MainPageState extends State<MainPage> {
                         ),
                         SizedBox(
                           height: 5,
-                        ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Utils.labelSetter("Transaksi tapi koneksi mati ?"),
-                              Padding(padding: EdgeInsets.all(3)),
-                              InkWell(
-                                onTap: () async {
-                                  await Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return ListModalBarang(
-                                        isLocal: true,
-                                      );
-                                    },
-                                  ));
-                                },
-                                child: Text(
-                                  "Cek barang local",
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        )
                       ],
                     ),
                   ),

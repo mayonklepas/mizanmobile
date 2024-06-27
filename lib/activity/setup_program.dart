@@ -83,6 +83,7 @@ class _SetupProgramState extends State<SetupProgram> {
       }
       headerStrukCtrl.text = mapSetup["defaultHeaderStruk"].toString();
       footerStrukCtrl.text = mapSetup["defaultFooterStruk"].toString();
+      syncIntervalMinutesCtrl.text = mapSetup["defaultSyncIntervalMinutes"];
     });
   }
 

@@ -34,8 +34,8 @@ class _ListModalBarangState extends State<ListModalBarang> {
             .readDatabase("SELECT idbarang,kode,nama,detail_barang FROM barang_temp LIMIT 100");
       } else {
         listBarang = await DatabaseHelper().readDatabase(
-            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE (nama LIKE ? OR kode LIKE ?) LIMIT 100",
-            params: ["%$keyword%", "%$keyword%"]);
+            "SELECT idbarang,kode,nama,detail_barang FROM barang_temp WHERE (nama LIKE ? OR kode LIKE ? OR multi_satuan LIKE ?) LIMIT 100",
+            params: ["%$keyword%", "%$keyword%", "%$keyword%"]);
       }
 
       List<dynamic> listBarangSort = List.of(listBarang);

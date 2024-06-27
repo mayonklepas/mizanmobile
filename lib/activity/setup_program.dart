@@ -43,6 +43,7 @@ class _SetupProgramState extends State<SetupProgram> {
   String isShowSyncNotifValue = "0";
   TextEditingController footerStrukCtrl = TextEditingController();
   TextEditingController headerStrukCtrl = TextEditingController();
+  TextEditingController syncIntervalMinutesCtrl = TextEditingController();
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -413,6 +414,11 @@ class _SetupProgramState extends State<SetupProgram> {
                 TextField(
                   controller: footerStrukCtrl,
                 ),
+                Utils.labelForm("Singkronisasi interval (dalam menit)"),
+                TextField(
+                  controller: syncIntervalMinutesCtrl,
+                  keyboardType: TextInputType.number,
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -441,7 +447,8 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIsShowStockProgram": isShowStockProgramValue,
                           "defaultIsShowSyncNotif": isShowSyncNotifValue,
                           "defaultHeaderStruk": headerStrukCtrl.text,
-                          "defaultFooterStruk": footerStrukCtrl.text
+                          "defaultFooterStruk": footerStrukCtrl.text,
+                          "defaultSyncIntervalMinutes": syncIntervalMinutesCtrl.text,
                         };
 
                         String jsonSetup = jsonEncode(mapSetup);
@@ -474,6 +481,7 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.isShowSyncNotif = isShowSyncNotifValue;
                           Utils.footerStruk = footerStrukCtrl.text;
                           Utils.headerStruk = headerStrukCtrl.text;
+                          Utils.syncIntervalMinutes = syncIntervalMinutesCtrl.text;
                         });
                         sp.reload();
                         ScaffoldMessenger.of(context)

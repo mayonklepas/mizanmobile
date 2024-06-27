@@ -115,6 +115,7 @@ class _HomeActivityState extends State<HomeActivity> {
 
   periodicTask() async {
     try {
+      int intervalMinutes = Utils.strToInt(Utils.syncIntervalMinutes);
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
       int status = lsSyncInfo[0]["status"];
@@ -122,7 +123,7 @@ class _HomeActivityState extends State<HomeActivity> {
         if (Utils.isShowSyncNotif == "1") {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi aktif")));
         }
-        Timer.periodic(Duration(minutes: 1), (timer) async {
+        Timer.periodic(Duration(minutes: intervalMinutes), (timer) async {
           if (status == 0) {
             log("no active sync");
           }

@@ -745,6 +745,7 @@ class Utils {
 
       Utils.footerStruk = mapSetup["defaultFooterStruk"] ?? "";
       Utils.headerStruk = mapSetup["defaultHeaderStruk"] ?? "";
+      Utils.syncIntervalMinutes = mapSetup["defaultSyncIntervalMinutes"] ?? "1";
     }
   }
 

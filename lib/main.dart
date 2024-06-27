@@ -168,8 +168,10 @@ class _MainPageState extends State<MainPage> {
                                             );
                                           },
                                         ));
+                                        imageClickCount = 0;
                                       } else if (imageClickCount == 4) {
-                                        PrinterUtils().printTestDevice();
+                                        await PrinterUtils().printTestDevice();
+                                        imageClickCount = 0;
                                       }
                                     },
                                     child: Image.network(

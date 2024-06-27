@@ -1156,7 +1156,27 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
                           "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode=?",
                           params: [barcodeScanRes]);
-                      listValueSetter(listDetailBarang);
+
+                      if (listDetailBarang.isEmpty) {
+                        List<dynamic> listDetailBarangFilterLike = await DatabaseHelper().readDatabase(
+                            "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE multi_satuan LIKE ?",
+                            params: ['%$barcodeScanRes%']);
+
+                        for (var d in listDetailBarangFilterLike) {
+                          String multisatuanString = d["multi_satuan"];
+                          dynamic multiSatuan = jsonDecode(multisatuanString);
+                          String barcode = multiSatuan["BARCODE"];
+                          if (barcode == barcodeScanRes) {
+                            listDetailBarang.add(d);
+                          }
+                        }
+                      }
+
+                      if (listDetailBarang.length > 1) {
+                        selectBarang();
+                      } else {
+                        listValueSetter(listDetailBarang);
+                      }
                     },
                     icon: Icon(Icons.qr_code_scanner_rounded));
               }

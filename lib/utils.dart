@@ -712,10 +712,10 @@ class Utils {
     Utils.connectionName = sp.getString("defaultConnectionName").toString();
     Utils.mainUrl = sp.getString("defaultConnection").toString();
     Utils.imageUrl = sp.getString("defaultImageUrl").toString();
-    Utils.idUser = sp.getString("defaultIdUser").toString();
-    //Utils.token = sp.getString("token").toString();
-    //Utils.namaUser = sp.getString("namauser").toString();
-    //Utils.hakAkses = jsonDecode(sp.getString("hakakses").toString()) ?? {};
+    Utils.idUser = sp.getString("idUser").toString();
+    Utils.token = sp.getString("token").toString();
+    Utils.namaUser = sp.getString("namauser").toString();
+    Utils.hakAkses = jsonDecode(sp.getString("hakakses").toString()) ?? {};
 
     Utils.companyCode = sp.getString("defaultCompanyCode").toString();
 

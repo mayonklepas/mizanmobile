@@ -28,7 +28,7 @@ class _InputPembelianState extends State<InputPembelian> {
   String tanggalTransaksi = Utils.currentDateString();
   String keterangan = "Pembelian mobile";
   Map<String, String> suplierData = {"id": "", "code": "", "name": ""};
-  Map<String, String> orderData = {"id": "", "code": "", "name": ""};
+  Map<String, String> penerimaanData = {"id": "", "code": "", "name": ""};
   Map<String, dynamic> qtySetter = {};
 
   FocusNode searchBarFocus = FocusNode();
@@ -39,7 +39,8 @@ class _InputPembelianState extends State<InputPembelian> {
   TextEditingController gudangCtrl = TextEditingController();
 
   Future getRincianPembelian() async {
-    Uri url = Uri.parse("${Utils.mainUrl}pembelian/rincian?noindex=${widget.idPembelian}");
+    Uri url = Uri.parse(
+        "${Utils.mainUrl}pembelian/rincian?noindex=${widget.idPembelian}");
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
     var jsonData = jsonDecode(body)["data"];
@@ -55,10 +56,11 @@ class _InputPembelianState extends State<InputPembelian> {
         "code": header["KODESUPLIER"],
         "name": header["NAMASUPLIER"]
       };
-      orderData = {
-        "id": header["IDORDER"] ?? "",
-        "code": header["NOMORORDER"] ?? "",
-        "name": header["NOMORORDER"] ?? ""
+
+      penerimaanData = {
+        "id": header["IDPENERIMAAN"] ?? "",
+        "code": header["NOMORPENERIMAAN"] ?? "",
+        "name": header["NOMORPENERIMAAN"] ?? ""
       };
       dataListview.addAll(detail);
     });
@@ -66,7 +68,8 @@ class _InputPembelianState extends State<InputPembelian> {
 
   Future<dynamic> getRincianOrder(String noindex) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    Uri url = Uri.parse("${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
+    Uri url = Uri.parse(
+        "${Utils.mainUrl}penerimaanbarang/rincianorder?noindex=$noindex");
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
     var jsonData = jsonDecode(body);
@@ -97,7 +100,8 @@ class _InputPembelianState extends State<InputPembelian> {
           params: [keyword]);
       if (result.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Utils.labelSetter("Data tidak ditemukan", color: Colors.red, size: 20)));
+            content: Utils.labelSetter("Data tidak ditemukan",
+                color: Colors.red, size: 20)));
         setState(() {
           searchBarctrl.text = "";
           searchBarFocus.requestFocus();
@@ -113,45 +117,33 @@ class _InputPembelianState extends State<InputPembelian> {
     String noIndex = result["NOINDEX"];
 
     //check duplicate data
-    bool isDataExistAtList = dataListview.any((element) => element["IDBARANG"] == noIndex);
+    bool isDataExistAtList =
+        dataListview.any((element) => element["IDBARANG"] == noIndex);
     if (isDataExistAtList) {
       Utils.showMessage("Barang sudah ada pada daftar", context);
       return;
     }
 
-    dynamic getOrderData = result[0];
+    List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
+        "SELECT detail_barang FROM barang_temp WHERE idbarang =?",
+        params: [noIndex]);
 
-    List<dynamic> listDetailBarang = await DatabaseHelper()
-        .readDatabase("SELECT detail_barang FROM barang_temp WHERE idbarang =?", params: [noIndex]);
-
-    Map<String, dynamic> detailBarang = jsonDecode(listDetailBarang[0]["detail_barang"]);
-
-    qtySetter = {
-      "is_set": false,
-      "id_barang": detailBarang["NOINDEX"],
-      "kode_barang": detailBarang["KODE"],
-      "nama_barang": detailBarang["NAMA"],
-      "harga": detailBarang["HARGA_BELI"],
-      "qty_terima": 0.0,
-      "qty_order": getOrderData?["QTY"] ?? 0.0,
-      "kode_satuan": getOrderData?["KODE_SATUAN"] ?? detailBarang["KODE_SATUAN"],
-      "id_satuan": getOrderData?["IDSATUAN"] ?? detailBarang["IDSATUAN"],
-      "id_satuan_pengali": getOrderData?["IDSATUANPENGALI"] ?? detailBarang["IDSATUAN"],
-      "qty_satuan_pengali": getOrderData?["QTYSATUANPENGALI"] ?? 1.0,
-    };
+    Map<String, dynamic> detailBarang =
+        jsonDecode(listDetailBarang[0]["detail_barang"]);
 
     Map<String, dynamic> dataMapView = {};
-    dataMapView["IDBARANG"] = qtySetter["id_barang"];
-    dataMapView["KODEBARANG"] = qtySetter["kode_barang"];
-    dataMapView["NAMABARANG"] = qtySetter["nama_barang"];
-    dataMapView["QTY"] = qtySetter["qty_terima"];
-    dataMapView["QTYORDER"] = qtySetter["qty_order"];
-    dataMapView["KODESATUAN"] = qtySetter["kode_satuan"];
-    dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
-    dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
-    dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
+    dataMapView["IDBARANG"] = detailBarang["NOINDEX"];
+    dataMapView["KODEBARANG"] = detailBarang["KODE"];
+    dataMapView["NAMABARANG"] = detailBarang["NAMA"];
+    dataMapView["QTYPENERIMAANBARANG"] = 1.0;
+    dataMapView["QTY"] = 1.0;
+    dataMapView["KODESATUAN"] = detailBarang["KODE_SATUAN"];
+    dataMapView["IDSATUAN"] = detailBarang["IDSATUAN"];
+    dataMapView["IDSATUANPENGALI"] = detailBarang["IDSATUAN"];
+    dataMapView["QTYSATUANPENGALI"] = 1.0;
     dataMapView["IDGUDANG"] = idGudang;
-    dataMapView["HARGA"] = (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
+    dataMapView["HARGA"] = detailBarang["HARGA_BELI"];
+    dataMapView["DISKONNOMINAL"] = 0.0;
 
     setState(() {
       dataListview.add(dataMapView);
@@ -160,7 +152,7 @@ class _InputPembelianState extends State<InputPembelian> {
     });
   }
 
-  savePenerimaan() async {
+  savePembelian() async {
     if (dataListview.isEmpty || suplierData["code"] == "") {
       Utils.showMessage("Anda belum melengkapi inputan", context);
       return;
@@ -172,7 +164,7 @@ class _InputPembelianState extends State<InputPembelian> {
       "KETERANGAN": keteranganCtrl.text,
       "USERINPUT": Utils.idUser,
       "IDSUPLIER": suplierData["id"],
-      "IDORDER": orderData["id"]
+      "IDPENERIMAAN": penerimaanData["id"]
     };
 
     String action = "insert";
@@ -189,7 +181,8 @@ class _InputPembelianState extends State<InputPembelian> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penerimaanbarang/$action";
     Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
+    Response response = await post(url,
+        body: jsonEncode(bodyparam), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
 
     Navigator.pop(context);
@@ -204,7 +197,7 @@ class _InputPembelianState extends State<InputPembelian> {
       //listOrderBarang = [];
       //global var setter
       suplierData = {"id": "", "code": "", "name": ""};
-      orderData = {"id": "", "code": "", "name": ""};
+      penerimaanData = {"id": "", "code": "", "name": ""};
       qtySetter = {};
       tanggalTransaksi = Utils.currentDateString();
       tanggalCtrl.text = tanggalTransaksi;
@@ -216,7 +209,8 @@ class _InputPembelianState extends State<InputPembelian> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Utils.labelSetter("Data berhasil disimpan", color: Colors.green, size: 20)));
+        content: Utils.labelSetter("Data berhasil disimpan",
+            color: Colors.green, size: 20)));
   }
 
 //modal
@@ -230,9 +224,11 @@ class _InputPembelianState extends State<InputPembelian> {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -274,7 +270,8 @@ class _InputPembelianState extends State<InputPembelian> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            dynamic popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(
                                   type: "gudang",
@@ -340,7 +337,8 @@ class _InputPembelianState extends State<InputPembelian> {
     satuanCtrl.text = qtySetter["kode_satuan"];
 
     return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
         child: Column(
@@ -408,8 +406,10 @@ class _InputPembelianState extends State<InputPembelian> {
               child: ElevatedButton(
                   onPressed: () async {
                     qtySetter["is_set"] = true;
-                    qtySetter["qty_terima"] = Utils.strToDouble(qtyTerimaCtrl.text);
-                    qtySetter["qty_order"] = Utils.strToDouble(qtyOrderCtrl.text);
+                    qtySetter["qty_terima"] =
+                        Utils.strToDouble(qtyTerimaCtrl.text);
+                    qtySetter["qty_order"] =
+                        Utils.strToDouble(qtyOrderCtrl.text);
                     qtySetter["satuan"] = satuanCtrl.text;
                     qtySetter["id_satuan"] = idSatuan;
                     qtySetter["is_satuan_pengali"] = idSatuanPengali;
@@ -439,7 +439,8 @@ class _InputPembelianState extends State<InputPembelian> {
         context: context,
         builder: (BuildContext content) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
               padding: EdgeInsets.only(top: 10, bottom: 10),
               height: 100,
@@ -456,14 +457,16 @@ class _InputPembelianState extends State<InputPembelian> {
                               "id_barang": mapDataFromList?["IDBARANG"],
                               "kode_barang": mapDataFromList?["KODEBARANG"],
                               "nama_barang": mapDataFromList?["NAMABARANG"],
-                              "harga":
-                                  (mapDataFromList?["HARGA"] / mapDataFromList["QTYSATUANPENGALI"]),
+                              "harga": (mapDataFromList?["HARGA"] /
+                                  mapDataFromList["QTYSATUANPENGALI"]),
                               "qty_terima": mapDataFromList?["QTY"],
                               "qty_order": mapDataFromList?["QTYORDER"],
                               "kode_satuan": mapDataFromList?["KODESATUAN"],
                               "id_satuan": mapDataFromList?["IDSATUAN"],
-                              "id_satuan_pengali": mapDataFromList["IDSATUANPENGALI"],
-                              "qty_satuan_pengali": mapDataFromList["QTYSATUANPENGALI"],
+                              "id_satuan_pengali":
+                                  mapDataFromList["IDSATUANPENGALI"],
+                              "qty_satuan_pengali":
+                                  mapDataFromList["QTYSATUANPENGALI"],
                             };
 
                             await showModalBottomSheet(
@@ -479,17 +482,22 @@ class _InputPembelianState extends State<InputPembelian> {
                             }
                             Map<String, dynamic> dataMapView = {};
                             dataMapView["IDBARANG"] = qtySetter["id_barang"];
-                            dataMapView["KODEBARANG"] = qtySetter["kode_barang"];
-                            dataMapView["NAMABARANG"] = qtySetter["nama_barang"];
+                            dataMapView["KODEBARANG"] =
+                                qtySetter["kode_barang"];
+                            dataMapView["NAMABARANG"] =
+                                qtySetter["nama_barang"];
                             dataMapView["QTY"] = qtySetter["qty_terima"];
                             dataMapView["QTYORDER"] = qtySetter["qty_order"];
-                            dataMapView["KODESATUAN"] = qtySetter["kode_satuan"];
+                            dataMapView["KODESATUAN"] =
+                                qtySetter["kode_satuan"];
                             dataMapView["IDSATUAN"] = qtySetter["id_satuan"];
-                            dataMapView["IDSATUANPENGALI"] = qtySetter["id_satuan_pengali"];
-                            dataMapView["QTYSATUANPENGALI"] = qtySetter["qty_satuan_pengali"];
+                            dataMapView["IDSATUANPENGALI"] =
+                                qtySetter["id_satuan_pengali"];
+                            dataMapView["QTYSATUANPENGALI"] =
+                                qtySetter["qty_satuan_pengali"];
                             dataMapView["IDGUDANG"] = idGudang;
-                            dataMapView["HARGA"] =
-                                (qtySetter["harga"] * qtySetter["qty_satuan_pengali"]);
+                            dataMapView["HARGA"] = (qtySetter["harga"] *
+                                qtySetter["qty_satuan_pengali"]);
 
                             setState(() {
                               dataListview[index] = dataMapView;
@@ -549,7 +557,8 @@ class _InputPembelianState extends State<InputPembelian> {
         elevation: 0,
         title: Utils.widgetSetter(() {
           if (Utils.isPdtMode == "0") {
-            return Utils.appBarSearchStatic(() => selectBarang(), focus: false, readOnly: true);
+            return Utils.appBarSearchStatic(() => selectBarang(),
+                focus: false, readOnly: true);
           }
           return Container(
             height: 35,
@@ -569,11 +578,13 @@ class _InputPembelianState extends State<InputPembelian> {
             if (Utils.isPdtMode == "0") {
               return IconButton(
                   onPressed: () async {
-                    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-                        "#ff6666", "Cancel", true, ScanMode.BARCODE);
+                    String barcodeScanRes =
+                        await FlutterBarcodeScanner.scanBarcode(
+                            "#ff6666", "Cancel", true, ScanMode.BARCODE);
 
                     if (barcodeScanRes.isEmpty) {
-                      Utils.showMessage("Data tidak ditemukan, coba ulangi", context);
+                      Utils.showMessage(
+                          "Data tidak ditemukan, coba ulangi", context);
                       return;
                     }
 
@@ -581,9 +592,13 @@ class _InputPembelianState extends State<InputPembelian> {
                   },
                   icon: Icon(Icons.qr_code_scanner_rounded));
             }
-            return IconButton(onPressed: () => selectBarang(), icon: Icon(Icons.list_alt_sharp));
+            return IconButton(
+                onPressed: () => selectBarang(),
+                icon: Icon(Icons.list_alt_sharp));
           }),
-          IconButton(onPressed: () => showModalHeader(), icon: Icon(Icons.note_add_rounded))
+          IconButton(
+              onPressed: () => showModalHeader(),
+              icon: Icon(Icons.note_add_rounded))
         ],
       ),
       body: Column(
@@ -616,8 +631,8 @@ class _InputPembelianState extends State<InputPembelian> {
                           child: IconButton(
                               alignment: Alignment.centerRight,
                               onPressed: () async {
-                                dynamic popUpResult =
-                                    await Navigator.push(context, MaterialPageRoute(
+                                dynamic popUpResult = await Navigator.push(
+                                    context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
                                       type: "suplier",
@@ -643,7 +658,7 @@ class _InputPembelianState extends State<InputPembelian> {
                       Expanded(
                           flex: 1,
                           child: Text(
-                            orderData["code"] ?? "",
+                            penerimaanData["code"] ?? "",
                             textAlign: TextAlign.end,
                           )),
                       Expanded(
@@ -652,14 +667,15 @@ class _InputPembelianState extends State<InputPembelian> {
                               alignment: Alignment.centerRight,
                               onPressed: () async {
                                 if (suplierData["code"] == "") {
-                                  Utils.showMessage("Anda belum memilih suplier", context);
+                                  Utils.showMessage(
+                                      "Anda belum memilih suplier", context);
                                   return;
                                 }
-                                dynamic popUpResult =
-                                    await Navigator.push(context, MaterialPageRoute(
+                                dynamic popUpResult = await Navigator.push(
+                                    context, MaterialPageRoute(
                                   builder: (context) {
                                     return ListModalForm(
-                                      type: "penerimaanbarang",
+                                      type: "pembelianpenerimaan",
                                       idSuplier: suplierData["id"]!,
                                     );
                                   },
@@ -667,18 +683,43 @@ class _InputPembelianState extends State<InputPembelian> {
 
                                 if (popUpResult == null) return;
 
-                                dynamic result = await getRincianOrder(popUpResult["NOINDEX"]);
+                                dynamic result = await getRincianOrder(
+                                    popUpResult["NOINDEX"]);
+
                                 if (result["status"] == 1) {
                                   Utils.showMessage(result["message"], context);
                                   return;
                                 }
 
-                                dataListview = result["data"]["detail"];
+                                dynamic detailData = result["data"]["detail"];
+
+                                List<Map<String, dynamic>> listMapView = [];
+                                for (var d in detailData) {
+                                  Map<String, dynamic> dataMapView = {};
+                                  dataMapView["IDBARANG"] = d["IDBARANG"];
+                                  dataMapView["KODEBARANG"] = d["KODEBARANG"];
+                                  dataMapView["NAMABARANG"] = d["NAMABARANG"];
+                                  dataMapView["QTYPENERIMAANBARANG"] = d["QTY"];
+                                  dataMapView["QTY"] = d["QTY"];
+                                  dataMapView["KODESATUAN"] = d["KODESATUAN"];
+                                  dataMapView["IDSATUAN"] = d["IDSATUAN"];
+                                  dataMapView["IDSATUANPENGALI"] =
+                                      d["IDSATUANPENGALI"];
+                                  dataMapView["QTYSATUANPENGALI"] =
+                                      d["QTYSATUANPENGALI"];
+                                  dataMapView["IDGUDANG"] = idGudang;
+                                  dataMapView["HARGA"] =
+                                      (d["HARGA"] * d["QTY"]);
+                                  dataMapView["DISKONNOMINAL"] =
+                                      d["DISKONNOMINAL"];
+                                  listMapView.add(dataMapView);
+                                }
 
                                 setState(() {
-                                  orderData["id"] = popUpResult["NOINDEX"];
-                                  orderData["code"] = popUpResult["KODE"];
-                                  orderData["name"] = popUpResult["NAMA"];
+                                  dataListview = listMapView;
+                                  penerimaanData["id"] = popUpResult["NOINDEX"];
+                                  penerimaanData["code"] = popUpResult["KODE"];
+                                  penerimaanData["name"] = popUpResult["NAMA"];
                                 });
                               },
                               icon: Icon(Icons.search)))
@@ -698,8 +739,10 @@ class _InputPembelianState extends State<InputPembelian> {
                     String kodeBarang = data["KODEBARANG"];
                     String satuan = data["KODESATUAN"];
                     String harga = Utils.formatNumber(data["HARGA"]);
-                    String qtyOrder = Utils.formatNumber(data["QTYORDER"]);
-                    String qtyTerima = Utils.formatNumber(data["QTY"]);
+                    String qtyPenerimaan =
+                        Utils.formatNumber(data["QTYPENERIMAANBARANG"]);
+                    String qty = Utils.formatNumber(data["QTY"]);
+                    String diskon = Utils.formatNumber(data["DISKONNOMINAL"]);
                     return Container(
                       child: Card(
                         child: InkWell(
@@ -716,15 +759,20 @@ class _InputPembelianState extends State<InputPembelian> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(namaBarang, bold: true),
+                                        Utils.labelSetter(namaBarang,
+                                            bold: true),
                                         Utils.labelSetter(kodeBarang),
-                                        Utils.labelValueSetter("Harga", harga, boldValue: true),
-                                        Utils.labelValueSetter(
-                                            "Qty Order ", qtyOrder + " " + satuan),
-                                        Utils.labelValueSetter(
-                                            "Qty Terima ", qtyTerima + " " + satuan)
+                                        Utils.labelValueSetter("Harga", harga,
+                                            boldValue: true),
+                                        Utils.labelValueSetter("Diskon", diskon,
+                                            boldValue: true),
+                                        Utils.labelValueSetter("Qty Penerimaan",
+                                            qtyPenerimaan + " " + satuan),
+                                        Utils.labelValueSetter("Qty Pembelian ",
+                                            qty + " " + satuan),
                                       ],
                                     ),
                                   ),
@@ -753,7 +801,7 @@ class _InputPembelianState extends State<InputPembelian> {
                       width: double.maxFinite,
                       height: 45,
                       child: ElevatedButton(
-                        onPressed: () => savePenerimaan(),
+                        onPressed: () => savePembelian(),
                         child: Utils.labelSetter("SIMPAN", color: Colors.white),
                       ),
                     ),

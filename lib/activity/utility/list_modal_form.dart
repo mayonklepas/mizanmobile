@@ -89,6 +89,9 @@ class _ListModalFormState extends State<ListModalForm> {
     } else if (type == "penerimaanbarang") {
       mainUrlString = "${Utils.mainUrl}penerimaanbarang/daftarorder?idsuplier=${widget.idSuplier}";
       headerBar = "Order Penerimaan";
+    }else if(type == "pembelianpenerimaan"){
+      mainUrlString = "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
+      headerBar = "Penerimaan";
     }
     if (type == "kelompoktransaksi") {
       mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
@@ -98,7 +101,7 @@ class _ListModalFormState extends State<ListModalForm> {
     Uri url = Uri.parse(mainUrlString + keyword);
     Response response = await get(url, headers: Utils.setHeader());
     List<dynamic> jsonData = jsonDecode(response.body)["data"];
-    if (type == "penerimaanbarang") {
+    if (type == "penerimaanbarang" || type == "pembelianpenerimaan") {
       for (int i = 0; i < jsonData.length; i++) {
         jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
         jsonData[i]["KODE"] = jsonData[i]["NOREF"];
@@ -172,7 +175,7 @@ class _ListModalFormState extends State<ListModalForm> {
                                       if (widget.type == "pelanggan" || widget.type == "suplier") {
                                         return Utils.labelValueSetter(
                                             "GOL", dataList["NAMA_GOLONGAN"] ?? "");
-                                      } else if (widget.type == "penerimaanbarang") {
+                                      } else if (widget.type == "penerimaanbarang" || widget.type == "pembelianpenerimaan") {
                                         return Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [

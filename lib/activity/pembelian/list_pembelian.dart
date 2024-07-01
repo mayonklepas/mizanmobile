@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:mizanmobile/activity/pembelian/input_pembelian.dart';
 import 'package:mizanmobile/utils.dart';
 import 'package:http/http.dart';
 
@@ -50,13 +51,6 @@ class _ListPembelianState extends State<ListPembelian> {
     var jsonData = jsonDecode(body)["data"];
 
     return jsonData;
-  }
-
-  @override
-  void initState() {
-    Utils.initAppParam();
-    _dataPembelian = _getDataPembelian();
-    super.initState();
   }
 
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
@@ -136,11 +130,53 @@ class _ListPembelianState extends State<ListPembelian> {
     );
   }
 
+  dateBottomModal(BuildContext context) async {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return BottomModalFilter(
+              tanggalDariCtrl: tanggalDariCtrl,
+              tanggalHinggaCtrl: tanggalHinggaCtrl,
+              action: () {
+                Navigator.pop(context);
+                Future.delayed(Duration(seconds: 2));
+                setState(() {
+                  _dataPembelian = _getDataPembelian(
+                      tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
+                });
+              });
+        });
+  }
+
+  @override
+  void initState() {
+    Utils.initAppParam();
+    _dataPembelian = _getDataPembelian();
+    super.initState();
+  }
+
   Icon customIcon = Icon(Icons.search);
   Widget customSearchBar = Text("Daftar Pembelian");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          Icons.add,
+          size: 30,
+        ),
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(
+            builder: (context) {
+              return InputPembelian();
+            },
+          ));
+          setState(() {
+            _dataPembelian = _getDataPembelian();
+          });
+        },
+      ),
       appBar: AppBar(
         title: customSearchBar,
         actions: [
@@ -188,24 +224,5 @@ class _ListPembelianState extends State<ListPembelian> {
         ),
       ),
     );
-  }
-
-  dateBottomModal(BuildContext context) async {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (BuildContext context) {
-          return BottomModalFilter(
-              tanggalDariCtrl: tanggalDariCtrl,
-              tanggalHinggaCtrl: tanggalHinggaCtrl,
-              action: () {
-                Navigator.pop(context);
-                Future.delayed(Duration(seconds: 2));
-                setState(() {
-                  _dataPembelian = _getDataPembelian(
-                      tglDari: tanggalDariCtrl.text, tglHingga: tanggalHinggaCtrl.text);
-                });
-              });
-        });
   }
 }

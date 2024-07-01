@@ -684,13 +684,6 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return ListPiutang();
-                    },
-                  ));
-                }),
                 setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
@@ -702,6 +695,13 @@ class _HomeActivityState extends State<HomeActivity> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPembelian();
+                    },
+                  ));
+                }),
+                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return ListPiutang();
                     },
                   ));
                 }),

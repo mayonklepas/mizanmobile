@@ -128,7 +128,8 @@ class Utils {
     sp.setString(key, value);
   }
 
-  static String formatNumber(var value, {decimalDigit = 0, String symbol = ""}) {
+  static String formatNumber(var value,
+      {decimalDigit = 0, String symbol = ""}) {
     if (value.isNaN) {
       return "0";
     }
@@ -199,6 +200,7 @@ class Utils {
 
   static double strToDouble(String value) {
     try {
+      value = value.replaceAll(".", "");
       value = value.replaceAll(",", ".");
       double result = double.parse(value);
       return result;
@@ -226,16 +228,18 @@ class Utils {
         fillColor: Colors.white,
         filled: true,
         contentPadding: EdgeInsets.only(),
-        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white, width: 1.2)),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white, width: 1.3)),
         hintText: hint,
         prefixIcon: Icon(Icons.search),
         hintStyle: TextStyle(color: Colors.black54));
     return decor;
   }
 
-  static void setTextDateRange(
-      BuildContext context, TextEditingController tgl, StateSetter setState) async {
+  static void setTextDateRange(BuildContext context, TextEditingController tgl,
+      StateSetter setState) async {
     DateTime? pickedDate = await Utils.getDatePicker(context);
     if (pickedDate != null) {
       setState(() {
@@ -255,10 +259,10 @@ class Utils {
               fillColor: Colors.white,
               filled: true,
               contentPadding: EdgeInsets.only(),
-              enabledBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-              focusedBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 1.2)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 1.3)),
               hintText: hint,
               prefixIcon: Icon(Icons.search),
               hintStyle: TextStyle(color: Colors.black54)),
@@ -274,8 +278,10 @@ class Utils {
         fillColor: Colors.white,
         filled: true,
         contentPadding: EdgeInsets.only(),
-        enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-        focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white, width: 1.2)),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white, width: 1.3)),
         hintText: hint,
         prefixIcon: Icon(Icons.search),
         hintStyle: TextStyle(color: Colors.black54));
@@ -316,10 +322,10 @@ class Utils {
               fillColor: Colors.white,
               filled: true,
               contentPadding: EdgeInsets.only(),
-              enabledBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.2)),
-              focusedBorder:
-                  OutlineInputBorder(borderSide: BorderSide(color: Colors.white, width: 1.3)),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 1.2)),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 1.3)),
               hintText: hint,
               prefixIcon: Icon(Icons.search),
               hintStyle: TextStyle(color: Colors.black54)),
@@ -344,7 +350,8 @@ class Utils {
       _permission = await Geolocator.requestPermission();
     }
 
-    _position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+    _position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium);
 
     return _position;
   }
@@ -421,15 +428,19 @@ class Utils {
             flex: flexLabel,
             child: Text(label,
                 textAlign: alignLabel,
-                style:
-                    TextStyle(fontSize: sizeLabel, fontWeight: isWeightLabel, color: colorLabel)),
+                style: TextStyle(
+                    fontSize: sizeLabel,
+                    fontWeight: isWeightLabel,
+                    color: colorLabel)),
           ),
           Expanded(
             flex: flexValue,
             child: Text(value,
                 textAlign: alignValue,
-                style:
-                    TextStyle(fontSize: sizeLabel, fontWeight: isWeightValue, color: colorValue)),
+                style: TextStyle(
+                    fontSize: sizeLabel,
+                    fontWeight: isWeightValue,
+                    color: colorValue)),
           ),
         ],
       ),
@@ -448,7 +459,8 @@ class Utils {
         color: Colors.blue,
         child: Container(
           child: Center(
-            child: Utils.labelSetter(text, bold: true, size: 30, color: Colors.white),
+            child: Utils.labelSetter(text,
+                bold: true, size: 30, color: Colors.white),
           ),
         ),
       ),
@@ -467,12 +479,14 @@ class Utils {
   static Container labelForm(String label,
       {double top = 10, double bottom = 0, double left = 0, double right = 0}) {
     return Container(
-      margin: EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
+      margin:
+          EdgeInsets.only(top: top, bottom: bottom, left: left, right: right),
       child: Text(label),
     );
   }
 
-  static showProgress(BuildContext context, {String message = "Memuat Data..."}) {
+  static showProgress(BuildContext context,
+      {String message = "Memuat Data..."}) {
     showDialog(
         barrierDismissible: true,
         context: context,
@@ -483,9 +497,13 @@ class Utils {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
                   Expanded(
-                    child: Container(margin: EdgeInsets.only(left: 10), child: Text(message)),
+                      flex: 0,
+                      child: Container(child: CircularProgressIndicator())),
+                  Expanded(
+                    child: Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: Text(message)),
                   )
                 ],
               ),
@@ -505,9 +523,13 @@ class Utils {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(flex: 0, child: Container(child: CircularProgressIndicator())),
                   Expanded(
-                    child: Container(margin: EdgeInsets.only(left: 10), child: Text(message)),
+                      flex: 0,
+                      child: Container(child: CircularProgressIndicator())),
+                  Expanded(
+                    child: Container(
+                        margin: EdgeInsets.only(left: 10),
+                        child: Text(message)),
                   )
                 ],
               ),
@@ -536,7 +558,8 @@ class Utils {
         });
   }
 
-  static showMessageAction(String message, BuildContext context, ElevatedButton button) {
+  static showMessageAction(
+      String message, BuildContext context, ElevatedButton button) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -621,14 +644,18 @@ class Utils {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20), child: content),
+                padding:
+                    EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 20),
+                child: content),
           );
         });
   }
 
-  static Future<bool> showConfirmMessage(BuildContext context, String message) async {
+  static Future<bool> showConfirmMessage(
+      BuildContext context, String message) async {
     bool result = false;
 
     await showDialog(
@@ -719,17 +746,20 @@ class Utils {
 
     Utils.companyCode = sp.getString("defaultCompanyCode").toString();
 
-    dynamic mapSetup = jsonDecode(sp.getString(Utils.connectionName).toString());
+    dynamic mapSetup =
+        jsonDecode(sp.getString(Utils.connectionName).toString());
     if (mapSetup != null) {
       Utils.idDept = mapSetup["defaultIdDept"].toString();
       Utils.namaDept = mapSetup["defaultNamaDept"].toString();
       Utils.idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
-      Utils.namaAkunStokOpname = mapSetup["defaultNamaAkunStokOpname"].toString();
+      Utils.namaAkunStokOpname =
+          mapSetup["defaultNamaAkunStokOpname"].toString();
       Utils.idGudang = mapSetup["defaultIdGudang"].toString();
       Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
       Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
       Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
-      Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
+      Utils.idGolonganPelanggan =
+          mapSetup["defaultIdGolonganPelanggan"].toString();
 
       Utils.idSatuan = mapSetup["defaultIdSatuan"].toString();
       Utils.satuan = mapSetup["defaultSatuan"].toString();
@@ -785,7 +815,8 @@ class Utils {
   static Future<void> syncLocalData({bool isDebug = false}) async {
     try {
       var db = DatabaseHelper();
-      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
+      List<dynamic> lsSyncInfo =
+          await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
       String lastUpdate = lsSyncInfo[0]["last_updated"];
       String urlString =
           "${Utils.mainUrl}barang/syncbarang?tglupdate=$lastUpdate&idgudang=${idGudang}";
@@ -794,12 +825,14 @@ class Utils {
             "http://103.250.11.167:8081/api/barang/syncbarang?tglupdate=$lastUpdate&idgudang=1-1";
       }
       log(urlString);
-      Response response = await get(Uri.parse(urlString), headers: Utils.setHeader());
+      Response response =
+          await get(Uri.parse(urlString), headers: Utils.setHeader());
       String responseBody = response.body;
       log(responseBody);
       dynamic responseParsed = jsonDecode(responseBody);
       List<dynamic> dataBarang = responseParsed["data"];
-      List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
+      List<dynamic> lsbarangTemp =
+          await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
       List<String> lsQueryDelete = [];
       if (lsbarangTemp.isNotEmpty) {
         for (var d in dataBarang) {

@@ -156,7 +156,7 @@ class _InputPembelianState extends State<InputPembelian> {
       "KETERANGAN": keteranganCtrl.text,
       "USERINPUT": Utils.idUser,
       "IDSUPLIER": suplierData["id"],
-      "IDPENERIMAAN": penerimaanData["id"]
+      "IDPENERIMAANBARANG": penerimaanData["id"]
     };
 
     String action = "insert";
@@ -171,7 +171,7 @@ class _InputPembelianState extends State<InputPembelian> {
     };
 
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    String urlString = "${Utils.mainUrl}penerimaanbarang/$action";
+    String urlString = "${Utils.mainUrl}pembelian/$action";
     Uri url = Uri.parse(urlString);
     Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);

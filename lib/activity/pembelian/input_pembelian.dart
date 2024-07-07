@@ -27,8 +27,11 @@ class _InputPembelianState extends State<InputPembelian> {
   String namaGudang = Utils.namaGudang;
   String tanggalTransaksi = Utils.currentDateString();
   String keterangan = "Pembelian mobile";
+
   Map<String, String> suplierData = {"id": "", "code": "", "name": ""};
   Map<String, String> penerimaanData = {"id": "", "code": "", "name": ""};
+
+  double totalPembelian = 0.0;
 
   FocusNode searchBarFocus = FocusNode();
   TextEditingController searchBarctrl = TextEditingController();
@@ -36,6 +39,15 @@ class _InputPembelianState extends State<InputPembelian> {
   TextEditingController deptCtrl = TextEditingController();
   TextEditingController keteranganCtrl = TextEditingController();
   TextEditingController gudangCtrl = TextEditingController();
+
+  //modal textfield
+  TextEditingController kodeBarangCtrl = TextEditingController();
+  TextEditingController namaBarangCtrl = TextEditingController();
+  TextEditingController satuanCtrl = TextEditingController();
+  TextEditingController qtyPenerimaanCtrl = TextEditingController();
+  TextEditingController qtyInputCtrl = TextEditingController();
+  TextEditingController hargaCtrl = TextEditingController();
+  TextEditingController diskonCtrl = TextEditingController();
 
   Future getRincianPembelian() async {
     Uri url = Uri.parse("${Utils.mainUrl}pembelian/rincian?noindex=${widget.idPembelian}");
@@ -127,8 +139,8 @@ class _InputPembelianState extends State<InputPembelian> {
     dataMapView["IDBARANG"] = detailBarang["NOINDEX"];
     dataMapView["KODEBARANG"] = detailBarang["KODE"];
     dataMapView["NAMABARANG"] = detailBarang["NAMA"];
-    dataMapView["QTYPENERIMAANBARANG"] = 1.0;
-    dataMapView["QTY"] = 1.0;
+    dataMapView["QTYPENERIMAANBARANG"] = 0.0;
+    dataMapView["QTY"] = 0.0;
     dataMapView["KODESATUAN"] = detailBarang["KODE_SATUAN"];
     dataMapView["IDSATUAN"] = detailBarang["IDSATUAN"];
     dataMapView["IDSATUANPENGALI"] = detailBarang["IDSATUAN"];
@@ -141,6 +153,7 @@ class _InputPembelianState extends State<InputPembelian> {
       dataListview.add(dataMapView);
       searchBarctrl.text = "";
       searchBarFocus.requestFocus();
+      totalPembelian = _calculateTotalPembelian();
     });
   }
 
@@ -200,6 +213,15 @@ class _InputPembelianState extends State<InputPembelian> {
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Utils.labelSetter("Data berhasil disimpan", color: Colors.green, size: 20)));
+  }
+
+  double _calculateTotalPembelian() {
+    double totalPembelian = 0.0;
+    for (var d in dataListview) {
+      double harga = d["HARGA"];
+      totalPembelian = totalPembelian + harga;
+    }
+    return totalPembelian;
   }
 
 //modal
@@ -300,27 +322,21 @@ class _InputPembelianState extends State<InputPembelian> {
   }
 
   SingleChildScrollView modalEdit(int index, dynamic data) {
-    TextEditingController kodeBarangCtrl = TextEditingController();
-    TextEditingController namaBarangCtrl = TextEditingController();
-    TextEditingController satuanCtrl = TextEditingController();
+    FocusNode qtyInputFocus = FocusNode();
+
     String idSatuan = data["IDSATUAN"];
     String idSatuanPengali = data["IDSATUANPENGALI"];
     double qtySatuanPengali = data["QTYSATUANPENGALI"];
     kodeBarangCtrl.text = data["KODEBARANG"];
     namaBarangCtrl.text = data["NAMABARANG"];
-    TextEditingController qtyPenerimaanCtrl = TextEditingController();
-    TextEditingController qtyInputCtrl = TextEditingController();
-    TextEditingController hargaCtrl = TextEditingController();
-    TextEditingController diskonCtrl = TextEditingController();
-    FocusNode qtyInputFocus = FocusNode();
+
     qtyPenerimaanCtrl.text = Utils.formatNumber(data["QTYPENERIMAANBARANG"]);
     qtyInputCtrl.text = (Utils.formatNumber(data["QTY"]));
     hargaCtrl.text = (Utils.formatNumber(data["HARGA"]));
     diskonCtrl.text = (Utils.formatNumber(data["DISKONNOMINAL"]));
+    satuanCtrl.text = data["KODESATUAN"];
 
     qtyInputFocus.requestFocus();
-
-    satuanCtrl.text = data["KODESATUAN"];
 
     return SingleChildScrollView(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -415,6 +431,7 @@ class _InputPembelianState extends State<InputPembelian> {
                       dataListview[index]["IDGUDANG"] = idGudang;
                       dataListview[index]["HARGA"] = (harga * qtySatuanPengali);
                       dataListview[index]["DISKONNOMINAL"] = diskon;
+                      totalPembelian = _calculateTotalPembelian();
                     });
 
                     Navigator.pop(context);
@@ -666,6 +683,7 @@ class _InputPembelianState extends State<InputPembelian> {
                                   penerimaanData["id"] = popUpResult["NOINDEX"];
                                   penerimaanData["code"] = popUpResult["KODE"];
                                   penerimaanData["name"] = popUpResult["NAMA"];
+                                  totalPembelian = _calculateTotalPembelian();
                                 });
                               },
                               icon: Icon(Icons.search)))
@@ -725,6 +743,25 @@ class _InputPembelianState extends State<InputPembelian> {
                       ),
                     );
                   })),
+          Expanded(
+              flex: 0,
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    border: Border(
+                        top: BorderSide(
+                  color: Colors.black,
+                  width: 0.15,
+                ))),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Utils.labelValueSetter("Total Pembelian", Utils.formatNumber(totalPembelian),
+                        sizeLabel: 18, sizeValue: 18, boldValue: true)
+                  ],
+                ),
+              )),
           Expanded(
               flex: 0,
               child: Container(

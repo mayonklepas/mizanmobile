@@ -151,13 +151,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
       "qty_satuan_pengali": getOrderData?["QTYSATUANPENGALI"] ?? 1.0,
     };
 
-    await showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return modalSetQty();
-      },
-    );
+    await modalSetQty();
 
     if (!qtySetter["is_set"]) {
       return;
@@ -243,12 +237,12 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
   }
 
 //modal
-  Future<dynamic> showModalHeader() async {
+  Future<dynamic> showModalHeader() {
     deptCtrl.text = namaDept;
     gudangCtrl.text = namaGudang;
     keteranganCtrl.text = keterangan;
     tanggalCtrl.text = tanggalTransaksi;
-    showModalBottomSheet(
+    return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
@@ -339,7 +333,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
         });
   }
 
-  SingleChildScrollView modalSetQty() {
+  Future<dynamic> modalSetQty() {
     TextEditingController kodeBarangCtrl = TextEditingController();
     TextEditingController namaBarangCtrl = TextEditingController();
     TextEditingController satuanCtrl = TextEditingController();
@@ -362,47 +356,51 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
 
     satuanCtrl.text = qtySetter["kode_satuan"];
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.labelSetter("Input QTY", size: 25),
-            Padding(padding: EdgeInsets.all(10)),
-            Utils.labelForm("Kode Barang"),
-            TextField(
-              controller: kodeBarangCtrl,
-              readOnly: true,
-            ),
-            Utils.labelForm("Nama Barang"),
-            TextField(
-              controller: namaBarangCtrl,
-              readOnly: true,
-            ),
-            Utils.labelForm("Qty Order"),
-            TextField(
-              controller: qtyOrderCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (value) {},
-            ),
-            Utils.labelForm("Qty Terima"),
-            TextField(
-              controller: qtyTerimaCtrl,
-              focusNode: qtyTerimFocus,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            Utils.labelForm("Satuan"),
-            Row(
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: satuanCtrl,
-                      enabled: false,
-                    )),
-                /*Expanded(
+                Utils.labelSetter("Input QTY", size: 25),
+                Padding(padding: EdgeInsets.all(10)),
+                Utils.labelForm("Kode Barang"),
+                TextField(
+                  controller: kodeBarangCtrl,
+                  readOnly: true,
+                ),
+                Utils.labelForm("Nama Barang"),
+                TextField(
+                  controller: namaBarangCtrl,
+                  readOnly: true,
+                ),
+                Utils.labelForm("Qty Order"),
+                TextField(
+                  controller: qtyOrderCtrl,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  onSubmitted: (value) {},
+                ),
+                Utils.labelForm("Qty Terima"),
+                TextField(
+                  controller: qtyTerimaCtrl,
+                  focusNode: qtyTerimFocus,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                Utils.labelForm("Satuan"),
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 10,
+                        child: TextField(
+                          controller: satuanCtrl,
+                          enabled: false,
+                        )),
+                    /*Expanded(
                   child: IconButton(
                     onPressed: () async {
                       dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
@@ -423,28 +421,30 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                     icon: Icon(Icons.search),
                   ),
                 )*/
+                  ],
+                ),
+                SizedBox(height: 5),
+                SizedBox(
+                  width: double.maxFinite,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        qtySetter["is_set"] = true;
+                        qtySetter["qty_terima"] = Utils.strToDouble(qtyTerimaCtrl.text);
+                        qtySetter["qty_order"] = Utils.strToDouble(qtyOrderCtrl.text);
+                        qtySetter["satuan"] = satuanCtrl.text;
+                        qtySetter["id_satuan"] = idSatuan;
+                        qtySetter["is_satuan_pengali"] = idSatuanPengali;
+                        qtySetter["qty_satuan_pengali"] = qtySatuanPengali;
+                        Navigator.pop(context);
+                      },
+                      child: Text("Oke")),
+                ),
+                Padding(padding: EdgeInsets.all(5)),
               ],
             ),
-            SizedBox(height: 5),
-            SizedBox(
-              width: double.maxFinite,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    qtySetter["is_set"] = true;
-                    qtySetter["qty_terima"] = Utils.strToDouble(qtyTerimaCtrl.text);
-                    qtySetter["qty_order"] = Utils.strToDouble(qtyOrderCtrl.text);
-                    qtySetter["satuan"] = satuanCtrl.text;
-                    qtySetter["id_satuan"] = idSatuan;
-                    qtySetter["is_satuan_pengali"] = idSatuanPengali;
-                    qtySetter["qty_satuan_pengali"] = qtySatuanPengali;
-                    Navigator.pop(context);
-                  },
-                  child: Text("Oke")),
-            ),
-            Padding(padding: EdgeInsets.all(5)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -489,13 +489,7 @@ class _InputPenerimaanState extends State<InputPenerimaan> {
                               "qty_satuan_pengali": mapDataFromList["QTYSATUANPENGALI"],
                             };
 
-                            await showModalBottomSheet(
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return modalSetQty();
-                              },
-                            );
+                            await modalSetQty();
 
                             if (!qtySetter["is_set"]) {
                               return;

@@ -654,178 +654,183 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
 // MODAL
 
-  SingleChildScrollView modalBayar(StateSetter setStateIn) {
-    var children2 = [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Utils.labelSetter("Pembayaran", size: 25),
-          Row(
-            children: [
-              Checkbox(
-                  value: isMultiPayment,
-                  onChanged: (bool? value) {
-                    setStateIn(() {
-                      isMultiPayment = value!;
-                    });
-                  }),
-              Text("Multi Payment"),
-            ],
-          ),
-        ],
-      ),
-      Padding(padding: EdgeInsets.all(7)),
-      multiPaymentView(setStateIn),
-      Padding(padding: EdgeInsets.all(7)),
-      Utils.labelSetter("TOTAL BELANJA", size: 15),
-      Container(
-        width: double.maxFinite,
-        padding: EdgeInsets.all(5),
-        child: Utils.labelSetter(Utils.formatNumber(totalPenjualan),
-            size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
-      ),
-      Utils.labelSetter(kembalianStatus, size: 15),
-      Container(
-        width: double.maxFinite,
-        padding: EdgeInsets.all(5),
-        child: Utils.labelSetter(Utils.formatNumber(kembalian),
-            size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
-      ),
-      Utils.widgetSetter(() {
-        if (!isMultiPayment) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Utils.labelSetter("BIAYA LAIN", size: 15),
-              Container(
-                width: double.maxFinite,
-                padding: EdgeInsets.all(5),
-                child: Utils.labelSetter(Utils.formatNumber(totalBiaya),
-                    size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
-              ),
-            ],
-          );
-        }
-        return Container();
-      }),
-      Utils.labelSetter("JUMLAH  UANG", size: 15),
-      Row(children: [
-        Expanded(
-          flex: 5,
-          child: TextField(
-            controller: jumlahUangCtrl,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.right,
-            style: TextStyle(fontSize: 25),
-            onChanged: (value) {
-              setStateIn(() {
-                kembalian = calculateKembalian(value);
-                if (kembalian < 0) {
-                  kembalianStatus = "KURANG";
-                  kembalian = -kembalian;
-                } else {
-                  kembalianStatus = "KEMBALIAN";
-                }
-              });
-            },
-          ),
-        ),
-        Expanded(
-          child: IconButton(
-              onPressed: () {
-                jumlahUangCtrl.text = "0";
-                double jumlahUang = jumlahUangSetter("0");
-                setStateIn(() {
-                  jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                  kembalian = calculateKembalian(jumlahUang.toString());
-                  if (kembalian < 0) {
-                    kembalianStatus = "KURANG";
-                    kembalian = -kembalian;
-                  } else {
-                    kembalianStatus = "KEMBALIAN";
-                  }
-                });
-              },
-              icon: Icon(Icons.close)),
-        )
-      ]),
-      SizedBox(height: 10),
-      Utils.widgetSetter(() {
-        if (isMultiPayment) {
-          return Wrap();
-        }
-        List<String> listPecahan = ["5000", "20000", "50000"];
-        List<Widget> lsButton = [];
-        lsButton.add(
-          OutlinedButton(
-              onPressed: () {
-                jumlahUangCtrl.text = "0";
-                double jumlahUang = jumlahUangSetter(totalPenjualan.toString());
-                setStateIn(() {
-                  jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                  kembalian = calculateKembalian(jumlahUang.toString());
-                  if (kembalian < 0) {
-                    kembalianStatus = "KURANG";
-                    kembalian = -kembalian;
-                  } else {
-                    kembalianStatus = "KEMBALIAN";
-                  }
-                });
-              },
-              child: Utils.labelSetter("UANG PAS", size: 20)),
-        );
-        for (String pecahan in listPecahan) {
-          lsButton.add(
-            OutlinedButton(
-                onPressed: () {
-                  double jumlahUang = jumlahUangSetter(pecahan);
-                  setStateIn(() {
-                    jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                    kembalian = calculateKembalian(jumlahUang.toString());
-                    if (kembalian < 0) {
-                      kembalianStatus = "KURANG";
-                      kembalian = -kembalian;
-                    } else {
-                      kembalianStatus = "KEMBALIAN";
+  Future<dynamic> modalBayar() {
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(builder: (context, StateSetter setStateIn) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Container(
+                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Utils.labelSetter("Pembayaran", size: 25),
+                      Row(
+                        children: [
+                          Checkbox(
+                              value: isMultiPayment,
+                              onChanged: (bool? value) {
+                                setStateIn(() {
+                                  isMultiPayment = value!;
+                                });
+                              }),
+                          Text("Multi Payment"),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Padding(padding: EdgeInsets.all(7)),
+                  multiPaymentView(setStateIn),
+                  Padding(padding: EdgeInsets.all(7)),
+                  Utils.labelSetter("TOTAL BELANJA", size: 15),
+                  Container(
+                    width: double.maxFinite,
+                    padding: EdgeInsets.all(5),
+                    child: Utils.labelSetter(Utils.formatNumber(totalPenjualan),
+                        size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
+                  ),
+                  Utils.labelSetter(kembalianStatus, size: 15),
+                  Container(
+                    width: double.maxFinite,
+                    padding: EdgeInsets.all(5),
+                    child: Utils.labelSetter(Utils.formatNumber(kembalian),
+                        size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
+                  ),
+                  Utils.widgetSetter(() {
+                    if (!isMultiPayment) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Utils.labelSetter("BIAYA LAIN", size: 15),
+                          Container(
+                            width: double.maxFinite,
+                            padding: EdgeInsets.all(5),
+                            child: Utils.labelSetter(Utils.formatNumber(totalBiaya),
+                                size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
+                          ),
+                        ],
+                      );
                     }
-                  });
-                },
-                child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)), size: 20)),
-          );
-        }
-        ;
-        return Wrap(
-          spacing: 10,
-          children: lsButton,
-        );
-      }),
-      SizedBox(
-        width: double.maxFinite,
-        child: ElevatedButton(
-            onPressed: () async {
-              if (kembalianStatus == "KURANG") {
-                Utils.showMessage("Pembayaran tidak cukup, transaksi tidak bisa diproses", context);
-                return;
-              }
+                    return Container();
+                  }),
+                  Utils.labelSetter("JUMLAH  UANG", size: 15),
+                  Row(children: [
+                    Expanded(
+                      flex: 5,
+                      child: TextField(
+                        controller: jumlahUangCtrl,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.right,
+                        style: TextStyle(fontSize: 25),
+                        onChanged: (value) {
+                          setStateIn(() {
+                            kembalian = calculateKembalian(value);
+                            if (kembalian < 0) {
+                              kembalianStatus = "KURANG";
+                              kembalian = -kembalian;
+                            } else {
+                              kembalianStatus = "KEMBALIAN";
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: IconButton(
+                          onPressed: () {
+                            jumlahUangCtrl.text = "0";
+                            double jumlahUang = jumlahUangSetter("0");
+                            setStateIn(() {
+                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
+                              kembalian = calculateKembalian(jumlahUang.toString());
+                              if (kembalian < 0) {
+                                kembalianStatus = "KURANG";
+                                kembalian = -kembalian;
+                              } else {
+                                kembalianStatus = "KEMBALIAN";
+                              }
+                            });
+                          },
+                          icon: Icon(Icons.close)),
+                    )
+                  ]),
+                  SizedBox(height: 10),
+                  Utils.widgetSetter(() {
+                    if (isMultiPayment) {
+                      return Wrap();
+                    }
+                    List<String> listPecahan = ["5000", "20000", "50000"];
+                    List<Widget> lsButton = [];
+                    lsButton.add(
+                      OutlinedButton(
+                          onPressed: () {
+                            jumlahUangCtrl.text = "0";
+                            double jumlahUang = jumlahUangSetter(totalPenjualan.toString());
+                            setStateIn(() {
+                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
+                              kembalian = calculateKembalian(jumlahUang.toString());
+                              if (kembalian < 0) {
+                                kembalianStatus = "KURANG";
+                                kembalian = -kembalian;
+                              } else {
+                                kembalianStatus = "KEMBALIAN";
+                              }
+                            });
+                          },
+                          child: Utils.labelSetter("UANG PAS", size: 20)),
+                    );
+                    for (String pecahan in listPecahan) {
+                      lsButton.add(
+                        OutlinedButton(
+                            onPressed: () {
+                              double jumlahUang = jumlahUangSetter(pecahan);
+                              setStateIn(() {
+                                jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
+                                kembalian = calculateKembalian(jumlahUang.toString());
+                                if (kembalian < 0) {
+                                  kembalianStatus = "KURANG";
+                                  kembalian = -kembalian;
+                                } else {
+                                  kembalianStatus = "KEMBALIAN";
+                                }
+                              });
+                            },
+                            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)),
+                                size: 20)),
+                      );
+                    }
+                    ;
+                    return Wrap(
+                      spacing: 10,
+                      children: lsButton,
+                    );
+                  }),
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          if (kembalianStatus == "KURANG") {
+                            Utils.showMessage(
+                                "Pembayaran tidak cukup, transaksi tidak bisa diproses", context);
+                            return;
+                          }
 
-              await sendPayment(isTunai: 1);
-            },
-            child: Text("SIMPAN")),
-      )
-    ];
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children2,
-        ),
-      ),
-    );
+                          await sendPayment(isTunai: 1);
+                        },
+                        child: Text("SIMPAN")),
+                  )
+                ]),
+              ),
+            );
+          });
+        });
   }
 
-  SingleChildScrollView modalEdit(dynamic data, int index) {
+  Future<dynamic> modalEdit(dynamic data, int index) {
     TextEditingController jumlahCtrl = TextEditingController();
     TextEditingController diskonCtrl = TextEditingController();
     TextEditingController satuanCtrl = TextEditingController();
@@ -833,239 +838,251 @@ class _InputPenjualanState extends State<InputPenjualan> {
     String idSatuan = data["IDSATUAN"];
     jumlahCtrl.text = Utils.formatNumber(data["QTY"]);
     diskonCtrl.text = Utils.formatNumber(data["DISKONNOMINAL"]);
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.labelSetter("Edit Jumlah", size: 25),
-            Padding(padding: EdgeInsets.all(10)),
-            Utils.labelForm("Jumlah"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Flexible(
-                  flex: 5,
-                  child: TextField(
-                    controller: jumlahCtrl,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.labelSetter("Edit Jumlah", size: 25),
+                  Padding(padding: EdgeInsets.all(10)),
+                  Utils.labelForm("Jumlah"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Flexible(
+                        flex: 5,
+                        child: TextField(
+                          controller: jumlahCtrl,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Flexible(
+                          flex: 1,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              String jumlahText = jumlahCtrl.text;
+                              if (jumlahText == "") {
+                                jumlahCtrl.text = "1";
+                              } else {
+                                int jumlah = int.parse(Utils.decimalisasi(jumlahText));
+                                jumlah = jumlah + 1;
+                                jumlahCtrl.text = jumlah.toString();
+                              }
+                            },
+                            child: Icon(Icons.add),
+                          )),
+                      SizedBox(width: 10),
+                      Flexible(
+                          flex: 1,
+                          child: OutlinedButton(
+                              onPressed: () {
+                                String jumlahText = jumlahCtrl.text;
+                                if (jumlahText == "") {
+                                  jumlahCtrl.text = "1";
+                                } else {
+                                  int jumlah = int.parse(Utils.decimalisasi(jumlahText));
+                                  if (jumlah > 1) {
+                                    jumlah = jumlah - 1;
+                                  }
+                                  jumlahCtrl.text = jumlah.toString();
+                                }
+                              },
+                              child: Icon(Icons.remove)))
+                    ],
                   ),
-                ),
-                SizedBox(width: 10),
-                Flexible(
-                    flex: 1,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        String jumlahText = jumlahCtrl.text;
-                        if (jumlahText == "") {
-                          jumlahCtrl.text = "1";
-                        } else {
-                          int jumlah = int.parse(Utils.decimalisasi(jumlahText));
-                          jumlah = jumlah + 1;
-                          jumlahCtrl.text = jumlah.toString();
-                        }
-                      },
-                      child: Icon(Icons.add),
-                    )),
-                SizedBox(width: 10),
-                Flexible(
-                    flex: 1,
-                    child: OutlinedButton(
-                        onPressed: () {
-                          String jumlahText = jumlahCtrl.text;
-                          if (jumlahText == "") {
-                            jumlahCtrl.text = "1";
-                          } else {
-                            int jumlah = int.parse(Utils.decimalisasi(jumlahText));
-                            if (jumlah > 1) {
-                              jumlah = jumlah - 1;
-                            }
-                            jumlahCtrl.text = jumlah.toString();
-                          }
-                        },
-                        child: Icon(Icons.remove)))
-              ],
-            ),
-            Utils.labelForm("Satuan"),
-            Row(
-              children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: satuanCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () async {
-                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ListModalForm(
-                            type: "satuanbarang",
-                            idBarang: data["IDBARANG"],
-                          );
-                        },
-                      ));
+                  Utils.labelForm("Satuan"),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 10,
+                          child: TextField(
+                            controller: satuanCtrl,
+                            enabled: false,
+                          )),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return ListModalForm(
+                                  type: "satuanbarang",
+                                  idBarang: data["IDBARANG"],
+                                );
+                              },
+                            ));
 
-                      if (popUpResult == null) return;
-                      satuanCtrl.text = popUpResult["NAMA"];
-                      idSatuan = popUpResult["NOINDEX"];
-                    },
-                    icon: Icon(Icons.search),
+                            if (popUpResult == null) return;
+                            satuanCtrl.text = popUpResult["NAMA"];
+                            idSatuan = popUpResult["NOINDEX"];
+                          },
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Utils.labelForm("Diskon"),
-            TextField(
-              controller: diskonCtrl,
-              keyboardType: TextInputType.number,
-            ),
-            Padding(padding: EdgeInsets.all(5)),
-            Row(
-              children: [
-                Expanded(
-                    flex: 3,
-                    child: ElevatedButton(
-                        onPressed: () {
-                          double qty = double.parse(Utils.decimalisasi(jumlahCtrl.text));
-                          dynamic hargaUpdate = getHargaJual(dataList[index], idSatuan, qty);
-                          setState(() {
-                            dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
-                            dataListShow[index]["QTY"] = qty;
-                            dataListShow[index]["QTYSATUANPENGALI"] =
-                                hargaUpdate["QTYSATUANPENGALI"];
-                            dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
-                            dataListShow[index]["IDSATUAN"] = idSatuan;
-                            dataListShow[index]["SATUAN"] = satuanCtrl.text;
-                            dataListShow[index]["DISKONNOMINAL"] =
-                                double.parse(Utils.decimalisasi(diskonCtrl.text));
+                  Utils.labelForm("Diskon"),
+                  TextField(
+                    controller: diskonCtrl,
+                    keyboardType: TextInputType.number,
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 3,
+                          child: ElevatedButton(
+                              onPressed: () {
+                                double qty = double.parse(Utils.decimalisasi(jumlahCtrl.text));
+                                dynamic hargaUpdate = getHargaJual(dataList[index], idSatuan, qty);
+                                setState(() {
+                                  dataListShow[index]["IDSATUANPENGALI"] =
+                                      hargaUpdate["IDSATUANPENGALI"];
+                                  dataListShow[index]["QTY"] = qty;
+                                  dataListShow[index]["QTYSATUANPENGALI"] =
+                                      hargaUpdate["QTYSATUANPENGALI"];
+                                  dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
+                                  dataListShow[index]["IDSATUAN"] = idSatuan;
+                                  dataListShow[index]["SATUAN"] = satuanCtrl.text;
+                                  dataListShow[index]["DISKONNOMINAL"] =
+                                      double.parse(Utils.decimalisasi(diskonCtrl.text));
 
-                            totalPenjualan = setTotalJual();
-                            Navigator.pop(context);
-                          });
-                        },
-                        child: Text("Simpan"))),
-                SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    flex: 1,
-                    child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                        onPressed: () async {
-                          bool isDelete = await Utils.showConfirmMessage(
-                              context, "Yakin ingin menghapus data ini ?");
-                          if (isDelete) {
-                            Navigator.pop(context);
-                            setState(() {
-                              dataList.removeAt(index);
-                              dataListShow.removeAt(index);
-                              recalculateListPenjualan();
-                            });
-                          }
-                        },
-                        child: Text("Hapus")))
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+                                  totalPenjualan = setTotalJual();
+                                  Navigator.pop(context);
+                                });
+                              },
+                              child: Text("Simpan"))),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                              onPressed: () async {
+                                bool isDelete = await Utils.showConfirmMessage(
+                                    context, "Yakin ingin menghapus data ini ?");
+                                if (isDelete) {
+                                  Navigator.pop(context);
+                                  setState(() {
+                                    dataList.removeAt(index);
+                                    dataListShow.removeAt(index);
+                                    recalculateListPenjualan();
+                                  });
+                                }
+                              },
+                              child: Text("Hapus")))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
-  SingleChildScrollView modalHeader() {
+  Future<dynamic> modalHeader() {
     deptCtrl.text = namaDept;
     tanggalCtrl.text = tanggalTransaksi;
     gudangCtrl.text = namaGudang;
     pelangganCtrl.text = namaPelanggan;
     keteranganCtrl.text = keterangan;
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.labelSetter("Input Informasi", size: 25),
-            Padding(padding: EdgeInsets.all(10)),
-            Text("Tanggal"),
-            Row(
-              children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: tanggalCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () => Utils.setTextDateRange(context, tanggalCtrl, setState),
-                    icon: Icon(Icons.date_range),
+
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.labelSetter("Input Informasi", size: 25),
+                  Padding(padding: EdgeInsets.all(10)),
+                  Text("Tanggal"),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 10,
+                          child: TextField(
+                            controller: tanggalCtrl,
+                            enabled: false,
+                          )),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () => Utils.setTextDateRange(context, tanggalCtrl, setState),
+                          icon: Icon(Icons.date_range),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Utils.labelForm("Departemen"),
-            TextField(
-              controller: deptCtrl,
-              enabled: false,
-            ),
-            Utils.labelForm("Gudang"),
-            Row(
-              children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: gudangCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () async {
-                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ListModalForm(
-                            type: "gudang",
-                          );
+                  Utils.labelForm("Departemen"),
+                  TextField(
+                    controller: deptCtrl,
+                    enabled: false,
+                  ),
+                  Utils.labelForm("Gudang"),
+                  Row(
+                    children: [
+                      Expanded(
+                          flex: 10,
+                          child: TextField(
+                            controller: gudangCtrl,
+                            enabled: false,
+                          )),
+                      Expanded(
+                        child: IconButton(
+                          onPressed: () async {
+                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return ListModalForm(
+                                  type: "gudang",
+                                );
+                              },
+                            ));
+
+                            if (popUpResult == null) return;
+
+                            gudangCtrl.text = popUpResult["NAMA"];
+                            idGudang = popUpResult["NOINDEX"];
+                            namaGudang = popUpResult["NAMA"];
+                          },
+                          icon: Icon(Icons.search),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Utils.labelForm("Keterangan"),
+                  TextField(
+                    controller: keteranganCtrl,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          tanggalTransaksi = tanggalCtrl.text;
+                          keterangan = keteranganCtrl.text;
+                          Navigator.pop(context);
                         },
-                      ));
-
-                      if (popUpResult == null) return;
-
-                      gudangCtrl.text = popUpResult["NAMA"];
-                      idGudang = popUpResult["NOINDEX"];
-                      namaGudang = popUpResult["NAMA"];
-                    },
-                    icon: Icon(Icons.search),
+                        child: Text("Oke")),
                   ),
-                ),
-              ],
+                  Padding(padding: EdgeInsets.all(5)),
+                ],
+              ),
             ),
-            Utils.labelForm("Keterangan"),
-            TextField(
-              controller: keteranganCtrl,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                  onPressed: () {
-                    tanggalTransaksi = tanggalCtrl.text;
-                    keterangan = keteranganCtrl.text;
-                    Navigator.pop(context);
-                  },
-                  child: Text("Oke")),
-            ),
-            Padding(padding: EdgeInsets.all(5)),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   @override
@@ -1209,13 +1226,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
               return IconButton(onPressed: () => selectBarang(), icon: Icon(Icons.list_alt_sharp));
             }),
             IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return modalHeader();
-                      });
+                onPressed: () async {
+                  await modalHeader();
                 },
                 icon: Icon(Icons.note_add_rounded))
           ],
@@ -1293,13 +1305,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       return Container(
                         child: Card(
                           child: InkWell(
-                            onTap: () {
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return modalEdit(data, index);
-                                  });
+                            onTap: () async {
+                              await modalEdit(data, index);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(10),
@@ -1467,15 +1474,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                               }
                             });
 
-                            showModalBottomSheet(
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return StatefulBuilder(
-                                      builder: (context, StateSetter setStateIn) {
-                                    return modalBayar(setStateIn);
-                                  });
-                                });
+                            await modalBayar();
                           },
                           child: Utils.labelSetter("BAYAR", color: Colors.white),
                         ),

@@ -225,12 +225,12 @@ class _InputPembelianState extends State<InputPembelian> {
   }
 
 //modal
-  Future<dynamic> showModalHeader() async {
+  Future<dynamic> showModalHeader() {
     deptCtrl.text = namaDept;
     gudangCtrl.text = namaGudang;
     keteranganCtrl.text = keterangan;
     tanggalCtrl.text = tanggalTransaksi;
-    showModalBottomSheet(
+    return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
         builder: (BuildContext context) {
@@ -321,7 +321,7 @@ class _InputPembelianState extends State<InputPembelian> {
         });
   }
 
-  SingleChildScrollView modalEdit(int index, dynamic data) {
+  Future<dynamic> modalEdit(int index, dynamic data) {
     FocusNode qtyInputFocus = FocusNode();
 
     String idSatuan = data["IDSATUAN"];
@@ -338,110 +338,116 @@ class _InputPembelianState extends State<InputPembelian> {
 
     qtyInputFocus.requestFocus();
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Utils.labelSetter("Edit Data", size: 25),
-            Padding(padding: EdgeInsets.all(10)),
-            Utils.labelForm("Kode Barang"),
-            TextField(
-              controller: kodeBarangCtrl,
-              readOnly: true,
-            ),
-            Utils.labelForm("Nama Barang"),
-            TextField(
-              controller: namaBarangCtrl,
-              readOnly: true,
-            ),
-            Utils.labelForm("Qty Penerimaan"),
-            TextField(
-              controller: qtyPenerimaanCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (value) {},
-            ),
-            Utils.labelForm("Qty"),
-            TextField(
-              controller: qtyInputCtrl,
-              focusNode: qtyInputFocus,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            Utils.labelForm("Satuan"),
-            Row(
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    flex: 10,
-                    child: TextField(
-                      controller: satuanCtrl,
-                      enabled: false,
-                    )),
-                Expanded(
-                  child: IconButton(
-                    onPressed: () async {
-                      dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ListModalForm(
-                            type: "satuanbarang",
-                            idBarang: data["IDBARANG"],
-                          );
-                        },
-                      ));
+                Utils.labelSetter("Edit Data", size: 25),
+                Padding(padding: EdgeInsets.all(10)),
+                Utils.labelForm("Kode Barang"),
+                TextField(
+                  controller: kodeBarangCtrl,
+                  readOnly: true,
+                ),
+                Utils.labelForm("Nama Barang"),
+                TextField(
+                  controller: namaBarangCtrl,
+                  readOnly: true,
+                ),
+                Utils.labelForm("Qty Penerimaan"),
+                TextField(
+                  controller: qtyPenerimaanCtrl,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  onSubmitted: (value) {},
+                ),
+                Utils.labelForm("Qty"),
+                TextField(
+                  controller: qtyInputCtrl,
+                  focusNode: qtyInputFocus,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                Utils.labelForm("Satuan"),
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 10,
+                        child: TextField(
+                          controller: satuanCtrl,
+                          enabled: false,
+                        )),
+                    Expanded(
+                      child: IconButton(
+                        onPressed: () async {
+                          dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return ListModalForm(
+                                type: "satuanbarang",
+                                idBarang: data["IDBARANG"],
+                              );
+                            },
+                          ));
 
-                      if (popUpResult == null) return;
-                      satuanCtrl.text = popUpResult["NAMA"];
-                      idSatuan = popUpResult["NOINDEX"];
-                      idSatuanPengali = popUpResult["IDSATUANPENGALI"];
-                      qtySatuanPengali = popUpResult["QTYSATUANPENGALI"];
-                    },
-                    icon: Icon(Icons.search),
-                  ),
-                )
+                          if (popUpResult == null) return;
+                          satuanCtrl.text = popUpResult["NAMA"];
+                          idSatuan = popUpResult["NOINDEX"];
+                          idSatuanPengali = popUpResult["IDSATUANPENGALI"];
+                          qtySatuanPengali = popUpResult["QTYSATUANPENGALI"];
+                        },
+                        icon: Icon(Icons.search),
+                      ),
+                    )
+                  ],
+                ),
+                Utils.labelForm("Harga"),
+                TextField(
+                  controller: hargaCtrl,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                Utils.labelForm("Diskon"),
+                TextField(
+                  controller: diskonCtrl,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                SizedBox(height: 5),
+                SizedBox(
+                  width: double.maxFinite,
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        double qtypenerimaan = Utils.strToDouble(qtyPenerimaanCtrl.text);
+                        double qtyInput = Utils.strToDouble(qtyInputCtrl.text);
+                        double harga = Utils.strToDouble(hargaCtrl.text);
+                        double diskon = Utils.strToDouble(diskonCtrl.text);
+
+                        setState(() {
+                          dataListview[index]["QTYPENERIMAANBARANG"] = qtypenerimaan;
+                          dataListview[index]["QTY"] = qtyInput;
+                          dataListview[index]["KODESATUAN"] = satuanCtrl.text;
+                          dataListview[index]["IDSATUAN"] = idSatuan;
+                          dataListview[index]["IDSATUANPENGALI"] = idSatuanPengali;
+                          dataListview[index]["QTYSATUANPENGALI"] = qtySatuanPengali;
+                          dataListview[index]["IDGUDANG"] = idGudang;
+                          dataListview[index]["HARGA"] = (harga * qtySatuanPengali) * qtyInput;
+                          dataListview[index]["DISKONNOMINAL"] = diskon;
+                          totalPembelian = _calculateTotalPembelian();
+                        });
+
+                        Navigator.pop(context);
+                      },
+                      child: Text("Oke")),
+                ),
+                Padding(padding: EdgeInsets.all(5)),
               ],
             ),
-            Utils.labelForm("Harga"),
-            TextField(
-              controller: hargaCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            Utils.labelForm("Diskon"),
-            TextField(
-              controller: diskonCtrl,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-            ),
-            SizedBox(height: 5),
-            SizedBox(
-              width: double.maxFinite,
-              child: ElevatedButton(
-                  onPressed: () async {
-                    double qtypenerimaan = Utils.strToDouble(qtyPenerimaanCtrl.text);
-                    double qtyInput = Utils.strToDouble(qtyInputCtrl.text);
-                    double harga = Utils.strToDouble(hargaCtrl.text);
-                    double diskon = Utils.strToDouble(diskonCtrl.text);
-
-                    setState(() {
-                      dataListview[index]["QTYPENERIMAANBARANG"] = qtypenerimaan;
-                      dataListview[index]["QTY"] = qtyInput;
-                      dataListview[index]["KODESATUAN"] = satuanCtrl.text;
-                      dataListview[index]["IDSATUAN"] = idSatuan;
-                      dataListview[index]["IDSATUANPENGALI"] = idSatuanPengali;
-                      dataListview[index]["QTYSATUANPENGALI"] = qtySatuanPengali;
-                      dataListview[index]["IDGUDANG"] = idGudang;
-                      dataListview[index]["HARGA"] = (harga * qtySatuanPengali);
-                      dataListview[index]["DISKONNOMINAL"] = diskon;
-                      totalPembelian = _calculateTotalPembelian();
-                    });
-
-                    Navigator.pop(context);
-                  },
-                  child: Text("Oke")),
-            ),
-            Padding(padding: EdgeInsets.all(5)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -471,13 +477,7 @@ class _InputPembelianState extends State<InputPembelian> {
                       IconButton(
                           onPressed: () async {
                             Navigator.pop(context);
-                            await showModalBottomSheet(
-                              isScrollControlled: true,
-                              context: context,
-                              builder: (BuildContext context) {
-                                return modalEdit(index, mapDataFromList);
-                              },
-                            );
+                            await modalEdit(index, mapDataFromList);
                           },
                           icon: Icon(
                             Icons.edit,

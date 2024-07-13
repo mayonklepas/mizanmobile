@@ -27,6 +27,7 @@ class _InputPembelianState extends State<InputPembelian> {
   String namaGudang = Utils.namaGudang;
   String tanggalTransaksi = Utils.currentDateString();
   String keterangan = "Pembelian mobile";
+  String noref = "";
 
   Map<String, String> suplierData = {"id": "", "code": "", "name": ""};
   Map<String, String> penerimaanData = {"id": "", "code": "", "name": ""};
@@ -56,6 +57,7 @@ class _InputPembelianState extends State<InputPembelian> {
     var jsonData = jsonDecode(body)["data"];
     dynamic header = jsonData["header"][0];
     List<dynamic> detail = jsonData["detail"];
+    noref = header["NOREF"];
     setState(() {
       keterangan = header["KETERANGAN"];
       tanggalTransaksi = header["TANGGAL"];
@@ -164,7 +166,7 @@ class _InputPembelianState extends State<InputPembelian> {
       return;
     }
 
-    dynamic headerParam = {
+    Map<String, dynamic> headerParam = {
       "IDDEPT": idDept,
       "TANGGAL": tanggalCtrl.text,
       "KETERANGAN": keteranganCtrl.text,
@@ -176,10 +178,13 @@ class _InputPembelianState extends State<InputPembelian> {
     String action = "insert";
     if (widget.idPembelian != "") {
       action = "edit";
+      headerParam.remove("USERINPUT");
+      headerParam["USEREDIT"] = Utils.idUser;
       headerParam["NOINDEX"] = widget.idPembelian;
+      headerParam["NOREF"] = noref;
     }
 
-    dynamic bodyparam = {
+    Map<String, dynamic> bodyparam = {
       "header": headerParam,
       "detail": dataListview,
     };

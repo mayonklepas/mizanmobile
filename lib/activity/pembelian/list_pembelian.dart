@@ -53,6 +53,16 @@ class _ListPembelianState extends State<ListPembelian> {
     return jsonData;
   }
 
+  Future<dynamic> deletePembelian(String noindex) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    Map<String, String> bodyparam = {"NOINDEX": noindex};
+    String urlString = "${Utils.mainUrl}pembelian/delete";
+    Uri url = Uri.parse(urlString);
+    Response response = await post(url, body: jsonEncode(bodyparam), headers: Utils.setHeader());
+    var jsonData = jsonDecode(response.body);
+    return jsonData;
+  }
+
   FutureBuilder<List<dynamic>> setListFutureBuilder() {
     return FutureBuilder(
       future: _dataPembelian,
@@ -86,37 +96,40 @@ class _ListPembelianState extends State<ListPembelian> {
                       dynamic dataList = snapshot.data![index];
                       return Container(
                         child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Utils.bagde(((index + 1).toString())),
-                                Expanded(
-                                  flex: 2,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 5),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Utils.labelSetter(dataList["NOREF"], bold: true),
-                                        Utils.labelSetter(dataList["NAMA_SUPLIER"]),
-                                        Utils.labelSetter(
-                                            Utils.formatNumber(dataList["TOTAL_PEMBELIAN"]),
-                                            bold: true),
-                                        Container(
-                                          alignment: Alignment.bottomRight,
-                                          child: Text(
-                                            Utils.formatDate(dataList["TANGGAL"]),
-                                            style: TextStyle(fontSize: 11),
-                                          ),
-                                        )
-                                      ],
+                          child: InkWell(
+                            onTap: () => showOption(dataList["NOINDEX"]),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Utils.bagde(((index + 1).toString())),
+                                  Expanded(
+                                    flex: 2,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 5),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Utils.labelSetter(dataList["NOREF"], bold: true),
+                                          Utils.labelSetter(dataList["NAMA_SUPLIER"]),
+                                          Utils.labelSetter(
+                                              Utils.formatNumber(dataList["TOTAL_PEMBELIAN"]),
+                                              bold: true),
+                                          Container(
+                                            alignment: Alignment.bottomRight,
+                                            child: Text(
+                                              Utils.formatDate(dataList["TANGGAL"]),
+                                              style: TextStyle(fontSize: 11),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -128,6 +141,72 @@ class _ListPembelianState extends State<ListPembelian> {
         }
       }),
     );
+  }
+
+  Future<dynamic> showOption(String idPembelian) {
+    return showModalBottomSheet(
+        context: context,
+        builder: (BuildContext content) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              height: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            await Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return InputPembelian(idPembelian: idPembelian);
+                              },
+                            ));
+                            setState(() {
+                              _dataPembelian = _getDataPembelian();
+                            });
+                          },
+                          icon: Icon(
+                            Icons.edit,
+                            color: Colors.black54,
+                          )),
+                      Text("Edit")
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            bool isOk = await Utils.showConfirmMessage(
+                                context, "Ingin menghapus data ini ?");
+                            if (isOk) {
+                              dynamic result = await deletePembelian(idPembelian);
+                              Navigator.pop(context);
+                              if (result["status"] == 0) {
+                                setState(() {
+                                  _dataPembelian = _getDataPembelian();
+                                });
+                              } else {
+                                Utils.showMessage(result["message"], context);
+                              }
+                            }
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            color: Colors.black54,
+                          )),
+                      Text("Delete")
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   dateBottomModal(BuildContext context) async {

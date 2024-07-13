@@ -68,11 +68,12 @@ class _InputPembelianState extends State<InputPembelian> {
       };
 
       penerimaanData = {
-        "id": header["IDPENERIMAAN"] ?? "",
-        "code": header["NOMORPENERIMAAN"] ?? "",
-        "name": header["NOMORPENERIMAAN"] ?? ""
+        "id": header["IDPENERIMAANBARANG"] ?? "",
+        "code": header["NOMORPENERIMAANBARANG"] ?? "",
+        "name": header["NOMORPENERIMAANBARANG"] ?? ""
       };
       dataListview.addAll(detail);
+      totalPembelian = _calculateTotalPembelian();
     });
   }
 
@@ -146,7 +147,7 @@ class _InputPembelianState extends State<InputPembelian> {
     dataMapView["IDSATUANPENGALI"] = detailBarang["IDSATUAN"];
     dataMapView["QTYSATUANPENGALI"] = 1.0;
     dataMapView["IDGUDANG"] = idGudang;
-    dataMapView["HARGA"] = detailBarang["HARGA_BELI"];
+    dataMapView["HARGA"] = detailBarang["HARGA_BELI"] * 1.0;
     dataMapView["DISKONNOMINAL"] = 0.0;
 
     setState(() {
@@ -209,6 +210,7 @@ class _InputPembelianState extends State<InputPembelian> {
       gudangCtrl.text = namaGudang;
       keterangan = "";
       keteranganCtrl.text = "";
+      totalPembelian = 0;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -218,7 +220,7 @@ class _InputPembelianState extends State<InputPembelian> {
   double _calculateTotalPembelian() {
     double totalPembelian = 0.0;
     for (var d in dataListview) {
-      double harga = d["HARGA"];
+      double harga = d["HARGA"] * d["QTY"] - d["DISKONNOMINAL"];
       totalPembelian = totalPembelian + harga;
     }
     return totalPembelian;
@@ -433,7 +435,7 @@ class _InputPembelianState extends State<InputPembelian> {
                           dataListview[index]["IDSATUANPENGALI"] = idSatuanPengali;
                           dataListview[index]["QTYSATUANPENGALI"] = qtySatuanPengali;
                           dataListview[index]["IDGUDANG"] = idGudang;
-                          dataListview[index]["HARGA"] = (harga * qtySatuanPengali) * qtyInput;
+                          dataListview[index]["HARGA"] = harga * qtySatuanPengali;
                           dataListview[index]["DISKONNOMINAL"] = diskon;
                           totalPembelian = _calculateTotalPembelian();
                         });

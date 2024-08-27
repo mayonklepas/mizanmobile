@@ -1,4 +1,4 @@
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -10,13 +10,13 @@ class DatabaseHelper {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-            "CREATE TABLE sync_info(id INTEGER PRIMARY KEY,status int,last_updated DATETIME)");
+            "CREATE TABLE sync_info(id INTEGER PRIMARY KEY,status_auto_sync int,last_updated DATETIME, status_done int, last_loop int, max_loop int)");
         await db.execute("CREATE TABLE barang_temp(" +
             "id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
             "kode VARCHAR(100),nama TEXT, detail_barang TEXT,multi_satuan TEXT," +
             "multi_harga TEXT,harga_tanggal TEXT,date_created DATETIME)");
         await db.execute(
-            "INSERT INTO sync_info(id,status,last_updated) VALUES(1,0,'1945-01-01 00:00:00')");
+            "INSERT INTO sync_info(id,status_auto_sync,last_updated,status_done, last_loop, max_loop) VALUES(1,0,'1945-01-01 00:00:00','0','0','0')");
       },
     );
     return _database;
@@ -51,13 +51,14 @@ class DatabaseHelper {
     }
   }
 
-  Future<void> writeBatchDatabase(List<String> lsQuery) async {
+  Future writeBatchDatabase(List<String> lsQuery) async {
     Database database = await databaseConnection();
     Batch batch = database.batch();
     for (var d in lsQuery) {
       batch.rawQuery(d);
     }
-    await batch.commit(noResult: true);
+    List<Object?> resultExec = await batch.commit();
+    return resultExec;
   }
 
   Future<void> execQuery(String sql) async {

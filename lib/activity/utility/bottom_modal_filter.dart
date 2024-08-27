@@ -3,7 +3,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 
-import '../../utils.dart';
+import '../../helper/utils.dart';
 
 class BottomModalFilter extends StatefulWidget {
   final Function action;

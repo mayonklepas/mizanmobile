@@ -7,7 +7,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang_detail.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 class ListHutang extends StatefulWidget {

@@ -5,7 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
 
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 
 class PelangganController {
   BuildContext context;
@@ -30,8 +30,7 @@ class PelangganController {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}pelanggan/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response =
-        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
@@ -42,8 +41,7 @@ class PelangganController {
       return Utils.showMessage("Akses ditolak", context);
     }
 
-    bool isConfirm = await Utils.showConfirmMessage(
-        context, "Yakin ingin menghapus daa ini ?");
+    bool isConfirm = await Utils.showConfirmMessage(context, "Yakin ingin menghapus daa ini ?");
 
     if (isConfirm) {
       Map<String, Object> mapData = {"noindex": dataList["NOINDEX"].toString()};
@@ -115,11 +113,9 @@ class PelangganController {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding:
-                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -146,8 +142,7 @@ class PelangganController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -175,8 +170,7 @@ class PelangganController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golonganpelanggan");
                               },
@@ -204,8 +198,7 @@ class PelangganController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "klasifikasi");
                               },
@@ -233,8 +226,7 @@ class PelangganController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "dept");
                               },
@@ -266,9 +258,8 @@ class PelangganController {
                       width: double.infinity,
                       child: ElevatedButton(
                           onPressed: () async {
-                            Position geoPosition =
-                                await Geolocator.getCurrentPosition(
-                                    desiredAccuracy: LocationAccuracy.medium);
+                            Position geoPosition = await Geolocator.getCurrentPosition(
+                                desiredAccuracy: LocationAccuracy.medium);
 
                             double longitude = geoPosition.longitude;
                             double latitude = geoPosition.latitude;
@@ -285,8 +276,7 @@ class PelangganController {
                       child: ElevatedButton(
                           onPressed: () async {
                             if (idGolongan1.isEmpty) {
-                              Utils.showMessage(
-                                  "Golongan 1 tidak boleh kosong", context);
+                              Utils.showMessage("Golongan 1 tidak boleh kosong", context);
                               return;
                             }
 

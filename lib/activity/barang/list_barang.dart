@@ -9,7 +9,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
 import 'package:mizanmobile/activity/mutasi/list_mutasi.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart' as http;
 
 class ListBarang extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mizanmobile/activity/pelanggan/pelanggan_controller.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 
 class PelangganView extends StatefulWidget {
   const PelangganView({Key? key}) : super(key: key);

@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:mizanmobile/activity/component/bottom_modal_filter.dart';
+import 'package:mizanmobile/activity/utility/bottom_modal_filter.dart';
 import 'package:mizanmobile/activity/transferbarang/input_transfer_barang.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 class ListTransferBarang extends StatefulWidget {

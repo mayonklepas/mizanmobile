@@ -20,9 +20,10 @@ import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/activity/setup_user.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
 import 'package:mizanmobile/activity/suplier/suplier_view.dart';
+import 'package:mizanmobile/activity/sync/sync_form.dart';
 import 'package:mizanmobile/activity/transferbarang/list_tranferbarang.dart';
-import 'package:mizanmobile/database_helper.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/database_helper.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 
@@ -55,20 +56,6 @@ class _HomeActivityState extends State<HomeActivity> {
     return jsonData["data_home"];
   }
 
-  Future<dynamic> _getInfoSync(String tglUpdate) async {
-    Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    String urlString =
-        "${Utils.mainUrl}barang/getitemsync?tglupdate=$tglUpdate&idgudang=${Utils.idGudang}";
-    log(urlString);
-    Uri url = Uri.parse(urlString);
-    Response response = await get(url, headers: Utils.setHeader());
-    String body = response.body;
-    log(body);
-    var jsonData = jsonDecode(body)["data"];
-    Navigator.pop(context);
-    return jsonData;
-  }
-
   _getInfoSyncLocal() async {
     var db = DatabaseHelper();
     List<dynamic> getInfo =
@@ -77,7 +64,7 @@ class _HomeActivityState extends State<HomeActivity> {
         await db.readDatabase("SELECT COUNT(idbarang) as total FROM barang_temp");
     setState(() {
       localLastUpdate = getInfo[0]["last_updated"];
-      sinkronisasiOnOff = (getInfo[0]["status"] == 1) ? true : false;
+      sinkronisasiOnOff = (getInfo[0]["status_auto_sync"] == 1) ? true : false;
       totalData = Utils.formatNumber(getInfoBarang[0]["total"]);
     });
   }
@@ -118,17 +105,30 @@ class _HomeActivityState extends State<HomeActivity> {
       int intervalMinutes = Utils.strToInt(Utils.syncIntervalMinutes);
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
-      int status = lsSyncInfo[0]["status"];
-      if (status == 1) {
+      String lastUpdated = lsSyncInfo[0]["last_updated"];
+      int statusAutoSync = lsSyncInfo[0]["status_auto_sync"];
+      if (statusAutoSync == 1) {
         if (Utils.isShowSyncNotif == "1") {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi aktif")));
         }
         Timer.periodic(Duration(minutes: intervalMinutes), (timer) async {
-          if (status == 0) {
-            log("no active sync");
-          }
           log("process sync-task");
-          await Utils.syncLocalData();
+          String urlString =
+              "${Utils.mainUrl}barang/getitemsync?tglupdate=$lastUpdated&idgudang=${Utils.idGudang}";
+          log(urlString);
+          Uri url = Uri.parse(urlString);
+          Response response = await get(url, headers: Utils.setHeader());
+          String body = response.body;
+          log(body);
+          var jsonData = jsonDecode(body)["data"];
+          int jumlahDataBelumTersinkron = jsonData["jumlah_item_sync"];
+
+          double loopCountRaw = jumlahDataBelumTersinkron / 100;
+          int loopCount = loopCountRaw.ceil();
+          for (int i = 0; i < loopCount; i++) {
+            await Utils.syncLocalData(lastUpdated, halaman: i);
+            log("sync count : ${i + 1}");
+          }
           if (Utils.isShowSyncNotif == "1") {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text("data telah diperbaharui dari sinkronisasi")));
@@ -238,12 +238,13 @@ class _HomeActivityState extends State<HomeActivity> {
                 Switch(
                     value: sinkronisasiOnOff,
                     onChanged: (value) async {
-                      int status = 0;
+                      int statusAutoSync = 0;
                       if (value == true) {
-                        status = 1;
+                        statusAutoSync = 1;
                       }
-                      await DatabaseHelper()
-                          .writeDatabase("UPDATE sync_info SET status = ? ", params: [status]);
+                      await DatabaseHelper().writeDatabase(
+                          "UPDATE sync_info SET status_auto_sync = ? ",
+                          params: [statusAutoSync]);
                       stateIn(() => sinkronisasiOnOff = value);
                     })
               ],
@@ -753,29 +754,11 @@ class _HomeActivityState extends State<HomeActivity> {
                   ));
                 }),
                 setIconCard(Icons.sync, Colors.blue, "Sinkronisasi", () async {
-                  String tglSet = localLastUpdate;
-
-                  dynamic itemSyncInfo = await _getInfoSync(tglSet);
-                  int jumlahItem = itemSyncInfo["jumlah_item_sync"];
-
-                  bool isConfirm = await Utils.showConfirmMessage(context,
-                      "Jumlah item yang akan di sinkronisasi adalah ${Utils.formatNumber(jumlahItem)}, Lanjutkan ?");
-
-                  if (!isConfirm) {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    }
-                    return;
-                  }
-
-                  Future.delayed(Duration.zero, () => Utils.showProgress(context));
-                  await Utils.syncLocalData();
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  }
-
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Sinkronisasi Berhasil")));
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return SyncForm();
+                    },
+                  ));
 
                   _getInfoSyncLocal();
                 }),

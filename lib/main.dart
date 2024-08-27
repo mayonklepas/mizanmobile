@@ -9,11 +9,11 @@ import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/activity/setup_program.dart';
 import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/printer_util.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
 
-import 'database_helper.dart';
+import 'helper/database_helper.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,7 +104,7 @@ class _MainPageState extends State<MainPage> {
 
     _lsData.add(<String, String>{
       "nama": "Mizan Cloud Public",
-      "url": "http://mizancloud.com:8081/api/",
+      "url": "http://app.mizancloud.com/api/",
       "imageUrl": "http://mizancloud.com/mizan-assets/default/",
       "companyCode": "public"
     });

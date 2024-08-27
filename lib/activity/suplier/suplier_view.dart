@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/suplier/suplier_controller.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 
 class ListSuplierView extends StatefulWidget {
   const ListSuplierView({Key? key}) : super(key: key);

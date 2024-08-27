@@ -6,10 +6,10 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
-import '../../database_helper.dart';
+import '../../helper/database_helper.dart';
 
 class ListModalBarang extends StatefulWidget {
   final String keyword;
@@ -38,7 +38,15 @@ class _ListModalBarangState extends State<ListModalBarang> {
             params: ["%$keyword%", "%$keyword%", "%$keyword%"]);
       }
 
-      List<dynamic> listBarangSort = List.of(listBarang);
+      List<dynamic> listBarangFilter = listBarang.where((d) {
+        dynamic detail = jsonDecode(d["detail_barang"]);
+        int isActive = detail["ISACTIVE"];
+        if (isActive == 1) {
+          return true;
+        }
+        return false;
+      }).toList();
+      List<dynamic> listBarangSort = List.of(listBarangFilter);
 
       if (keyword.isNotEmpty) {
         listBarangSort.sort((a, b) {

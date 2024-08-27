@@ -6,7 +6,7 @@ import 'package:mizanmobile/activity/setup_connection.dart';
 import 'package:mizanmobile/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils.dart';
+import '../helper/utils.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
 

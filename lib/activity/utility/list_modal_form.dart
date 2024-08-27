@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 class ListModalForm extends StatefulWidget {
@@ -89,8 +89,9 @@ class _ListModalFormState extends State<ListModalForm> {
     } else if (type == "penerimaanbarang") {
       mainUrlString = "${Utils.mainUrl}penerimaanbarang/daftarorder?idsuplier=${widget.idSuplier}";
       headerBar = "Order Penerimaan";
-    }else if(type == "pembelianpenerimaan"){
-      mainUrlString = "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
+    } else if (type == "pembelianpenerimaan") {
+      mainUrlString =
+          "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
       headerBar = "Penerimaan";
     }
     if (type == "kelompoktransaksi") {
@@ -175,7 +176,8 @@ class _ListModalFormState extends State<ListModalForm> {
                                       if (widget.type == "pelanggan" || widget.type == "suplier") {
                                         return Utils.labelValueSetter(
                                             "GOL", dataList["NAMA_GOLONGAN"] ?? "");
-                                      } else if (widget.type == "penerimaanbarang" || widget.type == "pembelianpenerimaan") {
+                                      } else if (widget.type == "penerimaanbarang" ||
+                                          widget.type == "pembelianpenerimaan") {
                                         return Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [

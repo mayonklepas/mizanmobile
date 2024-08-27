@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 class SupplierController {
@@ -31,8 +31,7 @@ class SupplierController {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}suplier/" + urlPath;
     Uri url = Uri.parse(urlString);
-    Response response =
-        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
@@ -54,8 +53,7 @@ class SupplierController {
       return Utils.showMessage("Akses ditolak", context);
     }
 
-    bool isConfirm = await Utils.showConfirmMessage(
-        context, "Yakin ingin menghapus data ini ?");
+    bool isConfirm = await Utils.showConfirmMessage(context, "Yakin ingin menghapus data ini ?");
 
     if (isConfirm) {
       Map<String, Object> mapData = {"noindex": dataList["NOINDEX"].toString()};
@@ -112,11 +110,9 @@ class SupplierController {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding:
-                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -143,8 +139,7 @@ class SupplierController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "golongansuplier");
                               },
@@ -172,8 +167,7 @@ class SupplierController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "klasifikasi");
                               },
@@ -201,8 +195,7 @@ class SupplierController {
                         flex: 0,
                         child: IconButton(
                           onPressed: () async {
-                            popUpResult =
-                                await Navigator.push(context, MaterialPageRoute(
+                            popUpResult = await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(type: "dept");
                               },
@@ -227,8 +220,7 @@ class SupplierController {
                       child: ElevatedButton(
                           onPressed: () async {
                             if (idGolongan.isEmpty) {
-                              Utils.showMessage(
-                                  "Golongan 1 tidak boleh kosong", context);
+                              Utils.showMessage("Golongan 1 tidak boleh kosong", context);
                               return;
                             }
 

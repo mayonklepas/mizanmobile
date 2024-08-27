@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
-import '../component/bottom_modal_filter.dart';
+import '../utility/bottom_modal_filter.dart';
 
 class ListMutasi extends StatefulWidget {
   final String idBarang;
@@ -47,7 +47,7 @@ class _ListMutasiState extends State<ListMutasi> {
       idGudang = Utils.idGudangTemp;
     }
 
-     if (idKelompokTransaksi == "") {
+    if (idKelompokTransaksi == "") {
       idKelompokTransaksi = Utils.idKelompokTransaksi;
     }
 
@@ -83,8 +83,7 @@ class _ListMutasiState extends State<ListMutasi> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Utils.labelSetter(_dataheader["NAMA"].toString(),
-                            bold: true),
+                        Utils.labelSetter(_dataheader["NAMA"].toString(), bold: true),
                         Utils.labelSetter(_dataheader["KODE"].toString()),
                         SizedBox(height: 3),
                         Utils.labelValueSetter("Periode",
@@ -105,8 +104,8 @@ class _ListMutasiState extends State<ListMutasi> {
                           "Keluar",
                           Utils.formatNumber(_dataheader["KELUAR"]),
                         ),
-                        Utils.labelValueSetter("Stok Akhir",
-                            Utils.formatNumber(_dataheader["STOK_AKHIR"]))
+                        Utils.labelValueSetter(
+                            "Stok Akhir", Utils.formatNumber(_dataheader["STOK_AKHIR"]))
                       ],
                     ),
                   )),
@@ -136,22 +135,18 @@ class _ListMutasiState extends State<ListMutasi> {
                                   child: Padding(
                                     padding: const EdgeInsets.only(left: 5),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Utils.labelSetter(
-                                            dataList["NOREF"].toString(),
-                                            bold: true),
-                                        Utils.labelValueSetter("Kelompok",
-                                            dataList["KELOMPOK_TRANS"]),
+                                        Utils.labelSetter(dataList["NOREF"].toString(), bold: true),
+                                        Utils.labelValueSetter(
+                                            "Kelompok", dataList["KELOMPOK_TRANS"]),
                                         Utils.labelValueSetter(
                                           "Masuk",
                                           Utils.formatNumber(dataList["MASUK"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Keluar",
-                                          Utils.formatNumber(
-                                              dataList["KELUAR"]),
+                                          Utils.formatNumber(dataList["KELUAR"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Sisa",
@@ -159,20 +154,17 @@ class _ListMutasiState extends State<ListMutasi> {
                                         ),
                                         Utils.labelValueSetter(
                                           "Harga Pokok",
-                                          Utils.formatNumber(
-                                              dataList["HARGA_POKOK"]),
+                                          Utils.formatNumber(dataList["HARGA_POKOK"]),
                                         ),
                                         Utils.labelValueSetter(
                                           "Harga Jual",
-                                          Utils.formatNumber(
-                                              dataList["HARGA_JUAL"]),
+                                          Utils.formatNumber(dataList["HARGA_JUAL"]),
                                         ),
                                         Container(
                                           padding: EdgeInsets.only(top: 10),
                                           alignment: Alignment.bottomRight,
                                           child: Text(
-                                            Utils.formatDate(
-                                                dataList["TANGGAL"]),
+                                            Utils.formatDate(dataList["TANGGAL"]),
                                             style: TextStyle(fontSize: 11),
                                           ),
                                         )

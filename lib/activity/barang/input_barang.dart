@@ -8,7 +8,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
 import 'package:mizanmobile/activity/utility/list_modal_form.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 class InputBarang extends StatefulWidget {

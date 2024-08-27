@@ -7,8 +7,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/printer_util.dart';
-import 'package:mizanmobile/database_helper.dart';
-import 'package:mizanmobile/utils.dart';
+import 'package:mizanmobile/helper/database_helper.dart';
+import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 import '../utility/list_modal_form.dart';

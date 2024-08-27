@@ -5,7 +5,7 @@ import 'package:mizanmobile/activity/utility/print_enum.dart';
 import 'package:blue_thermal_printer/blue_thermal_printer.dart';
 import 'package:http/http.dart' as http;
 
-import '../../utils.dart';
+import '../../helper/utils.dart';
 
 class PrinterUtils {
   Future<Map<String, String>> printReceipt(List<dynamic> data, dynamic additionalInfo) async {

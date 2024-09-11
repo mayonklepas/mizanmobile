@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/home_activity.dart';
-import 'package:mizanmobile/activity/setup_connection.dart';
-import 'package:mizanmobile/main.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:mizanmobile/activity/setup/setup_connection.dart';
 import '../helper/utils.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -124,7 +121,7 @@ class _LoginState extends State<Login> {
                               }
                             }
                           },
-                          child: Text("Login"),
+                          child: Text("Loginssssss"),
                         ),
                       ),
                       Container(

@@ -7,20 +7,16 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/helper/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SetupConnection extends StatefulWidget {
-  const SetupConnection({super.key});
+class SetupConnectionAdvance extends StatefulWidget {
+  const SetupConnectionAdvance({super.key});
 
   @override
-  State<SetupConnection> createState() => _SetupConnectionState();
+  State<SetupConnectionAdvance> createState() => _SetupConnectionAdvanceState();
 }
 
-class _SetupConnectionState extends State<SetupConnection> {
+class _SetupConnectionAdvanceState extends State<SetupConnectionAdvance> {
   List<dynamic> _lsData = [];
-  TextEditingController namaCtrl = TextEditingController();
-  TextEditingController urlCtrl = TextEditingController();
-  TextEditingController imageUrlCtrl = TextEditingController();
-  TextEditingController companyCodeCtrl = TextEditingController();
-  int indexEdit = -1;
+  String textMode = "";
 
   _loadSetupConnection() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -37,9 +33,106 @@ class _SetupConnectionState extends State<SetupConnection> {
     _loadSetupConnection();
   }
 
+  Future<dynamic> showModalInputConnection({dynamic param = null, indexEdit = -1}) {
+    TextEditingController namaCtrl = TextEditingController();
+    TextEditingController urlCtrl = TextEditingController();
+    TextEditingController imageUrlCtrl = TextEditingController();
+    TextEditingController companyCodeCtrl = TextEditingController();
+
+    textMode = "Tambah Koneksi";
+
+    if (param != null) {
+      namaCtrl.text = param["nama"];
+      urlCtrl.text = param["url"];
+      imageUrlCtrl.text = param["imageUrl"];
+      companyCodeCtrl.text = param["companyCode"];
+      textMode = "Edit Koneksi";
+    }
+    return showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.labelSetter(textMode, size: 25),
+                  Padding(padding: EdgeInsets.all(10)),
+                  Utils.labelForm("Nama Koneksi"),
+                  TextField(
+                    controller: namaCtrl,
+                  ),
+                  Utils.labelForm("Alamat URL Koneksi"),
+                  TextField(
+                    controller: urlCtrl,
+                  ),
+                  Utils.labelForm("Alamat URL Image"),
+                  TextField(
+                    controller: imageUrlCtrl,
+                  ),
+                  Utils.labelForm("Company Code"),
+                  TextField(
+                    controller: companyCodeCtrl,
+                  ),
+                  Padding(padding: EdgeInsets.only(bottom: 10)),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (namaCtrl.text == "" || urlCtrl.text == "" || imageUrlCtrl.text == "") {
+                          return;
+                        }
+                        setState(() {
+                          if (indexEdit == -1) {
+                            _lsData.add(<String, String>{
+                              "nama": namaCtrl.text,
+                              "url": urlCtrl.text,
+                              "imageUrl": imageUrlCtrl.text,
+                              "companyCode": companyCodeCtrl.text
+                            });
+                          } else {
+                            _lsData[indexEdit] = <String, String>{
+                              "nama": namaCtrl.text,
+                              "url": urlCtrl.text,
+                              "imageUrl": imageUrlCtrl.text,
+                              "companyCode": companyCodeCtrl.text
+                            };
+                          }
+                        });
+                        indexEdit = -1;
+                        SharedPreferences sp = await SharedPreferences.getInstance();
+                        String jsData = jsonEncode(_lsData);
+                        await sp.setString("listConnection", jsData);
+                        sp.reload();
+                        namaCtrl.text = "";
+                        urlCtrl.text = "";
+                        imageUrlCtrl.text = "";
+                        companyCodeCtrl.text = "";
+                        Navigator.pop(context);
+                      },
+                      child: Text("Simpan"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            size: 30,
+          ),
+          onPressed: () => showModalInputConnection()),
       appBar: AppBar(
         title: Text("Setup Koneksi"),
       ),
@@ -51,79 +144,12 @@ class _SetupConnectionState extends State<SetupConnection> {
                 child: Container(
                   width: double.infinity,
                   child: Card(
-                    child: Column(children: [
-                      Utils.labelValueSetter("Koneksi Aktif", Utils.mainUrl),
-                      Utils.labelValueSetter("Image Url Aktif", Utils.imageUrl),
-                      Utils.labelValueSetter("Company Code", Utils.companyCode)
-                    ]),
-                  ),
-                )),
-            Expanded(
-                flex: 0,
-                child: Card(
-                  child: Container(
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Utils.labelForm("Nama Koneksi"),
-                        TextField(
-                          controller: namaCtrl,
-                        ),
-                        Utils.labelForm("Alamat URL Koneksi"),
-                        TextField(
-                          controller: urlCtrl,
-                        ),
-                        Utils.labelForm("Alamat URL Image"),
-                        TextField(
-                          controller: imageUrlCtrl,
-                        ),
-                        Utils.labelForm("Company Code"),
-                        TextField(
-                          controller: companyCodeCtrl,
-                        ),
-                        Padding(padding: EdgeInsets.only(bottom: 10)),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              if (namaCtrl.text == "" ||
-                                  urlCtrl.text == "" ||
-                                  imageUrlCtrl.text == "") {
-                                return;
-                              }
-                              setState(() {
-                                if (indexEdit == -1) {
-                                  _lsData.add(<String, String>{
-                                    "nama": namaCtrl.text,
-                                    "url": urlCtrl.text,
-                                    "imageUrl": imageUrlCtrl.text,
-                                    "companyCode": companyCodeCtrl.text
-                                  });
-                                } else {
-                                  _lsData[indexEdit] = <String, String>{
-                                    "nama": namaCtrl.text,
-                                    "url": urlCtrl.text,
-                                    "imageUrl": imageUrlCtrl.text,
-                                    "companyCode": companyCodeCtrl.text
-                                  };
-                                }
-                              });
-                              indexEdit = -1;
-                              SharedPreferences sp = await SharedPreferences.getInstance();
-                              String jsData = jsonEncode(_lsData);
-                              await sp.setString("listConnection", jsData);
-                              sp.reload();
-                              namaCtrl.text = "";
-                              urlCtrl.text = "";
-                              imageUrlCtrl.text = "";
-                              companyCodeCtrl.text = "";
-                            },
-                            child: Text("Simpan"),
-                          ),
-                        ),
-                      ],
+                    child: Container(
+                      padding: EdgeInsets.all(5),
+                      child: Column(children: [
+                        Utils.labelValueSetter("Koneksi Aktif", Utils.connectionName,
+                            boldValue: true),
+                      ]),
                     ),
                   ),
                 )),
@@ -132,6 +158,10 @@ class _SetupConnectionState extends State<SetupConnection> {
                     itemCount: _lsData.length,
                     itemBuilder: (context, index) {
                       dynamic dataList = _lsData[index];
+                      String koneksiNama = dataList["nama"] ?? "";
+                      String companyCode = dataList["companyCode"] ?? "";
+                      String koneksiUrl = dataList["url"] ?? "";
+                      String koneksiImageUrl = dataList["imageUrl"] ?? "";
                       return Container(
                         child: Card(
                           child: InkWell(
@@ -152,14 +182,8 @@ class _SetupConnectionState extends State<SetupConnection> {
                                                     if (Navigator.canPop(context)) {
                                                       Navigator.pop(context);
                                                     }
-                                                    setState(() {
-                                                      indexEdit = index;
-                                                      namaCtrl.text = dataList["nama"];
-                                                      urlCtrl.text = dataList["url"];
-                                                      imageUrlCtrl.text = dataList["imageUrl"];
-                                                      companyCodeCtrl.text =
-                                                          dataList["companyCode"];
-                                                    });
+                                                    showModalInputConnection(
+                                                        param: dataList, indexEdit: index);
                                                   },
                                                   icon: Icon(
                                                     Icons.edit,
@@ -197,19 +221,17 @@ class _SetupConnectionState extends State<SetupConnection> {
                                               IconButton(
                                                   onPressed: () async {
                                                     setState(() {
-                                                      Utils.mainUrl = dataList["url"];
-                                                      Utils.imageUrl = dataList["imageUrl"];
+                                                      Utils.mainUrl = koneksiUrl;
+                                                      Utils.imageUrl = koneksiImageUrl;
                                                     });
                                                     SharedPreferences sp =
                                                         await SharedPreferences.getInstance();
                                                     sp.setString(
-                                                        "defaultConnectionName", dataList["nama"]);
+                                                        "defaultConnectionName", koneksiNama);
+                                                    sp.setString("defaultConnection", koneksiUrl);
                                                     sp.setString(
-                                                        "defaultConnection", dataList["url"]);
-                                                    sp.setString(
-                                                        "defaultImageUrl", dataList["imageUrl"]);
-                                                    sp.setString("defaultCompanyCode",
-                                                        dataList["companyCode"]);
+                                                        "defaultImageUrl", koneksiImageUrl);
+                                                    sp.setString("defaultCompanyCode", companyCode);
                                                     sp.reload();
                                                     if (Navigator.canPop(context)) {
                                                       Navigator.pop(context);
@@ -229,7 +251,7 @@ class _SetupConnectionState extends State<SetupConnection> {
                                                     Icons.check,
                                                     color: Colors.black54,
                                                   )),
-                                              Text("Set Default")
+                                              Text("Set as Default")
                                             ],
                                           ),
                                         ],
@@ -251,10 +273,10 @@ class _SetupConnectionState extends State<SetupConnection> {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Utils.labelSetter(dataList["nama"], bold: true),
-                                          Utils.labelSetter(dataList["url"]),
-                                          Utils.labelSetter(dataList["imageUrl"]),
-                                          Utils.labelSetter(dataList["companyCode"]),
+                                          Utils.labelSetter(koneksiNama + " / " + companyCode,
+                                              bold: true),
+                                          Utils.labelSetter(koneksiUrl),
+                                          Utils.labelSetter(koneksiImageUrl),
                                         ],
                                       ),
                                     ),

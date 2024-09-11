@@ -16,8 +16,8 @@ import 'package:mizanmobile/activity/pembelian/list_pembelian.dart';
 import 'package:mizanmobile/activity/penerimaan/list_penerimaan.dart';
 import 'package:mizanmobile/activity/penjualan/list_penjualan.dart';
 import 'package:mizanmobile/activity/piutang/list_piutang.dart';
-import 'package:mizanmobile/activity/setup_program.dart';
-import 'package:mizanmobile/activity/setup_user.dart';
+import 'package:mizanmobile/activity/setup/setup_program.dart';
+import 'package:mizanmobile/activity/setup/setup_user.dart';
 import 'package:mizanmobile/activity/stokopname/list_stokopname.dart';
 import 'package:mizanmobile/activity/suplier/suplier_view.dart';
 import 'package:mizanmobile/activity/sync/sync_form.dart';
@@ -111,6 +111,7 @@ class _HomeActivityState extends State<HomeActivity> {
         if (Utils.isShowSyncNotif == "1") {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi aktif")));
         }
+
         Timer.periodic(Duration(minutes: intervalMinutes), (timer) async {
           log("process sync-task");
           String urlString =

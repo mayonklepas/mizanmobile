@@ -5,8 +5,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mizanmobile/activity/home_activity.dart';
 import 'package:mizanmobile/activity/login_activity.dart';
-import 'package:mizanmobile/activity/setup_connection.dart';
-import 'package:mizanmobile/activity/setup_program.dart';
+import 'package:mizanmobile/activity/setup/setup_connection.dart';
+import 'package:mizanmobile/activity/setup/setup_program.dart';
 import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/printer_util.dart';
 import 'package:mizanmobile/helper/utils.dart';
@@ -103,7 +103,7 @@ class _MainPageState extends State<MainPage> {
     List<dynamic> _lsData = [];
 
     _lsData.add(<String, String>{
-      "nama": "Mizan Cloud Public",
+      "nama": "default",
       "url": "http://app.mizancloud.com/api/",
       "imageUrl": "http://mizancloud.com/mizan-assets/default/",
       "companyCode": "public"
@@ -125,7 +125,14 @@ class _MainPageState extends State<MainPage> {
   Future<String> imageUrl() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     Utils.setAllPref();
-    return sp.getString("defaultImageUrl").toString();
+    String imageUrlStr = sp.getString("defaultImageUrl").toString();
+    String imageUrlStrTest = imageUrlStr + "logo.png";
+    Response res = await get(Uri.parse(imageUrlStrTest));
+    if (res.statusCode != 200) {
+      imageUrlStr = "http://mizancloud.com/mizan-assets/default/";
+      sp.setString("defaultImageUrl", imageUrlStr);
+    }
+    return imageUrlStr;
   }
 
   @override
@@ -189,10 +196,6 @@ class _MainPageState extends State<MainPage> {
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  Text(
-                                    Utils.connectionName,
-                                    style: TextStyle(fontSize: 16),
-                                  )
                                 ],
                               );
                             }))),

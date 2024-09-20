@@ -22,6 +22,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
 
   @override
@@ -29,8 +30,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.blue, backgroundColor: Colors.grey[50]),
+          appBarTheme: AppBarTheme(
+              color: Colors.blue,
+              shadowColor: Colors.grey,
+              elevation: 5,
+              foregroundColor: Colors.white),
+          inputDecorationTheme: InputDecorationTheme(
+              filled: true, outlineBorder: BorderSide(color: Colors.white10))),
       home: const MainPage(),
     );
   }
@@ -67,20 +76,50 @@ class _MainPageState extends State<MainPage> {
     );
     var jsonData = jsonDecode(response.body);
     log(jsonData.toString());
+    await _saveLoginInfo(jsonData);
     Navigator.pop(context);
     return jsonData;
+  }
+
+  Future<dynamic> _offlineLogin(Map<String, dynamic> postBody) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String offlineLoginData = sp.getString("loginInfo") ?? "";
+    Map<String, dynamic> data = jsonDecode(offlineLoginData);
+    if (offlineLoginData.isNotEmpty) {
+      String userName = postBody["username"];
+      String password = postBody["password"];
+      String offlinePassword = data["password"];
+      String offlineUserName = data["data"]["username"];
+
+      if (userName == offlineUserName && password == offlinePassword) {
+        return data;
+      } else {
+        return {"status": 1, "message": "User atau password salah"};
+      }
+    } else {
+      Utils.showMessage("Data offline tidak ada", context);
+    }
+  }
+
+  _saveLoginInfo(dynamic jsonData) async {
+    jsonData["password"] = passwordCtrl.text;
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    String jsonDataString = jsonEncode(jsonData);
+    sp.setString("loginInfo", jsonDataString);
+    sp.reload();
   }
 
   @override
   void initState() {
     _setConnection();
+    _initDatabaseTable();
     super.initState();
   }
 
-  _initDatabaseTable() {
+  _initDatabaseTable() async {
     DatabaseHelper db = DatabaseHelper();
-    db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
-        "id int PRIMARY KEY AUTOINCREMENT," +
+    /*await db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
+        "id integer PRIMARY KEY AUTOINCREMENT," +
         "default_company_code VARCHAR(200)," +
         "default_connection_name VARCHAR(250)," +
         "default_connection_url VARCHAR(250)," +
@@ -90,7 +129,15 @@ class _MainPageState extends State<MainPage> {
         "id_user_login VARCHAR(200)," +
         "nama_user_login VARCHAR(200)," +
         "token_login TEXT," +
-        ")");
+        ")");*/
+
+    await db.execQuery("CREATE TABLE IF NOT EXISTS penjualan_temp(" +
+        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "tanggal DATE," +
+        "data TEXT," +
+        "date_created DATETIME)");
+
+    await db.execQuery("CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
   }
 
   _setConnection() async {
@@ -150,7 +197,9 @@ class _MainPageState extends State<MainPage> {
                 alignment: Alignment.center,
                 child: Text("LOGIN",
                     style: TextStyle(
-                        color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold)))),
+                        color: Colors.white,
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold)))),
         body: SingleChildScrollView(
           child: Container(
             child: Column(
@@ -161,23 +210,26 @@ class _MainPageState extends State<MainPage> {
                         padding: EdgeInsets.only(top: 15),
                         child: FutureBuilder<String>(
                             future: imageUrl(),
-                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                            builder: (BuildContext context,
+                                AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
                                   InkWell(
                                     onTap: () async {
                                       imageClickCount = imageClickCount + 1;
                                       if (imageClickCount == 3) {
-                                        await Navigator.push(context, MaterialPageRoute(
-                                          builder: (context) {
-                                            return ListModalBarang(
-                                              isLocal: true,
-                                            );
-                                          },
-                                        ));
-                                        imageClickCount = 0;
-                                      } else if (imageClickCount == 4) {
-                                        await PrinterUtils().printTestDevice();
+                                        if (Utils.isOffline == false) {
+                                          Utils.isOffline = true;
+                                          Utils.showMessage(
+                                              "Anda Menggunakan mode offline",
+                                              context);
+                                        } else {
+                                          Utils.isOffline = false;
+                                          Utils.showMessage(
+                                              "Anda Menggunakan mode online",
+                                              context);
+                                        }
+
                                         imageClickCount = 0;
                                       }
                                     },
@@ -185,7 +237,8 @@ class _MainPageState extends State<MainPage> {
                                       Utils.imageUrl + "logo.png",
                                       width: 170,
                                       height: 170,
-                                      errorBuilder: (context, error, stackTrace) {
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
                                         return Container(
                                           height: 170,
                                           width: 170,
@@ -227,23 +280,33 @@ class _MainPageState extends State<MainPage> {
                                 "password": passwordCtrl.text
                               };
 
-                              dynamic result = await _postLogin(map);
+                              late dynamic result;
+
+                              if (Utils.isOffline) {
+                                result = await _offlineLogin(map);
+                              } else {
+                                result = await _postLogin(map);
+                              }
+
                               if (result != null) {
                                 int status = result["status"];
                                 if (status == 1) {
                                   Utils.showMessage(result["message"], context);
                                 } else {
                                   dynamic data = result["data"];
-                                  SharedPreferences sp = await SharedPreferences.getInstance();
+                                  SharedPreferences sp =
+                                      await SharedPreferences.getInstance();
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
-                                  sp.setString("hakakses", jsonEncode(data["hakakses"]));
+                                  sp.setString(
+                                      "hakakses", jsonEncode(data["hakakses"]));
                                   Utils.idUser = data["iduser"];
                                   Utils.token = data["token"];
                                   Utils.namaUser = data["username"];
                                   Utils.hakAkses = data["hakakses"];
-                                  Navigator.pushReplacement(context, MaterialPageRoute(
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();
                                     },

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart' as cs;
 import 'package:flutter/material.dart';
 import 'package:mizanmobile/activity/barang/list_barang.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang.dart';
@@ -344,7 +344,7 @@ class _HomeActivityState extends State<HomeActivity> {
               borderRadius: BorderRadius.vertical(
             bottom: Radius.elliptical(50, 20),
           )),
-          toolbarHeight: 90,
+          toolbarHeight: 120,
           flexibleSpace: Container(
             margin: EdgeInsets.only(top: 20),
             padding: EdgeInsets.all(20),
@@ -454,8 +454,8 @@ class _HomeActivityState extends State<HomeActivity> {
               ),
               padding: EdgeInsets.all(5),
             ),
-            CarouselSlider(
-              options: CarouselOptions(aspectRatio: 2.5, viewportFraction: 0.9),
+            cs.CarouselSlider(
+              options: cs.CarouselOptions(aspectRatio: 2.5, viewportFraction: 0.9),
               items: [
                 Center(
                   child: Card(

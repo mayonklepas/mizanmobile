@@ -15,6 +15,7 @@ import '../utility/list_modal_form.dart';
 
 class InputPenjualan extends StatefulWidget {
   final String idTransaksi;
+
   const InputPenjualan({Key? key, this.idTransaksi = ""}) : super(key: key);
 
   @override
@@ -66,6 +67,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
   bool isMultiPayment = false;
   Map<String, double> multiPaymentSendData = {};
   List<DropdownMenuEntry<dynamic>> itemList = [];
+
   Future<dynamic> getDataDetailBarang(String idBarang) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
@@ -80,31 +82,60 @@ class _InputPenjualanState extends State<InputPenjualan> {
   }
 
   getPaymentMethod() async {
-    String urlString = "${Utils.mainUrl}penjualan/daftarpembayaran";
-    Uri url = Uri.parse(urlString);
-    Response response = await get(url, headers: Utils.setHeader());
-    String body = response.body;
-    var jsonData = jsonDecode(body)["data"];
-    dataPaymentMethod = jsonData["itempembayaran"];
+    DatabaseHelper db = DatabaseHelper();
+    List<dynamic> paymentLocalData = await db.readDatabase("SELECT * FROM master_data_temp WHERE category='paymentMethod'");
+
+    if(Utils.isOffline){
+      String dataStr = paymentLocalData[0]["data"];
+      dynamic data = jsonDecode(dataStr);
+      dataPaymentMethod = data["itempembayaran"];
+    }else {
+      String urlString = "${Utils.mainUrl}penjualan/daftarpembayaran";
+      Uri url = Uri.parse(urlString);
+      Response response = await get(url, headers: Utils.setHeader());
+      String body = response.body;
+      var jsonData = jsonDecode(body)["data"];
+      if (paymentLocalData.length == 0) {
+        await db.writeDatabase(
+            "INSERT INTO master_data_temp(category,data) VALUES('paymentMethod',?)",
+            params: [jsonEncode(jsonData)]);
+      } else {
+        await db.writeDatabase(
+            "UPDATE master_data_temp SET data=? WHERE category='paymentMethod'",
+            params: [jsonEncode(jsonData)]);
+      }
+      dataPaymentMethod = jsonData["itempembayaran"];
+    }
+
+
     for (var d in dataPaymentMethod) {
       itemList.add(DropdownMenuEntry(value: d["NAMA"], label: d["NAMA"]));
       multiPaymentSendData[d["NAMA"]] = 0;
     }
+
   }
 
   Future<dynamic> postPenjualan(Map<String, Object> postBody, urlPath) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}penjualan/$urlPath";
     Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
+    Response response =
+        await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
     return jsonData;
   }
 
+  Future<int> savePenjualanLocal(Map<String, Object> postBody) async {
+    String query = "INSERT INTO penjualan_temp(tanggal,data,date_created) VALUES(?,?,?) ";
+    int resultExec = await DatabaseHelper().writeDatabase(query, params: [tanggalCtrl.text,jsonEncode(postBody),Utils.currentDateString()]);
+    return resultExec;
+  }
+
   Future getDetailPenjualanDetail() async {
     //Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    String urlString = "${Utils.mainUrl}penjualan/rincian?noindex=${widget.idTransaksi}";
+    String urlString =
+        "${Utils.mainUrl}penjualan/rincian?noindex=${widget.idTransaksi}";
     Uri url = Uri.parse(urlString);
     Response response = await get(url, headers: Utils.setHeader());
     String body = response.body;
@@ -232,7 +263,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
       setState(() {
         dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
         dataListShow[index]["QTY"] = qty;
-        dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
+        dataListShow[index]["QTYSATUANPENGALI"] =
+            hargaUpdate["QTYSATUANPENGALI"];
         dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
         totalPenjualan = setTotalJual();
       });
@@ -249,8 +281,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           controller: paymentTypeCtrl,
           onSelected: (value) {
             String name = value.toString();
-            dynamic result =
-                dataPaymentMethod.firstWhere((element) => element["NAMA"].toString() == name);
+            dynamic result = dataPaymentMethod
+                .firstWhere((element) => element["NAMA"].toString() == name);
             double chargePercent = result["CHARGE"];
             jumlahUangCtrl.text = "0";
             double chargeValue = (totalPenjualan * chargePercent) / 100;
@@ -326,7 +358,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
         for (var d in multiHarga) {
           double qtyDari = d["DARI"];
           double qtyHingga = d["HINGGA"];
-          if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolonganPelanggan) {
+          if (d["IDSATUAN"] == idSatuan &&
+              d["IDGOLONGAN"] == idGolonganPelanggan) {
             if (qty >= qtyDari && qty <= qtyHingga) {
               tempResult = d;
             }
@@ -337,7 +370,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           for (var d in multiHarga) {
             double qtyDari = d["DARI"];
             double qtyHingga = d["HINGGA"];
-            if (d["IDSATUAN"] == idSatuan && d["IDGOLONGAN"] == idGolongan2Pelanggan) {
+            if (d["IDSATUAN"] == idSatuan &&
+                d["IDGOLONGAN"] == idGolongan2Pelanggan) {
               if (qty >= qtyDari && qty <= qtyHingga) {
                 tempResult = d;
               }
@@ -479,8 +513,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
               "jumlahUang": jumlahBayarEdit
             };
 
-            Map<String, String> printResult =
-                await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
+            Map<String, String> printResult = await PrinterUtils()
+                .printReceipt(dataListPrint, additionalInfo);
             if (printResult["status"] == "error") {
               log(printResult["message"].toString());
               //Utils.showMessage(printResult["message"]!, context);
@@ -545,9 +579,11 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
     if (!isMultiPayment) {
       if (isTunai == 1) {
-        multiPaymentSendData[paymentTypeCtrl.text] = Utils.strToDouble(jumlahUangCtrl.text);
+        multiPaymentSendData[paymentTypeCtrl.text] =
+            Utils.strToDouble(jumlahUangCtrl.text);
       } else {
-        multiPaymentSendData[paymentTypeCtrl.text] = Utils.strToDouble(uangMukaCtrl.text);
+        multiPaymentSendData[paymentTypeCtrl.text] =
+            Utils.strToDouble(uangMukaCtrl.text);
         headerMap["JUMLAHBAYAR"] = Utils.strToDouble(uangMukaCtrl.text);
       }
     }
@@ -557,7 +593,39 @@ class _InputPenjualanState extends State<InputPenjualan> {
       "detail": detailList,
       "multipayment": multiPaymentSendData
     };
-    log(jsonEncode(rootMap));
+
+    if(Utils.isOffline){
+      int resultSave = await savePenjualanLocal(rootMap);
+      Navigator.pop(context);
+
+      if(resultSave > 0){
+        setState(() {
+          dataList.clear();
+          dataListShow.clear();
+          totalPenjualan = setTotalJual();
+          isKredit = false;
+          topCtrl.text = "";
+          idTop = "";
+          uangMukaCtrl.text = "";
+          keterangan = "Penjualan mobile";
+          keteranganCtrl.text = keterangan;
+          idPelanggan = Utils.idPelanggan;
+          kodePelanggan = Utils.kodePelanggan;
+          namaPelanggan = Utils.namaPelanggan;
+          totalBiaya = 0;
+          for (var d in dataPaymentMethod) {
+            multiPaymentSendData[d["NAMA"]] = 0;
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Utils.labelSetter("Transaksi berhasil",
+                color: Colors.green, size: 20)));
+      }else{
+        Utils.showMessage("gagal menyimpan ke local, periksa apakah memory anda masih tersisa", context);
+      }
+      return;
+    }
+
     var result;
     if (widget.idTransaksi == "") {
       result = await postPenjualan(rootMap, "insert");
@@ -592,7 +660,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
       detailBarang["STOK"] = stoktambahan;
       String detailBarangStr = jsonEncode(detailBarang);
 
-      await dbh.writeDatabase("UPDATE barang_temp SET detail_barang=? WHERE idbarang=?",
+      await dbh.writeDatabase(
+          "UPDATE barang_temp SET detail_barang=? WHERE idbarang=?",
           params: [detailBarangStr, idBarang]);
 
       List<dynamic> lsLocalUpdateEnd = await dbh.readDatabase(
@@ -606,8 +675,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
     if (isTunai == 1) {
       Navigator.pop(context);
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Utils.labelSetter("Transaksi berhasil", color: Colors.green, size: 20)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Utils.labelSetter("Transaksi berhasil",
+            color: Colors.green, size: 20)));
     List<dynamic> dataListPrint = dataListShow;
     dynamic additionalInfo = {
       "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
@@ -661,136 +731,92 @@ class _InputPenjualanState extends State<InputPenjualan> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, StateSetter setStateIn) {
             return SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Container(
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding:
+                    EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Utils.labelSetter("Pembayaran", size: 25),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Checkbox(
-                              value: isMultiPayment,
-                              onChanged: (bool? value) {
-                                setStateIn(() {
-                                  isMultiPayment = value!;
-                                });
-                              }),
-                          Text("Multi Payment"),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Padding(padding: EdgeInsets.all(7)),
-                  multiPaymentView(setStateIn),
-                  Padding(padding: EdgeInsets.all(7)),
-                  Utils.labelSetter("TOTAL BELANJA", size: 15),
-                  Container(
-                    width: double.maxFinite,
-                    padding: EdgeInsets.all(5),
-                    child: Utils.labelSetter(Utils.formatNumber(totalPenjualan),
-                        size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
-                  ),
-                  Utils.labelSetter(kembalianStatus, size: 15),
-                  Container(
-                    width: double.maxFinite,
-                    padding: EdgeInsets.all(5),
-                    child: Utils.labelSetter(Utils.formatNumber(kembalian),
-                        size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
-                  ),
-                  Utils.widgetSetter(() {
-                    if (!isMultiPayment) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Utils.labelSetter("BIAYA LAIN", size: 15),
-                          Container(
-                            width: double.maxFinite,
-                            padding: EdgeInsets.all(5),
-                            child: Utils.labelSetter(Utils.formatNumber(totalBiaya),
-                                size: 30, bold: true, align: TextAlign.right, top: 0, bottom: 0),
+                          Utils.labelSetter("Pembayaran", size: 25),
+                          Row(
+                            children: [
+                              Checkbox(
+                                  value: isMultiPayment,
+                                  onChanged: (bool? value) {
+                                    setStateIn(() {
+                                      isMultiPayment = value!;
+                                    });
+                                  }),
+                              Text("Multi Payment"),
+                            ],
                           ),
                         ],
-                      );
-                    }
-                    return Container();
-                  }),
-                  Utils.labelSetter("JUMLAH  UANG", size: 15),
-                  Row(children: [
-                    Expanded(
-                      flex: 5,
-                      child: TextField(
-                        controller: jumlahUangCtrl,
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(fontSize: 25),
-                        onChanged: (value) {
-                          setStateIn(() {
-                            kembalian = calculateKembalian(value);
-                            if (kembalian < 0) {
-                              kembalianStatus = "KURANG";
-                              kembalian = -kembalian;
-                            } else {
-                              kembalianStatus = "KEMBALIAN";
-                            }
-                          });
-                        },
                       ),
-                    ),
-                    Expanded(
-                      child: IconButton(
-                          onPressed: () {
-                            jumlahUangCtrl.text = "0";
-                            double jumlahUang = jumlahUangSetter("0");
-                            setStateIn(() {
-                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                              kembalian = calculateKembalian(jumlahUang.toString());
-                              if (kembalian < 0) {
-                                kembalianStatus = "KURANG";
-                                kembalian = -kembalian;
-                              } else {
-                                kembalianStatus = "KEMBALIAN";
-                              }
-                            });
-                          },
-                          icon: Icon(Icons.close)),
-                    )
-                  ]),
-                  SizedBox(height: 10),
-                  Utils.widgetSetter(() {
-                    if (isMultiPayment) {
-                      return Wrap();
-                    }
-                    List<String> listPecahan = ["5000", "20000", "50000"];
-                    List<Widget> lsButton = [];
-                    lsButton.add(
-                      OutlinedButton(
-                          onPressed: () {
-                            jumlahUangCtrl.text = "0";
-                            double jumlahUang = jumlahUangSetter(totalPenjualan.toString());
-                            setStateIn(() {
-                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                              kembalian = calculateKembalian(jumlahUang.toString());
-                              if (kembalian < 0) {
-                                kembalianStatus = "KURANG";
-                                kembalian = -kembalian;
-                              } else {
-                                kembalianStatus = "KEMBALIAN";
-                              }
-                            });
-                          },
-                          child: Utils.labelSetter("UANG PAS", size: 20)),
-                    );
-                    for (String pecahan in listPecahan) {
-                      lsButton.add(
-                        OutlinedButton(
-                            onPressed: () {
-                              double jumlahUang = jumlahUangSetter(pecahan);
+                      Padding(padding: EdgeInsets.all(7)),
+                      multiPaymentView(setStateIn),
+                      Padding(padding: EdgeInsets.all(7)),
+                      Utils.labelSetter("TOTAL BELANJA", size: 15),
+                      Container(
+                        width: double.maxFinite,
+                        padding: EdgeInsets.all(5),
+                        child: Utils.labelSetter(
+                            Utils.formatNumber(totalPenjualan),
+                            size: 30,
+                            bold: true,
+                            align: TextAlign.right,
+                            top: 0,
+                            bottom: 0),
+                      ),
+                      Utils.labelSetter(kembalianStatus, size: 15),
+                      Container(
+                        width: double.maxFinite,
+                        padding: EdgeInsets.all(5),
+                        child: Utils.labelSetter(Utils.formatNumber(kembalian),
+                            size: 30,
+                            bold: true,
+                            align: TextAlign.right,
+                            top: 0,
+                            bottom: 0),
+                      ),
+                      Utils.widgetSetter(() {
+                        if (!isMultiPayment) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Utils.labelSetter("BIAYA LAIN", size: 15),
+                              Container(
+                                width: double.maxFinite,
+                                padding: EdgeInsets.all(5),
+                                child: Utils.labelSetter(
+                                    Utils.formatNumber(totalBiaya),
+                                    size: 30,
+                                    bold: true,
+                                    align: TextAlign.right,
+                                    top: 0,
+                                    bottom: 0),
+                              ),
+                            ],
+                          );
+                        }
+                        return Container();
+                      }),
+                      Utils.labelSetter("JUMLAH  UANG", size: 15),
+                      Row(children: [
+                        Expanded(
+                          flex: 5,
+                          child: TextField(
+                            controller: jumlahUangCtrl,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.right,
+                            style: TextStyle(fontSize: 25),
+                            onChanged: (value) {
                               setStateIn(() {
-                                jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                                kembalian = calculateKembalian(jumlahUang.toString());
+                                kembalian = calculateKembalian(value);
                                 if (kembalian < 0) {
                                   kembalianStatus = "KURANG";
                                   kembalian = -kembalian;
@@ -799,31 +825,102 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 }
                               });
                             },
-                            child: Utils.labelSetter(Utils.formatNumber(double.parse(pecahan)),
-                                size: 20)),
-                      );
-                    }
-                    ;
-                    return Wrap(
-                      spacing: 10,
-                      children: lsButton,
-                    );
-                  }),
-                  SizedBox(
-                    width: double.maxFinite,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          if (kembalianStatus == "KURANG") {
-                            Utils.showMessage(
-                                "Pembayaran tidak cukup, transaksi tidak bisa diproses", context);
-                            return;
-                          }
+                          ),
+                        ),
+                        Expanded(
+                          child: IconButton(
+                              onPressed: () {
+                                jumlahUangCtrl.text = "0";
+                                double jumlahUang = jumlahUangSetter("0");
+                                setStateIn(() {
+                                  jumlahUangCtrl.text =
+                                      jumlahUang.toStringAsFixed(0);
+                                  kembalian =
+                                      calculateKembalian(jumlahUang.toString());
+                                  if (kembalian < 0) {
+                                    kembalianStatus = "KURANG";
+                                    kembalian = -kembalian;
+                                  } else {
+                                    kembalianStatus = "KEMBALIAN";
+                                  }
+                                });
+                              },
+                              icon: Icon(Icons.close)),
+                        )
+                      ]),
+                      SizedBox(height: 10),
+                      Utils.widgetSetter(() {
+                        if (isMultiPayment) {
+                          return Wrap();
+                        }
+                        List<String> listPecahan = ["5000", "20000", "50000"];
+                        List<Widget> lsButton = [];
+                        lsButton.add(
+                          OutlinedButton(
+                              onPressed: () {
+                                jumlahUangCtrl.text = "0";
+                                double jumlahUang =
+                                    jumlahUangSetter(totalPenjualan.toString());
+                                setStateIn(() {
+                                  jumlahUangCtrl.text =
+                                      jumlahUang.toStringAsFixed(0);
+                                  kembalian =
+                                      calculateKembalian(jumlahUang.toString());
+                                  if (kembalian < 0) {
+                                    kembalianStatus = "KURANG";
+                                    kembalian = -kembalian;
+                                  } else {
+                                    kembalianStatus = "KEMBALIAN";
+                                  }
+                                });
+                              },
+                              child: Utils.labelSetter("UANG PAS", size: 20)),
+                        );
+                        for (String pecahan in listPecahan) {
+                          lsButton.add(
+                            OutlinedButton(
+                                onPressed: () {
+                                  double jumlahUang = jumlahUangSetter(pecahan);
+                                  setStateIn(() {
+                                    jumlahUangCtrl.text =
+                                        jumlahUang.toStringAsFixed(0);
+                                    kembalian = calculateKembalian(
+                                        jumlahUang.toString());
+                                    if (kembalian < 0) {
+                                      kembalianStatus = "KURANG";
+                                      kembalian = -kembalian;
+                                    } else {
+                                      kembalianStatus = "KEMBALIAN";
+                                    }
+                                  });
+                                },
+                                child: Utils.labelSetter(
+                                    Utils.formatNumber(double.parse(pecahan)),
+                                    size: 20)),
+                          );
+                        }
+                        ;
+                        return Wrap(
+                          spacing: 10,
+                          children: lsButton,
+                        );
+                      }),
+                      SizedBox(
+                        width: double.maxFinite,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              if (kembalianStatus == "KURANG") {
+                                Utils.showMessage(
+                                    "Pembayaran tidak cukup, transaksi tidak bisa diproses",
+                                    context);
+                                return;
+                              }
 
-                          await sendPayment(isTunai: 1);
-                        },
-                        child: Text("SIMPAN")),
-                  )
-                ]),
+                              await sendPayment(isTunai: 1);
+                            },
+                            child: Text("SIMPAN")),
+                      )
+                    ]),
               ),
             );
           });
@@ -843,9 +940,11 @@ class _InputPenjualanState extends State<InputPenjualan> {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -859,7 +958,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         flex: 5,
                         child: TextField(
                           controller: jumlahCtrl,
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          keyboardType:
+                              TextInputType.numberWithOptions(decimal: true),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -871,7 +971,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                               if (jumlahText == "") {
                                 jumlahCtrl.text = "1";
                               } else {
-                                int jumlah = int.parse(Utils.decimalisasi(jumlahText));
+                                int jumlah =
+                                    int.parse(Utils.decimalisasi(jumlahText));
                                 jumlah = jumlah + 1;
                                 jumlahCtrl.text = jumlah.toString();
                               }
@@ -887,7 +988,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 if (jumlahText == "") {
                                   jumlahCtrl.text = "1";
                                 } else {
-                                  int jumlah = int.parse(Utils.decimalisasi(jumlahText));
+                                  int jumlah =
+                                      int.parse(Utils.decimalisasi(jumlahText));
                                   if (jumlah > 1) {
                                     jumlah = jumlah - 1;
                                   }
@@ -909,7 +1011,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            dynamic popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(
                                   type: "satuanbarang",
@@ -939,19 +1042,24 @@ class _InputPenjualanState extends State<InputPenjualan> {
                           flex: 3,
                           child: ElevatedButton(
                               onPressed: () {
-                                double qty = double.parse(Utils.decimalisasi(jumlahCtrl.text));
-                                dynamic hargaUpdate = getHargaJual(dataList[index], idSatuan, qty);
+                                double qty = double.parse(
+                                    Utils.decimalisasi(jumlahCtrl.text));
+                                dynamic hargaUpdate = getHargaJual(
+                                    dataList[index], idSatuan, qty);
                                 setState(() {
                                   dataListShow[index]["IDSATUANPENGALI"] =
                                       hargaUpdate["IDSATUANPENGALI"];
                                   dataListShow[index]["QTY"] = qty;
                                   dataListShow[index]["QTYSATUANPENGALI"] =
                                       hargaUpdate["QTYSATUANPENGALI"];
-                                  dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
+                                  dataListShow[index]["HARGA"] =
+                                      hargaUpdate["HARGA"];
                                   dataListShow[index]["IDSATUAN"] = idSatuan;
-                                  dataListShow[index]["SATUAN"] = satuanCtrl.text;
+                                  dataListShow[index]["SATUAN"] =
+                                      satuanCtrl.text;
                                   dataListShow[index]["DISKONNOMINAL"] =
-                                      double.parse(Utils.decimalisasi(diskonCtrl.text));
+                                      double.parse(
+                                          Utils.decimalisasi(diskonCtrl.text));
 
                                   totalPenjualan = setTotalJual();
                                   Navigator.pop(context);
@@ -964,10 +1072,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       Expanded(
                           flex: 1,
                           child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.redAccent),
                               onPressed: () async {
                                 bool isDelete = await Utils.showConfirmMessage(
-                                    context, "Yakin ingin menghapus data ini ?");
+                                    context,
+                                    "Yakin ingin menghapus data ini ?");
                                 if (isDelete) {
                                   Navigator.pop(context);
                                   setState(() {
@@ -999,9 +1109,11 @@ class _InputPenjualanState extends State<InputPenjualan> {
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              padding:
+                  EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1018,7 +1130,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                           )),
                       Expanded(
                         child: IconButton(
-                          onPressed: () => Utils.setTextDateRange(context, tanggalCtrl, setState),
+                          onPressed: () => Utils.setTextDateRange(
+                              context, tanggalCtrl, setState),
                           icon: Icon(Icons.date_range),
                         ),
                       ),
@@ -1041,7 +1154,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       Expanded(
                         child: IconButton(
                           onPressed: () async {
-                            dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                            dynamic popUpResult =
+                                await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return ListModalForm(
                                   type: "gudang",
@@ -1104,7 +1218,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           elevation: 0,
           title: Utils.widgetSetter(() {
             if (Utils.isPdtMode == "0") {
-              return Utils.appBarSearchStatic(() => selectBarang(), focus: false, readOnly: true);
+              return Utils.appBarSearchStatic(() => selectBarang(),
+                  focus: false, readOnly: true);
             }
 
             return Container(
@@ -1119,19 +1234,22 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     controller: searchBarctrl,
                     onSubmitted: (keyword) async {
                       List<dynamic> listDetailBarang = [];
-                      List<dynamic> listDbBarang = await DatabaseHelper().readDatabase(
-                          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode =?",
-                          params: [keyword]);
+                      List<dynamic> listDbBarang = await DatabaseHelper()
+                          .readDatabase(
+                              "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode =?",
+                              params: [keyword]);
                       listDetailBarang.addAll(listDbBarang);
 
                       if (listDetailBarang.isEmpty) {
-                        List<dynamic> listDetailBarangFilterLike = await DatabaseHelper().readDatabase(
-                            "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE multi_satuan LIKE ?",
-                            params: ['%$keyword%']);
+                        List<dynamic> listDetailBarangFilterLike =
+                            await DatabaseHelper().readDatabase(
+                                "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE multi_satuan LIKE ?",
+                                params: ['%$keyword%']);
 
                         for (var d in listDetailBarangFilterLike) {
                           String multisatuanString = d["multi_satuan"];
-                          List<dynamic> multiSatuan = jsonDecode(multisatuanString);
+                          List<dynamic> multiSatuan =
+                              jsonDecode(multisatuanString);
                           for (var din in multiSatuan) {
                             String barcode = din["BARCODE"];
                             if (barcode.contains(keyword)) {
@@ -1153,7 +1271,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       }
 
                       if (listDetailBarang.length > 1) {
-                        dynamic popUpResult = await Navigator.push(context, MaterialPageRoute(
+                        dynamic popUpResult =
+                            await Navigator.push(context, MaterialPageRoute(
                           builder: (context) {
                             return ListModalBarang(
                               isLocal: true,
@@ -1181,29 +1300,34 @@ class _InputPenjualanState extends State<InputPenjualan> {
               if (Utils.isPdtMode == "0") {
                 return IconButton(
                     onPressed: () async {
-                      String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-                          "#ff6666", "Cancel", true, ScanMode.BARCODE);
+                      String barcodeScanRes =
+                          await FlutterBarcodeScanner.scanBarcode(
+                              "#ff6666", "Cancel", true, ScanMode.BARCODE);
 
                       if (barcodeScanRes.isEmpty) {
-                        Utils.showMessage("Data tidak ditemukan, coba ulangi", context);
+                        Utils.showMessage(
+                            "Data tidak ditemukan, coba ulangi", context);
                         return;
                       }
                       List<dynamic> listDetailBarang = [];
 
-                      List<dynamic> listDetailBarangValue = await DatabaseHelper().readDatabase(
-                          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode=?",
-                          params: [barcodeScanRes]);
+                      List<dynamic> listDetailBarangValue =
+                          await DatabaseHelper().readDatabase(
+                              "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE kode=?",
+                              params: [barcodeScanRes]);
 
                       listDetailBarang.addAll(listDetailBarangValue);
 
                       if (listDetailBarang.isEmpty) {
-                        List<dynamic> listDetailBarangFilterLike = await DatabaseHelper().readDatabase(
-                            "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE multi_satuan LIKE ?",
-                            params: ['%$barcodeScanRes%']);
+                        List<dynamic> listDetailBarangFilterLike =
+                            await DatabaseHelper().readDatabase(
+                                "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE multi_satuan LIKE ?",
+                                params: ['%$barcodeScanRes%']);
 
                         for (var d in listDetailBarangFilterLike) {
                           String multisatuanString = d["multi_satuan"];
-                          List<dynamic> multiSatuan = jsonDecode(multisatuanString);
+                          List<dynamic> multiSatuan =
+                              jsonDecode(multisatuanString);
                           for (var din in multiSatuan) {
                             String barcode = din["BARCODE"];
                             if (barcode.contains(barcodeScanRes)) {
@@ -1223,7 +1347,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     },
                     icon: Icon(Icons.qr_code_scanner_rounded));
               }
-              return IconButton(onPressed: () => selectBarang(), icon: Icon(Icons.list_alt_sharp));
+              return IconButton(
+                  onPressed: () => selectBarang(),
+                  icon: Icon(Icons.list_alt_sharp));
             }),
             IconButton(
                 onPressed: () async {
@@ -1262,8 +1388,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             child: IconButton(
                                 alignment: Alignment.centerRight,
                                 onPressed: () async {
-                                  dynamic popUpResult =
-                                      await Navigator.push(context, MaterialPageRoute(
+                                  dynamic popUpResult = await Navigator.push(
+                                      context, MaterialPageRoute(
                                     builder: (context) {
                                       return ListModalForm(
                                         type: "pelanggan",
@@ -1278,8 +1404,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                     idPelanggan = popUpResult["NOINDEX"];
                                     kodePelanggan = popUpResult["KODE"];
                                     namaPelanggan = popUpResult["NAMA"];
-                                    idGolonganPelanggan = popUpResult["IDGOLONGAN"];
-                                    idGolongan2Pelanggan = popUpResult["IDGOLONGAN2"];
+                                    idGolonganPelanggan =
+                                        popUpResult["IDGOLONGAN"];
+                                    idGolongan2Pelanggan =
+                                        popUpResult["IDGOLONGAN2"];
                                     recalculateListPenjualan();
                                   });
                                 },
@@ -1320,16 +1448,21 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 5),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Utils.labelSetter(nama, bold: true),
                                           Utils.labelSetter(kode),
                                           Utils.labelSetter(harga, bold: true),
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Utils.labelSetter("Disc :  $diskon", bold: false),
-                                              Utils.labelSetter("Qty : $qty $satuan "),
+                                              Utils.labelSetter(
+                                                  "Disc :  $diskon",
+                                                  bold: false),
+                                              Utils.labelSetter(
+                                                  "Qty : $qty $satuan "),
                                             ],
                                           )
                                         ],
@@ -1395,7 +1528,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                       child: IconButton(
                                         onPressed: () async {
                                           dynamic popUpResult =
-                                              await Navigator.push(context, MaterialPageRoute(
+                                              await Navigator.push(context,
+                                                  MaterialPageRoute(
                                             builder: (context) {
                                               return ListModalForm(
                                                 type: "top",
@@ -1418,8 +1552,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 Container(
                                   padding: EdgeInsets.only(top: 10, bottom: 10),
                                   child: DropdownMenu<dynamic>(
-                                    width: MediaQuery.of(context).size.width - 40,
-                                    initialSelection: dataPaymentMethod[0]["NAMA"],
+                                    width:
+                                        MediaQuery.of(context).size.width - 40,
+                                    initialSelection: dataPaymentMethod[0]
+                                        ["NAMA"],
                                     dropdownMenuEntries: itemList,
                                     controller: paymentTypeCtrl,
                                   ),
@@ -1433,8 +1569,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
                         return Container();
                       }),
                       Container(
-                        padding: EdgeInsets.only(left: 15, right: 15, bottom: 15, top: 5),
-                        child: Utils.labelValueSetter("Total", Utils.formatNumber(totalPenjualan),
+                        padding: EdgeInsets.only(
+                            left: 15, right: 15, bottom: 15, top: 5),
+                        child: Utils.labelValueSetter(
+                            "Total", Utils.formatNumber(totalPenjualan),
                             sizeLabel: 18, sizeValue: 18, boldValue: true),
                       ),
                       Container(
@@ -1444,7 +1582,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
                           onPressed: () async {
                             if (isKredit) {
                               if (idTop == "") {
-                                Utils.showMessage("Anda belum memilih tempo pembayaran", context);
+                                Utils.showMessage(
+                                    "Anda belum memilih tempo pembayaran",
+                                    context);
                                 return;
                               }
 
@@ -1464,8 +1604,10 @@ class _InputPenjualanState extends State<InputPenjualan> {
                             jumlahUangCtrl.text = "0";
                             double jumlahUang = jumlahUangSetter("0");
                             setState(() {
-                              jumlahUangCtrl.text = jumlahUang.toStringAsFixed(0);
-                              kembalian = calculateKembalian(jumlahUang.toString());
+                              jumlahUangCtrl.text =
+                                  jumlahUang.toStringAsFixed(0);
+                              kembalian =
+                                  calculateKembalian(jumlahUang.toString());
                               if (kembalian < 0) {
                                 kembalianStatus = "KURANG";
                                 kembalian = -kembalian;
@@ -1476,7 +1618,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
                             await modalBayar();
                           },
-                          child: Utils.labelSetter("BAYAR", color: Colors.white),
+                          child:
+                              Utils.labelSetter("BAYAR", color: Colors.white),
                         ),
                       ),
                     ],
@@ -1486,7 +1629,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
         ));
   }
 
-  /*Future<dynamic> _getBarang(String keyword) async {
+/*Future<dynamic> _getBarang(String keyword) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString =
         "${Utils.mainUrl}barang/caribarangjual?idgudang=${Utils.idGudang}&cari=" + keyword;

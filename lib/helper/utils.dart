@@ -103,6 +103,9 @@ class Utils {
 
   static String syncIntervalMinutes = "1";
 
+  static bool isOffline = false;
+
+
   static Map<String, dynamic> hakAkses = {
     "mobile_dashboard": 0,
     "mobile_setupprogram": 0,

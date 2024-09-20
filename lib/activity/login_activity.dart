@@ -32,6 +32,7 @@ class _LoginState extends State<Login> {
     );
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
+
     return jsonData;
   }
 

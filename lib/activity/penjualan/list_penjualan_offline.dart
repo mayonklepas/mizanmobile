@@ -48,18 +48,17 @@ class _ListPenjualanOfflineState extends State<ListPenjualanOffline> {
     if (idPengguna == "") {
       idPengguna = Utils.idPenggunaTemp;
     }
-
-    Uri url = Uri.parse(
-        "${Utils.mainUrl}penjualan/daftar?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga");
-    if (keyword != null && keyword != "") {
-      url = Uri.parse(
-          "${Utils.mainUrl}penjualan/cari?idpengguna=$idPengguna&iddept=$idDept&tgldari=$tglDari&tglhingga=$tglHingga&cari=$keyword");
+    
+    DatabaseHelper db = DatabaseHelper();
+    List<dynamic> dataLocal= await db.readDatabase("SELECT * FROM penjualan_temp");
+    List<dynamic> dataList = [];
+    for(dynamic dataRow in dataLocal){
+      dynamic data = jsonDecode(dataRow["data"]);
+      data["NOINDEX"] = dataRow["id"];
+      dataList.add(data);
     }
-    Response response = await get(url, headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body)["data"];
-    log(jsonData.toString());
-    _dataMastePenjualan = await jsonData["header"];
-    return jsonData["detail"];
+
+    return dataList;
   }
 
   @override
@@ -149,14 +148,7 @@ class _ListPenjualanOfflineState extends State<ListPenjualanOffline> {
   }
 
   Future<dynamic> _deletePenjualan(paramnoindex) async {
-    dynamic postBody = {"noindex": paramnoindex};
-    Future.delayed(Duration.zero, () => Utils.showProgress(context));
-    String urlString = "${Utils.mainUrl}penjualan/delete";
-    Uri url = Uri.parse(urlString);
-    Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
-    var jsonData = jsonDecode(response.body);
-    Navigator.pop(context);
-    return jsonData;
+
   }
 
   Future<dynamic> showOption(noindex) {

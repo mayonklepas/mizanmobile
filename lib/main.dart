@@ -101,17 +101,21 @@ class _MainPageState extends State<MainPage> {
     sp.reload();
   }
 
+  Future _loadInit() async {
+    await _setConnection();
+  }
+
   @override
   void initState() {
-    Utils.isOffline = false;
-    _setConnection();
     super.initState();
+    _loadInit();
   }
 
   _setConnection() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
 
     if (sp.getString("listConnection") != null) {
+      Utils.setAllPref();
       return;
     }
 
@@ -121,7 +125,7 @@ class _MainPageState extends State<MainPage> {
       "nama": "default",
       "url": "http://app.mizancloud.com/api/",
       "imageUrl": "http://mizancloud.com/mizan-assets/default/",
-      "companyCode": "public"
+      "companyCode": "retail"
     });
     String jsData = jsonEncode(_lsData);
     sp.setString("listConnection", jsData);
@@ -139,7 +143,6 @@ class _MainPageState extends State<MainPage> {
 
   Future<String> imageUrl() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    Utils.setAllPref();
     String imageUrlStr = sp.getString("defaultImageUrl").toString();
     String imageUrlStrTest = imageUrlStr + "logo.png";
     Response res = await get(Uri.parse(imageUrlStrTest));
@@ -256,15 +259,16 @@ class _MainPageState extends State<MainPage> {
                                   Utils.showMessage(result["message"], context);
                                 } else {
                                   dynamic data = result["data"];
+                                  Utils.idUser = data["iduser"];
+                                  Utils.token = data["token"];
+                                  Utils.namaUser = data["username"];
+                                  Utils.hakAkses = data["hakakses"];
                                   SharedPreferences sp = await SharedPreferences.getInstance();
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
                                   sp.setString("hakakses", jsonEncode(data["hakakses"]));
-                                  Utils.idUser = data["iduser"];
-                                  Utils.token = data["token"];
-                                  Utils.namaUser = data["username"];
-                                  Utils.hakAkses = data["hakakses"];
+                                  sp.reload();
                                   Navigator.pushReplacement(context, MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();

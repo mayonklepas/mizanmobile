@@ -160,9 +160,9 @@ class _ListModalFormState extends State<ListModalForm> {
 
   @override
   void initState() {
+    super.initState();
     _dataModal = _getDataModal();
     customSearchBar = Text("Data $headerBar");
-    super.initState();
   }
 
   FutureBuilder<List<dynamic>> setListFutureBuilder() {

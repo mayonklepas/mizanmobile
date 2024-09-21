@@ -46,45 +46,45 @@ class _SetupProgramState extends State<SetupProgram> {
     SharedPreferences sp = await SharedPreferences.getInstance();
     setState(() {
       dynamic mapSetup = jsonDecode(sp.getString(Utils.connectionName).toString());
-      idDept = mapSetup["defaultIdDept"].toString();
-      deptCtrl.text = mapSetup["defaultNamaDept"].toString();
-      idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"].toString();
-      akunStokOpnameCtrl.text = mapSetup["defaultNamaAkunStokOpname"].toString();
-      idGudang = mapSetup["defaultIdGudang"].toString();
-      gudangCtrl.text = mapSetup["defaultNamaGudang"].toString();
-      idPelanggan = mapSetup["defaultIdPelanggan"].toString();
-      idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
-      idGolongan2Pelanggan = mapSetup["defaultIdGolongan2Pelanggan"].toString();
-      namaPelangganCtrl.text = mapSetup["defaultNamaPelanggan"].toString();
-      kodePelanggan = mapSetup["defaultKodePelanggan"].toString();
-      idLokasi = mapSetup["defaultIdLokasi"].toString();
-      namaLokasiCtrl.text = mapSetup["defaultNamaLokasi"].toString();
-      satuanCtrl.text = mapSetup["defaultSatuan"].toString();
-      idSatuan = mapSetup["defaultIdSatuan"].toString();
-      idKelompok = mapSetup["defaultIdKelompok"].toString();
-      namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"].toString();
-      bluetoothDeviceCtrl.text = mapSetup["defaultBluetoothDevice"].toString();
-      idBluetoothDevice = mapSetup["defaultIdBluetoothDevice"].toString();
-      isPdtModevalue = mapSetup["defaultIsPdtMode"].toString();
+      idDept = mapSetup["defaultIdDept"] ?? "";
+      deptCtrl.text = mapSetup["defaultNamaDept"] ?? "";
+      idAkunStokOpname = mapSetup["defaultIdAkunStokOpname"] ?? "";
+      akunStokOpnameCtrl.text = mapSetup["defaultNamaAkunStokOpname"] ?? "";
+      idGudang = mapSetup["defaultIdGudang"] ?? "";
+      gudangCtrl.text = mapSetup["defaultNamaGudang"] ?? "";
+      idPelanggan = mapSetup["defaultIdPelanggan"] ?? "";
+      idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"] ?? "";
+      idGolongan2Pelanggan = mapSetup["defaultIdGolongan2Pelanggan"] ?? "";
+      namaPelangganCtrl.text = mapSetup["defaultNamaPelanggan"] ?? "";
+      kodePelanggan = mapSetup["defaultKodePelanggan"] ?? "";
+      idLokasi = mapSetup["defaultIdLokasi"] ?? "";
+      namaLokasiCtrl.text = mapSetup["defaultNamaLokasi"] ?? "";
+      satuanCtrl.text = mapSetup["defaultSatuan"] ?? "";
+      idSatuan = mapSetup["defaultIdSatuan"] ?? "";
+      idKelompok = mapSetup["defaultIdKelompok"] ?? "";
+      namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"] ?? "";
+      bluetoothDeviceCtrl.text = mapSetup["defaultBluetoothDevice"] ?? "";
+      idBluetoothDevice = mapSetup["defaultIdBluetoothDevice"] ?? "";
+      isPdtModevalue = mapSetup["defaultIsPdtMode"] ?? "0";
       if (isPdtModevalue == "1") {
         isPdtMode = true;
       }
 
-      isShowStockProgramValue = mapSetup["defaultIsShowStockProgram"].toString();
+      isShowStockProgramValue = mapSetup["defaultIsShowStockProgram"] ?? "0";
       if (isShowStockProgramValue == "1") {
         isShowStockProgram = true;
       }
 
-      headerStrukCtrl.text = mapSetup["defaultHeaderStruk"].toString();
-      footerStrukCtrl.text = mapSetup["defaultFooterStruk"].toString();
+      headerStrukCtrl.text = mapSetup["defaultHeaderStruk"] ?? "";
+      footerStrukCtrl.text = mapSetup["defaultFooterStruk"] ?? "";
     });
   }
 
   @override
   void initState() {
     // TODO: implement initState
-    _loadSetupProgram();
     super.initState();
+    _loadSetupProgram();
   }
 
   @override

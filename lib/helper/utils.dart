@@ -662,7 +662,7 @@ class Utils {
     Map<String, String> header = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': 'Bearer ' + Utils.token,
+      'Authorization': 'Bearer $token',
       'company-code': Utils.companyCode
     };
     return header;
@@ -671,7 +671,7 @@ class Utils {
   static Map<String, String> setHeaderMultiPart() {
     Map<String, String> header = <String, String>{
       'Content-Type': 'multipart/form-data',
-      'Authorization': 'Bearer ' + Utils.token,
+      'Authorization': 'Bearer $token',
       'company-code': Utils.companyCode
     };
     return header;
@@ -706,7 +706,7 @@ class Utils {
     return result;
   }
 
-  static void setAllPref() async {
+  static setAllPref() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     Utils.connectionName = sp.getString("defaultConnectionName").toString();
     Utils.mainUrl = sp.getString("defaultConnection").toString();

@@ -69,7 +69,7 @@ class _HomeActivityState extends State<HomeActivity> {
     });
   }
 
-  _setupProgramChecked() {
+  _setupProgramChecked() async {
     if (Utils.idDept.isEmpty || Utils.idGudang.isEmpty) {
       Future.delayed(Duration.zero, () {
         Utils.showMessageAction(
@@ -98,6 +98,33 @@ class _HomeActivityState extends State<HomeActivity> {
         labaBulanan = data["LABA_BULANAN"] ?? 0;
       });
     }
+  }
+
+  _initDatabaseTable() async {
+    DatabaseHelper db = DatabaseHelper();
+    /*await db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
+        "id integer PRIMARY KEY AUTOINCREMENT," +
+        "default_company_code VARCHAR(200)," +
+        "default_connection_name VARCHAR(250)," +
+        "default_connection_url VARCHAR(250)," +
+        "default_image_url VARCHAR(250)," +
+        "list_connection TEXT," +
+        "id_user_login VARCHAR(200)," +
+        "id_user_login VARCHAR(200)," +
+        "nama_user_login VARCHAR(200)," +
+        "token_login TEXT," +
+        ")");*/
+
+    await db.execQuery("CREATE TABLE IF NOT EXISTS data_penjualan_temp(" +
+        "id VARCHAR(100) PRIMARY KEY," +
+        "tanggal DATE," +
+        "nama_user_input VARCHAR(100)," +
+        "nama_pelanggan VARCHAR(100)," +
+        "data TEXT," +
+        "date_created DATETIME)");
+
+    await db.execQuery(
+        "CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
   }
 
   _initSync() async {
@@ -319,44 +346,18 @@ class _HomeActivityState extends State<HomeActivity> {
     );
   }
 
-  _initDatabaseTable() async {
-    DatabaseHelper db = DatabaseHelper();
-    /*await db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
-        "id integer PRIMARY KEY AUTOINCREMENT," +
-        "default_company_code VARCHAR(200)," +
-        "default_connection_name VARCHAR(250)," +
-        "default_connection_url VARCHAR(250)," +
-        "default_image_url VARCHAR(250)," +
-        "list_connection TEXT," +
-        "id_user_login VARCHAR(200)," +
-        "id_user_login VARCHAR(200)," +
-        "nama_user_login VARCHAR(200)," +
-        "token_login TEXT," +
-        ")");*/
-
-    await db.execQuery("CREATE TABLE IF NOT EXISTS data_penjualan_temp(" +
-        "id VARCHAR(100) PRIMARY KEY," +
-        "tanggal DATE," +
-        "nama_user_input VARCHAR(100)," +
-        "nama_pelanggan VARCHAR(100)," +
-        "data TEXT," +
-        "date_created DATETIME)");
-
-    await db.execQuery(
-        "CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
+  loadInit() async {
+    koneksi = Utils.connectionName;
+    await _setupProgramChecked();
+    await _setDataHome();
+    await _initDatabaseTable();
+    await _initSync();
   }
 
   @override
   void initState() {
-    // TODO: implement initState
-    //Utils.initHakAkses();
-    Utils.setAllPref();
-    _setupProgramChecked();
-    _setDataHome();
-    _initDatabaseTable();
-    _initSync();
-    koneksi = Utils.connectionName;
     super.initState();
+    loadInit();
   }
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();

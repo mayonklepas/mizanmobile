@@ -39,11 +39,8 @@ class _SetupProgramState extends State<SetupProgram> {
   String isPdtModevalue = "0";
   bool isShowStockProgram = false;
   String isShowStockProgramValue = "0";
-  bool isShowSyncNotif = false;
-  String isShowSyncNotifValue = "0";
   TextEditingController footerStrukCtrl = TextEditingController();
   TextEditingController headerStrukCtrl = TextEditingController();
-  TextEditingController syncIntervalMinutesCtrl = TextEditingController();
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -77,13 +74,9 @@ class _SetupProgramState extends State<SetupProgram> {
       if (isShowStockProgramValue == "1") {
         isShowStockProgram = true;
       }
-      isShowSyncNotifValue = mapSetup["defaultIsShowSyncNotif"].toString();
-      if (isShowSyncNotifValue == "1") {
-        isShowSyncNotif = true;
-      }
+
       headerStrukCtrl.text = mapSetup["defaultHeaderStruk"].toString();
       footerStrukCtrl.text = mapSetup["defaultFooterStruk"].toString();
-      syncIntervalMinutesCtrl.text = mapSetup["defaultSyncIntervalMinutes"].toString();
     });
   }
 
@@ -389,24 +382,6 @@ class _SetupProgramState extends State<SetupProgram> {
                     Text("Tampilkan Stok Program"),
                   ],
                 ),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: isShowSyncNotif,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isShowSyncNotif = value!;
-                          if (value == true) {
-                            isShowSyncNotifValue = "1";
-                          } else {
-                            isShowSyncNotifValue = "0";
-                          }
-                        });
-                      },
-                    ),
-                    Text("Tampilkan notif Sinkronisasi"),
-                  ],
-                ),
                 Utils.labelForm("Header Struk"),
                 TextField(
                   controller: headerStrukCtrl,
@@ -414,11 +389,6 @@ class _SetupProgramState extends State<SetupProgram> {
                 Utils.labelForm("Footer Struk"),
                 TextField(
                   controller: footerStrukCtrl,
-                ),
-                Utils.labelForm("Singkronisasi interval (dalam menit)"),
-                TextField(
-                  controller: syncIntervalMinutesCtrl,
-                  keyboardType: TextInputType.number,
                 ),
                 SizedBox(
                   width: double.infinity,
@@ -446,10 +416,8 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIdBluetoothDevice": idBluetoothDevice,
                           "defaultIsPdtMode": isPdtModevalue,
                           "defaultIsShowStockProgram": isShowStockProgramValue,
-                          "defaultIsShowSyncNotif": isShowSyncNotifValue,
                           "defaultHeaderStruk": headerStrukCtrl.text,
                           "defaultFooterStruk": footerStrukCtrl.text,
-                          "defaultSyncIntervalMinutes": syncIntervalMinutesCtrl.text,
                         };
 
                         String jsonSetup = jsonEncode(mapSetup);
@@ -479,10 +447,8 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.bluetoothName = bluetoothDeviceCtrl.text;
                           Utils.isPdtMode = isPdtModevalue;
                           Utils.isShowStockProgram = isShowStockProgramValue;
-                          Utils.isShowSyncNotif = isShowSyncNotifValue;
                           Utils.footerStruk = footerStrukCtrl.text;
                           Utils.headerStruk = headerStrukCtrl.text;
-                          Utils.syncIntervalMinutes = syncIntervalMinutesCtrl.text;
                         });
                         sp.reload();
                         ScaffoldMessenger.of(context)

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
+import 'package:mizanmobile/helper/database_helper.dart';
 import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
@@ -34,85 +35,110 @@ class _ListModalFormState extends State<ListModalForm> {
   String headerBar = "";
 
   Future<List<dynamic>> _getDataModal({String keyword = ""}) async {
+    DatabaseHelper dbHelper = DatabaseHelper();
     String mainUrlString = "";
-
     String type = widget.type;
+    List<dynamic> jsonData = [];
 
-    if (type == "satuan") {
-      mainUrlString = "${Utils.mainUrl}datapopup/satuan?cari=";
-      headerBar = "Satuan";
-    } else if (type == "kelompokbarang") {
-      mainUrlString = "${Utils.mainUrl}datapopup/kelompokbarang?cari=";
-      headerBar = "Kelompok Barang";
-    } else if (type == "suplier") {
-      mainUrlString = "${Utils.mainUrl}datapopup/suplier?cari=";
-      headerBar = "Suplier";
-    } else if (type == "merk") {
-      mainUrlString = "${Utils.mainUrl}datapopup/merek?cari=";
-      headerBar = "Merk";
-    } else if (type == "gudang") {
-      mainUrlString = "${Utils.mainUrl}datapopup/gudang?cari=";
-      headerBar = "Gudang";
-    } else if (type == "lokasi") {
-      mainUrlString = "${Utils.mainUrl}datapopup/lokasi?cari=";
-      headerBar = "Lokasi";
-    } else if (type == "dept") {
-      mainUrlString = "${Utils.mainUrl}datapopup/dept?cari";
-      headerBar = "Department";
-    } else if (type == "golongan") {
-      mainUrlString = "${Utils.mainUrl}datapopup/golongan?cari=";
-      headerBar = "Golongan";
-    } else if (type == "golongansuplier") {
-      mainUrlString = "${Utils.mainUrl}datapopup/golongansuplier?cari=";
-      headerBar = "Golongan Suplier";
-    } else if (type == "golonganpelanggan") {
-      mainUrlString = "${Utils.mainUrl}datapopup/golonganpelanggan?cari=";
-      headerBar = "Golongan Pelanggan";
-    } else if (type == "klasifikasi") {
-      mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
-      headerBar = "Klasifikasi";
-    } else if (type == "satuanbarang") {
-      mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
-      headerBar = "Satuan Barang";
-    } else if (type == "akun") {
-      mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
-      headerBar = "Akun";
-    } else if (type == "pengguna") {
-      mainUrlString = "${Utils.mainUrl}datapopup/pengguna?cari=";
-      headerBar = "Pengguan";
-    } else if (type == "pelanggan") {
-      mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
-      headerBar = "Pelanggan";
-    } else if (type == "top") {
-      mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
-      headerBar = "TOP";
-    } else if (type == "penerimaanbarang") {
-      mainUrlString = "${Utils.mainUrl}penerimaanbarang/daftarorder?idsuplier=${widget.idSuplier}";
-      headerBar = "Order Penerimaan";
-    } else if (type == "pembelianpenerimaan") {
-      mainUrlString =
-          "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
-      headerBar = "Penerimaan";
-    }
-    if (type == "kelompoktransaksi") {
-      mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
-      headerBar = "Kelompok Transaksi";
-    }
+    if (Utils.isOffline) {
+      headerBar = type;
+      List<dynamic> masterDataList = await dbHelper
+          .readDatabase("SELECT data FROM master_data_temp WHERE category = ?", params: [type]);
+      if (masterDataList.isNotEmpty) {
+        List<dynamic> masterData = jsonDecode(masterDataList[0]["data"]);
+        jsonData = masterData;
+      }
+    } else {
+      if (type == "satuan") {
+        mainUrlString = "${Utils.mainUrl}datapopup/satuan?cari=";
+        headerBar = "Satuan";
+      } else if (type == "kelompokbarang") {
+        mainUrlString = "${Utils.mainUrl}datapopup/kelompokbarang?cari=";
+        headerBar = "Kelompok Barang";
+      } else if (type == "suplier") {
+        mainUrlString = "${Utils.mainUrl}datapopup/suplier?cari=";
+        headerBar = "Suplier";
+      } else if (type == "merk") {
+        mainUrlString = "${Utils.mainUrl}datapopup/merek?cari=";
+        headerBar = "Merk";
+      } else if (type == "gudang") {
+        mainUrlString = "${Utils.mainUrl}datapopup/gudang?cari=";
+        headerBar = "Gudang";
+      } else if (type == "lokasi") {
+        mainUrlString = "${Utils.mainUrl}datapopup/lokasi?cari=";
+        headerBar = "Lokasi";
+      } else if (type == "dept") {
+        mainUrlString = "${Utils.mainUrl}datapopup/dept?cari";
+        headerBar = "Department";
+      } else if (type == "golongan") {
+        mainUrlString = "${Utils.mainUrl}datapopup/golongan?cari=";
+        headerBar = "Golongan";
+      } else if (type == "golongansuplier") {
+        mainUrlString = "${Utils.mainUrl}datapopup/golongansuplier?cari=";
+        headerBar = "Golongan Suplier";
+      } else if (type == "golonganpelanggan") {
+        mainUrlString = "${Utils.mainUrl}datapopup/golonganpelanggan?cari=";
+        headerBar = "Golongan Pelanggan";
+      } else if (type == "klasifikasi") {
+        mainUrlString = "${Utils.mainUrl}datapopup/klasifikasi?cari=";
+        headerBar = "Klasifikasi";
+      } else if (type == "satuanbarang") {
+        mainUrlString = "${Utils.mainUrl}datapopup/satuanbarang?idbarang=${widget.idBarang}";
+        headerBar = "Satuan Barang";
+      } else if (type == "akun") {
+        mainUrlString = "${Utils.mainUrl}datapopup/akun?cari=";
+        headerBar = "Akun";
+      } else if (type == "pengguna") {
+        mainUrlString = "${Utils.mainUrl}datapopup/pengguna?cari=";
+        headerBar = "Pengguan";
+      } else if (type == "pelanggan") {
+        mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
+        headerBar = "Pelanggan";
+      } else if (type == "top") {
+        mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
+        headerBar = "TOP";
+      } else if (type == "penerimaanbarang") {
+        mainUrlString =
+            "${Utils.mainUrl}penerimaanbarang/daftarorder?idsuplier=${widget.idSuplier}";
+        headerBar = "Order Penerimaan";
+      } else if (type == "pembelianpenerimaan") {
+        mainUrlString =
+            "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
+        headerBar = "Penerimaan";
+      }
+      if (type == "kelompoktransaksi") {
+        mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
+        headerBar = "Kelompok Transaksi";
+      }
 
-    Uri url = Uri.parse(mainUrlString + keyword);
-    Response response = await get(url, headers: Utils.setHeader());
-    List<dynamic> jsonData = jsonDecode(response.body)["data"];
-    if (type == "penerimaanbarang" || type == "pembelianpenerimaan") {
-      for (int i = 0; i < jsonData.length; i++) {
-        jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
-        jsonData[i]["KODE"] = jsonData[i]["NOREF"];
+      Uri url = Uri.parse(mainUrlString + keyword);
+      dynamic header = Utils.setHeader();
+      Response response = await get(url, headers: header);
+      jsonData = jsonDecode(response.body)["data"];
+      if (type == "penerimaanbarang" || type == "pembelianpenerimaan") {
+        for (int i = 0; i < jsonData.length; i++) {
+          jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
+          jsonData[i]["KODE"] = jsonData[i]["NOREF"];
+        }
+      }
+      if (widget.withAll) {
+        Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
+        jsonData.insert(0, map);
+      }
+
+      List<dynamic> checkData = await dbHelper
+          .readDatabase("SELECT id FROM master_data_temp WHERE category = ?", params: [type]);
+
+      if (checkData.isEmpty) {
+        await dbHelper.writeDatabase("INSERT INTO master_data_temp(category,data) VALUES(?,?)",
+            params: [type, jsonEncode(jsonData)]);
+      } else {
+        await dbHelper.writeDatabase("UPDATE master_data_temp SET data =? WHERE category=?",
+            params: [jsonEncode(jsonData), type]);
       }
     }
-    if (widget.withAll) {
-      Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
-      jsonData.insert(0, map);
-    }
     _dataCache = jsonData;
+
     return jsonData;
   }
 

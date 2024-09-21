@@ -88,7 +88,7 @@ class _HomeActivityState extends State<HomeActivity> {
     }
   }
 
-  setDataHome() async {
+  _setDataHome() async {
     if (Utils.hakAkses["MOBILE_DASHBOARD"] == 1) {
       dynamic data = await _getHome();
       setState(() {
@@ -100,47 +100,46 @@ class _HomeActivityState extends State<HomeActivity> {
     }
   }
 
-  periodicTask() async {
+  _initSync() async {
+    await _getInfoSyncLocal();
+
+    if (sinkronisasiOnOff == false) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi nonaktif")));
+      return;
+    }
+    if (Utils.isOffline) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Sinkronisasi nonaktif saat mode offline")));
+      return;
+    }
     try {
-      int intervalMinutes = Utils.strToInt(Utils.syncIntervalMinutes);
       var db = DatabaseHelper();
       List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
       String lastUpdated = lsSyncInfo[0]["last_updated"];
-      int statusAutoSync = lsSyncInfo[0]["status_auto_sync"];
-      if (statusAutoSync == 1) {
-        if (Utils.isShowSyncNotif == "1") {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi aktif")));
-        }
+      String urlString =
+          "${Utils.mainUrl}barang/getitemsync?tglupdate=$lastUpdated&idgudang=${Utils.idGudang}";
+      log(urlString);
+      Uri url = Uri.parse(urlString);
+      Response response = await get(url, headers: Utils.setHeader());
+      String body = response.body;
+      var jsonData = jsonDecode(body)["data"];
 
-        Timer.periodic(Duration(minutes: intervalMinutes), (timer) async {
-          log("process sync-task");
-          String urlString =
-              "${Utils.mainUrl}barang/getitemsync?tglupdate=$lastUpdated&idgudang=${Utils.idGudang}";
-          log(urlString);
-          Uri url = Uri.parse(urlString);
-          Response response = await get(url, headers: Utils.setHeader());
-          String body = response.body;
-          log(body);
-          var jsonData = jsonDecode(body)["data"];
-          int jumlahDataBelumTersinkron = jsonData["jumlah_item_sync"];
-
-          double loopCountRaw = jumlahDataBelumTersinkron / 100;
-          int loopCount = loopCountRaw.ceil();
-          for (int i = 0; i < loopCount; i++) {
-            await Utils.syncLocalData(lastUpdated, halaman: i);
-            log("sync count : ${i + 1}");
-          }
-          if (Utils.isShowSyncNotif == "1") {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text("data telah diperbaharui dari sinkronisasi")));
-          }
-        });
-      } else {
-        if (Utils.isShowSyncNotif == "1") {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text("Sinkronisasi tidak aktif")));
-        }
+      int jumlahDataBelumTersinkron = jsonData["jumlah_item_sync"];
+      if (jumlahDataBelumTersinkron == 0) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Data saat ini adalah yang terbaru")));
+        return;
       }
+      await db.writeDatabase("UPDATE sync_info SET status_done='0'");
+      double loopCountRaw = jumlahDataBelumTersinkron / 100;
+      int loopCount = loopCountRaw.ceil();
+      for (int i = 0; i < loopCount; i++) {
+        await Utils.syncLocalData(lastUpdated, halaman: i);
+      }
+      await db.writeDatabase("UPDATE sync_info SET last_updated = ?, status_done='1'",
+          params: [Utils.currentDateTimeString()]);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Data telah diperbaharui dari sinkronisasi")));
     } catch (e) {
       log(e.toString());
     }
@@ -235,7 +234,7 @@ class _HomeActivityState extends State<HomeActivity> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Sinkronisasi otomatis"),
+                Text("Sinkronisasi saat startup"),
                 Switch(
                     value: sinkronisasiOnOff,
                     onChanged: (value) async {
@@ -320,15 +319,42 @@ class _HomeActivityState extends State<HomeActivity> {
     );
   }
 
+  _initDatabaseTable() async {
+    DatabaseHelper db = DatabaseHelper();
+    /*await db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
+        "id integer PRIMARY KEY AUTOINCREMENT," +
+        "default_company_code VARCHAR(200)," +
+        "default_connection_name VARCHAR(250)," +
+        "default_connection_url VARCHAR(250)," +
+        "default_image_url VARCHAR(250)," +
+        "list_connection TEXT," +
+        "id_user_login VARCHAR(200)," +
+        "id_user_login VARCHAR(200)," +
+        "nama_user_login VARCHAR(200)," +
+        "token_login TEXT," +
+        ")");*/
+
+    await db.execQuery("CREATE TABLE IF NOT EXISTS data_penjualan_temp(" +
+        "id VARCHAR(100) PRIMARY KEY," +
+        "tanggal DATE," +
+        "nama_user_input VARCHAR(100)," +
+        "nama_pelanggan VARCHAR(100)," +
+        "data TEXT," +
+        "date_created DATETIME)");
+
+    await db.execQuery(
+        "CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     //Utils.initHakAkses();
     Utils.setAllPref();
     _setupProgramChecked();
-    setDataHome();
-    _getInfoSyncLocal();
-    periodicTask();
+    _setDataHome();
+    _initDatabaseTable();
+    _initSync();
     koneksi = Utils.connectionName;
     super.initState();
   }
@@ -337,6 +363,7 @@ class _HomeActivityState extends State<HomeActivity> {
 
   @override
   Widget build(BuildContext context) {
+    Color colorOnlineMode = (Utils.isOffline) ? Colors.redAccent.shade700 : Colors.white;
     return Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
@@ -407,7 +434,7 @@ class _HomeActivityState extends State<HomeActivity> {
                                 icon: Icon(
                                   Icons.account_circle,
                                   size: 40,
-                                  color: Colors.white,
+                                  color: colorOnlineMode,
                                 )),
                           ],
                         )))

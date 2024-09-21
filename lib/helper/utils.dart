@@ -95,16 +95,11 @@ class Utils {
 
   static String isShowStockProgram = "0";
 
-  static String isShowSyncNotif = "0";
-
   static String footerStruk = "";
 
   static String headerStruk = "";
 
-  static String syncIntervalMinutes = "1";
-
   static bool isOffline = false;
-
 
   static Map<String, dynamic> hakAkses = {
     "mobile_dashboard": 0,
@@ -745,11 +740,9 @@ class Utils {
       Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toString();
       Utils.isPdtMode = mapSetup["defaultIsPdtMode"] ?? "0";
       Utils.isShowStockProgram = mapSetup["defaultIsShowStockProgram"] ?? "0";
-      Utils.isShowSyncNotif = mapSetup["defaultIsShowSyncNotif"] ?? "0";
 
       Utils.footerStruk = mapSetup["defaultFooterStruk"] ?? "";
       Utils.headerStruk = mapSetup["defaultHeaderStruk"] ?? "";
-      Utils.syncIntervalMinutes = mapSetup["defaultSyncIntervalMinutes"] ?? "1";
     }
   }
 

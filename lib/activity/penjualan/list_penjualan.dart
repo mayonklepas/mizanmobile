@@ -7,6 +7,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:mizanmobile/activity/penjualan/input_penjualan.dart';
+import 'package:mizanmobile/activity/penjualan/list_penjualan_offline.dart';
 import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
@@ -401,7 +402,18 @@ class _ListPenjualanState extends State<ListPenjualan> {
               onPressed: () {
                 dateBottomModal(context);
               },
-              icon: Icon(Icons.filter_list_alt))
+              icon: Icon(Icons.filter_list_alt)),
+          IconButton(
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
+                  return ListPenjualanOffline();
+                }));
+
+                setState(() {
+                  _dataPenjualan = _getDataPenjualan();
+                });
+              },
+              icon: Icon(Icons.file_present))
         ],
       ),
       body: RefreshIndicator(

@@ -15,10 +15,23 @@ class DatabaseHelper {
             "id INTEGER PRIMARY KEY,idbarang VARCHAR(100)," +
             "kode VARCHAR(100),nama TEXT, detail_barang TEXT,multi_satuan TEXT," +
             "multi_harga TEXT,harga_tanggal TEXT,date_created DATETIME)");
+
+        await db.execute("CREATE TABLE data_penjualan_temp(" +
+            "id VARCHAR(100) PRIMARY KEY," +
+            "tanggal DATE," +
+            "nama_user_input VARCHAR(100)," +
+            "nama_pelanggan VARCHAR(100)," +
+            "data TEXT," +
+            "date_created DATETIME)");
+
+        await db.execute(
+            "CREATE TABLE master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
+
         await db.execute(
             "INSERT INTO sync_info(id,status_auto_sync,last_updated,status_done, last_loop, max_loop) VALUES(1,0,'1945-01-01 00:00:00','0','0','0')");
       },
     );
+
     return _database;
   }
 

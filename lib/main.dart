@@ -29,17 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSwatch(
-              primarySwatch: Colors.blue, backgroundColor: Colors.grey[50]),
-          appBarTheme: AppBarTheme(
-              color: Colors.blue,
-              shadowColor: Colors.grey,
-              elevation: 5,
-              foregroundColor: Colors.white),
-          inputDecorationTheme: InputDecorationTheme(
-              filled: true, outlineBorder: BorderSide(color: Colors.white10))),
+      theme: ThemeData(colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)),
       home: const MainPage(),
     );
   }
@@ -56,6 +46,8 @@ class _MainPageState extends State<MainPage> {
   TextEditingController usernameCtrl = TextEditingController();
   TextEditingController passwordCtrl = TextEditingController();
   String image = "";
+
+  bool isOffline = false;
 
   int imageClickCount = 0;
 
@@ -111,33 +103,9 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
+    Utils.isOffline = false;
     _setConnection();
-    _initDatabaseTable();
     super.initState();
-  }
-
-  _initDatabaseTable() async {
-    DatabaseHelper db = DatabaseHelper();
-    /*await db.execQuery("CREATE TABLE IF NOT EXISTS setup_app(" +
-        "id integer PRIMARY KEY AUTOINCREMENT," +
-        "default_company_code VARCHAR(200)," +
-        "default_connection_name VARCHAR(250)," +
-        "default_connection_url VARCHAR(250)," +
-        "default_image_url VARCHAR(250)," +
-        "list_connection TEXT," +
-        "id_user_login VARCHAR(200)," +
-        "id_user_login VARCHAR(200)," +
-        "nama_user_login VARCHAR(200)," +
-        "token_login TEXT," +
-        ")");*/
-
-    await db.execQuery("CREATE TABLE IF NOT EXISTS penjualan_temp(" +
-        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "tanggal DATE," +
-        "data TEXT," +
-        "date_created DATETIME)");
-
-    await db.execQuery("CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
   }
 
   _setConnection() async {
@@ -197,9 +165,7 @@ class _MainPageState extends State<MainPage> {
                 alignment: Alignment.center,
                 child: Text("LOGIN",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold)))),
+                        color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold)))),
         body: SingleChildScrollView(
           child: Container(
             child: Column(
@@ -210,8 +176,7 @@ class _MainPageState extends State<MainPage> {
                         padding: EdgeInsets.only(top: 15),
                         child: FutureBuilder<String>(
                             future: imageUrl(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<String> snapshot) {
+                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
                                   InkWell(
@@ -221,13 +186,11 @@ class _MainPageState extends State<MainPage> {
                                         if (Utils.isOffline == false) {
                                           Utils.isOffline = true;
                                           Utils.showMessage(
-                                              "Anda Menggunakan mode offline",
-                                              context);
+                                              "Anda Menggunakan mode offline", context);
                                         } else {
                                           Utils.isOffline = false;
                                           Utils.showMessage(
-                                              "Anda Menggunakan mode online",
-                                              context);
+                                              "Anda Menggunakan mode online", context);
                                         }
 
                                         imageClickCount = 0;
@@ -237,8 +200,7 @@ class _MainPageState extends State<MainPage> {
                                       Utils.imageUrl + "logo.png",
                                       width: 170,
                                       height: 170,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
+                                      errorBuilder: (context, error, stackTrace) {
                                         return Container(
                                           height: 170,
                                           width: 170,
@@ -294,19 +256,16 @@ class _MainPageState extends State<MainPage> {
                                   Utils.showMessage(result["message"], context);
                                 } else {
                                   dynamic data = result["data"];
-                                  SharedPreferences sp =
-                                      await SharedPreferences.getInstance();
+                                  SharedPreferences sp = await SharedPreferences.getInstance();
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
-                                  sp.setString(
-                                      "hakakses", jsonEncode(data["hakakses"]));
+                                  sp.setString("hakakses", jsonEncode(data["hakakses"]));
                                   Utils.idUser = data["iduser"];
                                   Utils.token = data["token"];
                                   Utils.namaUser = data["username"];
                                   Utils.hakAkses = data["hakakses"];
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
+                                  Navigator.pushReplacement(context, MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();
                                     },
@@ -319,23 +278,60 @@ class _MainPageState extends State<MainPage> {
                         ),
                         Container(
                           margin: EdgeInsets.only(top: 20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child: Column(
                             children: [
-                              Text("Tidak bisa terkoneksi ?"),
-                              Padding(padding: EdgeInsets.all(3)),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) {
-                                      return SetupConnection();
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Tidak bisa terkoneksi ?"),
+                                  Padding(padding: EdgeInsets.all(3)),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) {
+                                          return SetupConnection();
+                                        },
+                                      ));
                                     },
-                                  ));
-                                },
-                                child: Text(
-                                  "Atur Koneksi",
-                                  style: TextStyle(color: Colors.blue),
-                                ),
+                                    child: Text(
+                                      "Atur Koneksi",
+                                      style: TextStyle(color: Colors.blue),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Internet Bermasalah atau server gangguan ?"),
+                                  Padding(padding: EdgeInsets.all(3)),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text("Gunakan Mode Offline"),
+                                  Padding(padding: EdgeInsets.all(3)),
+                                  Switch(
+                                      value: isOffline,
+                                      onChanged: (value) async {
+                                        setState(() {
+                                          if (value) {
+                                            isOffline = true;
+                                            Utils.isOffline = true;
+                                          } else {
+                                            isOffline = false;
+                                            Utils.isOffline = false;
+                                          }
+                                        });
+                                      })
+                                ],
                               ),
                             ],
                           ),

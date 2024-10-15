@@ -58,10 +58,10 @@ class _HomeActivityState extends State<HomeActivity> {
 
   _getInfoSyncLocal() async {
     var db = DatabaseHelper();
-    List<dynamic> getInfo =
-        await db.readDatabase("SELECT * FROM sync_info ORDER BY last_updated DESC LIMIT 1");
-    List<dynamic> getInfoBarang =
-        await db.readDatabase("SELECT COUNT(idbarang) as total FROM barang_temp");
+    List<dynamic> getInfo = await db.readDatabase(
+        "SELECT * FROM sync_info ORDER BY last_updated DESC LIMIT 1");
+    List<dynamic> getInfoBarang = await db
+        .readDatabase("SELECT COUNT(idbarang) as total FROM barang_temp");
     setState(() {
       localLastUpdate = getInfo[0]["last_updated"];
       sinkronisasiOnOff = (getInfo[0]["status_auto_sync"] == 1) ? true : false;
@@ -123,25 +123,29 @@ class _HomeActivityState extends State<HomeActivity> {
         "data TEXT," +
         "date_created DATETIME)");
 
-    await db.execQuery(
-        "CREATE TABLE IF NOT EXISTS master_data_temp(id INTEGER PRIMARY KEY AUTOINCREMENT, category VARCHAR(100), data TEXT)");
+    await db.execQuery("CREATE TABLE IF NOT EXISTS master_data_temp(" +
+        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        "category VARCHAR(100)," +
+        "data TEXT)");
   }
 
   _initSync() async {
     await _getInfoSyncLocal();
 
     if (sinkronisasiOnOff == false) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Sinkronisasi nonaktif")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Sinkronisasi nonaktif")));
       return;
     }
     if (Utils.isOffline) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Sinkronisasi nonaktif saat mode offline")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Sinkronisasi nonaktif saat mode offline")));
       return;
     }
     try {
       var db = DatabaseHelper();
-      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
+      List<dynamic> lsSyncInfo =
+          await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
       String lastUpdated = lsSyncInfo[0]["last_updated"];
       String urlString =
           "${Utils.mainUrl}barang/getitemsync?tglupdate=$lastUpdated&idgudang=${Utils.idGudang}";
@@ -153,8 +157,8 @@ class _HomeActivityState extends State<HomeActivity> {
 
       int jumlahDataBelumTersinkron = jsonData["jumlah_item_sync"];
       if (jumlahDataBelumTersinkron == 0) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Data saat ini adalah yang terbaru")));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Data saat ini adalah yang terbaru")));
         return;
       }
       await db.writeDatabase("UPDATE sync_info SET status_done='0'");
@@ -163,10 +167,11 @@ class _HomeActivityState extends State<HomeActivity> {
       for (int i = 0; i < loopCount; i++) {
         await Utils.syncLocalData(lastUpdated, halaman: i);
       }
-      await db.writeDatabase("UPDATE sync_info SET last_updated = ?, status_done='1'",
+      await db.writeDatabase(
+          "UPDATE sync_info SET last_updated = ?, status_done='1'",
           params: [Utils.currentDateTimeString()]);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Data telah diperbaharui dari sinkronisasi")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Data telah diperbaharui dari sinkronisasi")));
     } catch (e) {
       log(e.toString());
     }
@@ -174,21 +179,24 @@ class _HomeActivityState extends State<HomeActivity> {
 
   SingleChildScrollView _bottomSheetInfo(StateSetter stateIn) {
     return SingleChildScrollView(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: EdgeInsets.all(25),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Utils.labelSetter("Informasi Pengguna", bottom: 20, size: 20, bold: true),
+            Utils.labelSetter("Informasi Pengguna",
+                bottom: 20, size: 20, bold: true),
             Utils.labelValueSetter("Pengguna", Utils.namaUser),
             Utils.labelValueSetter(
               "Nama Koneksi",
               Utils.connectionName,
               top: 10,
             ),
-            Utils.labelValueSetter("Kode Outlet", Utils.companyCode, top: 10, bottom: 20),
+            Utils.labelValueSetter("Kode Outlet", Utils.companyCode,
+                top: 10, bottom: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -209,12 +217,14 @@ class _HomeActivityState extends State<HomeActivity> {
                 ),
               ],
             ),
-            Utils.labelSetter("Informasi Layanan", bottom: 10, top: 20, size: 20, bold: true),
+            Utils.labelSetter("Informasi Layanan",
+                bottom: 10, top: 20, size: 20, bold: true),
             Utils.labelValueSetter("Mizan Mobile", "Aktif Sampai 21/05/2050",
                 top: 10, colorValue: Colors.green),
             Utils.labelValueSetter("Mizan Desktop", "Aktif Sampai 21/05/2050",
                 top: 10, colorValue: Colors.green),
-            Utils.labelValueSetter("Mizan Cloud Backup", "Aktif Sampai 21/05/2050",
+            Utils.labelValueSetter(
+                "Mizan Cloud Backup", "Aktif Sampai 21/05/2050",
                 colorValue: Colors.green, top: 10),
             Utils.labelValueSetter("Sinkronasisi Terakhir", localLastUpdate,
                 colorValue: Colors.green, top: 10),
@@ -243,12 +253,14 @@ class _HomeActivityState extends State<HomeActivity> {
                             return;
                           }
 
-                          Future.delayed(Duration.zero, () => Utils.showProgress(context));
+                          Future.delayed(
+                              Duration.zero, () => Utils.showProgress(context));
                           String harikemerdekaaan = "1945-08-17 00:00:00";
                           await DatabaseHelper().writeDatabase(
                               "UPDATE sync_info SET last_updated = ? ",
                               params: [harikemerdekaaan]);
-                          await DatabaseHelper().writeDatabase("DELETE FROM barang_temp");
+                          await DatabaseHelper()
+                              .writeDatabase("DELETE FROM barang_temp");
                           stateIn(() {
                             localLastUpdate = harikemerdekaaan;
                             totalData = "0";
@@ -309,15 +321,16 @@ class _HomeActivityState extends State<HomeActivity> {
                       exit(0);
                     },
                     child: Text("Logout"),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent)))
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent)))
           ],
         ),
       ),
     );
   }
 
-  Container setIconCard(
-      IconData icon, MaterialColor color, String label, void Function() tapAction) {
+  Container setIconCard(IconData icon, MaterialColor color, String label,
+      void Function() tapAction) {
     return Container(
       child: Column(
         children: [
@@ -344,7 +357,8 @@ class _HomeActivityState extends State<HomeActivity> {
           Container(
             height: 50,
             padding: EdgeInsets.only(top: 10),
-            child: Utils.labelSetter(label, size: 13, bold: true, align: TextAlign.center),
+            child: Utils.labelSetter(label,
+                size: 13, bold: true, align: TextAlign.center),
           )
         ],
       ),
@@ -369,7 +383,8 @@ class _HomeActivityState extends State<HomeActivity> {
 
   @override
   Widget build(BuildContext context) {
-    Color colorOnlineMode = (Utils.isOffline) ? Colors.redAccent.shade700 : Colors.white;
+    Color colorOnlineMode =
+        (Utils.isOffline) ? Colors.redAccent.shade700 : Colors.white;
     return Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
@@ -409,7 +424,9 @@ class _HomeActivityState extends State<HomeActivity> {
                         Text(
                           "Mizan Mobile",
                           style: TextStyle(
-                              color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold),
                         ),
                         Text(
                           koneksi,
@@ -431,8 +448,8 @@ class _HomeActivityState extends State<HomeActivity> {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (BuildContext contenxt) {
-                                        return StatefulBuilder(
-                                            builder: (context, StateSetter setStateIn) {
+                                        return StatefulBuilder(builder:
+                                            (context, StateSetter setStateIn) {
                                           return _bottomSheetInfo(setStateIn);
                                         });
                                       });
@@ -488,12 +505,14 @@ class _HomeActivityState extends State<HomeActivity> {
               padding: EdgeInsets.all(5),
             ),
             cs.CarouselSlider(
-              options: cs.CarouselOptions(aspectRatio: 2.5, viewportFraction: 0.9),
+              options:
+                  cs.CarouselOptions(aspectRatio: 2.5, viewportFraction: 0.9),
               items: [
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
@@ -536,7 +555,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
@@ -579,7 +599,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
@@ -622,7 +643,8 @@ class _HomeActivityState extends State<HomeActivity> {
                 Center(
                   child: Card(
                       elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       child: InkWell(
                         onTap: () {
                           if (Utils.hakAkses["MOBILE_DASHBOARD"] == 0) {
@@ -668,7 +690,10 @@ class _HomeActivityState extends State<HomeActivity> {
                 padding: EdgeInsets.only(top: 20),
                 child: Text(
                   "Data Master",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue),
                 )),
             Container(
                 child: GridView(
@@ -684,14 +709,16 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
+                setIconCard(
+                    Icons.supervised_user_circle, Colors.blue, "Pelanggan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return PelangganView();
                     },
                   ));
                 }),
-                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier", () {
+                setIconCard(Icons.supervisor_account, Colors.blue, "Suplier",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListSuplierView();
@@ -703,7 +730,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Transaksi",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -719,28 +749,33 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang", () {
+                setIconCard(Icons.assignment, Colors.blue, "Penerimaan Barang",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPenerimaan();
                     },
                   ));
                 }),
-                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian", () {
+                setIconCard(Icons.add_shopping_cart, Colors.blue, "Pembelian",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPembelian();
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
+                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPiutang();
                     },
                   ));
                 }),
-                setIconCard(Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha", () {
+                setIconCard(
+                    Icons.playlist_remove_outlined, Colors.blue, "Hutang Usaha",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListHutang();
@@ -754,7 +789,9 @@ class _HomeActivityState extends State<HomeActivity> {
                     },
                   ));
                 }),
-                setIconCard(Icons.upload_file_outlined, Colors.blue, "Transfer Barang", () {
+                setIconCard(
+                    Icons.upload_file_outlined, Colors.blue, "Transfer Barang",
+                    () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListTransferBarang();
@@ -766,7 +803,10 @@ class _HomeActivityState extends State<HomeActivity> {
             Container(
                 child: Text(
               "Lainnya",
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.blue),
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             )),
             Container(
                 child: GridView(
@@ -775,7 +815,8 @@ class _HomeActivityState extends State<HomeActivity> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
-                setIconCard(Icons.print_outlined, Colors.blue, "Laporan", () {}),
+                setIconCard(
+                    Icons.print_outlined, Colors.blue, "Laporan", () {}),
                 setIconCard(Icons.settings, Colors.blue, "Setup Program", () {
                   if (Utils.hakAkses["MOBILE_SETUPPROGRAM"] == 0) {
                     return Utils.showMessage("Akses ditolak", context);

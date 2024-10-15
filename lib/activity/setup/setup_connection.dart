@@ -24,14 +24,25 @@ class _SetupConnectionState extends State<SetupConnection> {
   _loadDefaultSetupConnection() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
 
-    String spData = sp.getString("listConnection") ?? "";
+   List<dynamic> _lsData = [];
+
+    _lsData.add(<String, String>{
+      "nama": "default",
+      "url": "http://app.mizancloud.com/api/",
+      "imageUrl": "http://mizancloud.com/mizan-assets/default/",
+      "companyCode": "retail"
+    });
+
+    String defData = jsonEncode(_lsData);
+
+    String spData = sp.getString("listConnection") ?? defData;
     List<dynamic> lsSpData = await jsonDecode(spData);
     setState(() {
       _lsData = lsSpData;
     });
 
-    connectionName = sp.getString("defaultConnectionName") ?? "";
-    companyCode = sp.getString("defaultCompanyCode") ?? "";
+    connectionName = sp.getString("defaultConnectionName") ?? "default";
+    companyCode = sp.getString("defaultCompanyCode") ?? "retail";
     setState(() {
       companyCodeCtrl.text = companyCode;
     });

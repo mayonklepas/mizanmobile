@@ -473,7 +473,7 @@ class Utils {
 
   static showProgress(BuildContext context, {String message = "Memuat Data..."}) {
     showDialog(
-        barrierDismissible: true,
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return Dialog(

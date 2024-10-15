@@ -115,8 +115,9 @@ class _MainPageState extends State<MainPage> {
 
     if (sp.getString("listConnection") != null) {
       Utils.setAllPref();
+       String comName = sp.getString("defaultCompanyCode") ?? Utils.companyCode;
       setState(() {
-        connectionName = Utils.connectionName;
+        connectionName = comName;
       });
       return;
     }

@@ -234,7 +234,7 @@ class _ListBarangState extends State<ListBarang> {
                                                                   final image = await ImagePicker()
                                                                       .pickImage(
                                                                           source:
-                                                                              ImageSource.gallery);
+                                                                              ImageSource.camera);
 
                                                                   if (image == null) {
                                                                     return;

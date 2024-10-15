@@ -45,6 +45,9 @@ dependencies:
   printing: ^5.10.5
   sqflite: ^2.2.7
   blue_thermal_printer: ^1.2.3
+  camera: ^0.10.5+9
+  path_provider: ^2.1.2
+  path: ^1.8.3
 
 
 

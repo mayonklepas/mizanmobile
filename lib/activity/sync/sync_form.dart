@@ -104,10 +104,19 @@ class _SyncFormState extends State<SyncForm> {
       Utils.showMessage("Harap menunggu, sedang dalam proses sinkronisasi", context);
       return;
     }
+
+    bool doSync = await Utils.showConfirmMessage(
+        context, "Mohon untuk tidak menutup form saat proses sinkronisasi, lanjutkan ?");
+
+    if (doSync == false) {
+      return;
+    }
+
     var db = DatabaseHelper();
     double loopCountRaw = jumlahDataBelumTersinkron / 100;
     int loopCount = loopCountRaw.ceil();
     syncProcess = true;
+
     await db.writeDatabase("UPDATE sync_info SET status_done='0'");
     for (int i = 0; i < loopCount; i++) {
       int currentCount = 100 * (i + 1);

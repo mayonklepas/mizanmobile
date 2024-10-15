@@ -101,14 +101,10 @@ class _MainPageState extends State<MainPage> {
     sp.reload();
   }
 
-  Future _loadInit() async {
-    await _setConnection();
-  }
-
   @override
   void initState() {
     super.initState();
-    _loadInit();
+    _setConnection();
   }
 
   _setConnection() async {
@@ -137,19 +133,14 @@ class _MainPageState extends State<MainPage> {
     sp.setString("defaultCompanyCode", dataList["companyCode"]);
     //sp.setString("defaultHakAkses", jsonEncode(dataList["hakAkses"]));
     sp.reload();
-
     Utils.setAllPref();
   }
 
   Future<String> imageUrl() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String imageUrlStr = sp.getString("defaultImageUrl").toString();
-    String imageUrlStrTest = imageUrlStr + "logo.png";
-    Response res = await get(Uri.parse(imageUrlStrTest));
-    if (res.statusCode != 200) {
-      imageUrlStr = "http://mizancloud.com/mizan-assets/default/";
-      sp.setString("defaultImageUrl", imageUrlStr);
-    }
+    String imageUrlStr =
+        sp.getString("defaultImageUrl") ?? "http://mizancloud.com/mizan-assets/default/";
+    sp.setString("defaultImageUrl", imageUrlStr);
     return imageUrlStr;
   }
 
@@ -182,34 +173,16 @@ class _MainPageState extends State<MainPage> {
                             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
-                                  InkWell(
-                                    onTap: () async {
-                                      imageClickCount = imageClickCount + 1;
-                                      if (imageClickCount == 3) {
-                                        if (Utils.isOffline == false) {
-                                          Utils.isOffline = true;
-                                          Utils.showMessage(
-                                              "Anda Menggunakan mode offline", context);
-                                        } else {
-                                          Utils.isOffline = false;
-                                          Utils.showMessage(
-                                              "Anda Menggunakan mode online", context);
-                                        }
-
-                                        imageClickCount = 0;
-                                      }
+                                  Image.network(
+                                    Utils.imageUrl + "logo.png",
+                                    width: 170,
+                                    height: 170,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 170,
+                                        width: 170,
+                                      );
                                     },
-                                    child: Image.network(
-                                      Utils.imageUrl + "logo.png",
-                                      width: 170,
-                                      height: 170,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 170,
-                                          width: 170,
-                                        );
-                                      },
-                                    ),
                                   ),
                                   SizedBox(
                                     height: 10,

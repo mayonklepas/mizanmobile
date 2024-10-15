@@ -269,9 +269,14 @@ class _HomeActivityState extends State<HomeActivity> {
                       if (value == true) {
                         statusAutoSync = 1;
                       }
-                      await DatabaseHelper().writeDatabase(
-                          "UPDATE sync_info SET status_auto_sync = ? ",
-                          params: [statusAutoSync]);
+                      try {
+                        await DatabaseHelper().writeDatabase(
+                            "UPDATE sync_info SET status_auto_sync = ? ",
+                            params: [statusAutoSync]);
+                      } catch (e) {
+                        Utils.showMessage(e.toString(), context);
+                      }
+
                       stateIn(() => sinkronisasiOnOff = value);
                     })
               ],

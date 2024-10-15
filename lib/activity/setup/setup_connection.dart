@@ -24,8 +24,8 @@ class _SetupConnectionState extends State<SetupConnection> {
   _loadDefaultSetupConnection() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
 
-    String? spData = sp.getString("listConnection");
-    List<dynamic> lsSpData = jsonDecode(spData!) as List<dynamic>;
+    String spData = sp.getString("listConnection") ?? "";
+    List<dynamic> lsSpData = await jsonDecode(spData);
     setState(() {
       _lsData = lsSpData;
     });

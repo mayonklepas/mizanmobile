@@ -52,6 +52,8 @@ class _MainPageState extends State<MainPage> {
 
   int imageClickCount = 0;
 
+  String connectionName = "";
+
   Future<dynamic> _postLogin(Map<String, Object> postBody) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}user/login";
@@ -113,8 +115,15 @@ class _MainPageState extends State<MainPage> {
 
     if (sp.getString("listConnection") != null) {
       Utils.setAllPref();
+      setState(() {
+        connectionName = Utils.connectionName;
+      });
       return;
     }
+
+    setState(() {
+      connectionName = "retail";
+    });
 
     List<dynamic> _lsData = [];
 
@@ -132,6 +141,7 @@ class _MainPageState extends State<MainPage> {
         "defaultImageUrl", "http://mizancloud.com/mizan-assets/default/");
     sp.setString("defaultCompanyCode", "retail");
     sp.reload();
+
     Utils.setAllPref();
   }
 
@@ -192,6 +202,11 @@ class _MainPageState extends State<MainPage> {
                                 ],
                               );
                             }))),
+                Expanded(
+                    flex: 0,
+                    child: Container(
+                        padding: EdgeInsets.only(top: 15),
+                        child: Text(connectionName))),
                 Expanded(
                   flex: 0,
                   child: Container(

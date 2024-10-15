@@ -43,6 +43,7 @@ class _HomeActivityState extends State<HomeActivity> {
   double labaBulanan = 0;
 
   String koneksi = "";
+  String companyName = "";
   String localLastUpdate = "";
   bool sinkronisasiOnOff = false;
   String totalData = "0";
@@ -367,6 +368,7 @@ class _HomeActivityState extends State<HomeActivity> {
 
   loadInit() async {
     koneksi = Utils.connectionName;
+    companyName = Utils.companyCode;
     await _setupProgramChecked();
     await _setDataHome();
     await _initDatabaseTable();
@@ -429,7 +431,7 @@ class _HomeActivityState extends State<HomeActivity> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          koneksi,
+                          companyName,
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         )
                       ],

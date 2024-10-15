@@ -52,7 +52,7 @@ class _MainPageState extends State<MainPage> {
 
   int imageClickCount = 0;
 
-  String connectionName = "";
+  String companyName = "";
 
   Future<dynamic> _postLogin(Map<String, Object> postBody) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
@@ -114,16 +114,16 @@ class _MainPageState extends State<MainPage> {
     SharedPreferences sp = await SharedPreferences.getInstance();
 
     if (sp.getString("listConnection") != null) {
-      Utils.setAllPref();
-       String comName = sp.getString("defaultCompanyCode") ?? Utils.companyCode;
+      await Utils.setAllPref();
       setState(() {
-        connectionName = comName;
+        companyName = Utils.companyCode;
       });
+
       return;
     }
 
     setState(() {
-      connectionName = "retail";
+      companyName = "retail";
     });
 
     List<dynamic> _lsData = [];
@@ -143,7 +143,7 @@ class _MainPageState extends State<MainPage> {
     sp.setString("defaultCompanyCode", "retail");
     sp.reload();
 
-    Utils.setAllPref();
+    await Utils.setAllPref();
   }
 
   Future<String> imageUrl() async {
@@ -207,7 +207,7 @@ class _MainPageState extends State<MainPage> {
                     flex: 0,
                     child: Container(
                         padding: EdgeInsets.only(top: 15),
-                        child: Text(connectionName))),
+                        child: Text(companyName))),
                 Expanded(
                   flex: 0,
                   child: Container(

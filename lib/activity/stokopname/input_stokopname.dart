@@ -650,6 +650,11 @@ class _InputStokOpnameState extends State<InputStokOpname> {
                                           result = await _postStokOpname(mapData, "insertheader");
                                         }
 
+                                        if (result["status"] != 0) {
+                                          Utils.showMessage(result["message"], context);
+                                          return;
+                                        }
+
                                         idTransaksiGlobal = result["data"]["NOINDEX"];
                                         setState(() {
                                           norefGlobal = result["data"]["NOREF"];

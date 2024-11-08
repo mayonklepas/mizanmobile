@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:mizanmobile/activity/barang/input_barang.dart';
+import 'package:mizanmobile/activity/pelanggan/pelanggan_view.dart';
 import 'package:mizanmobile/helper/database_helper.dart';
 import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
@@ -33,12 +35,15 @@ class _ListModalFormState extends State<ListModalForm> {
   List<dynamic>? _dataCache;
   bool isLocal = false;
   String headerBar = "";
+  late Widget fab;
 
   Future<List<dynamic>> _getDataModal({String keyword = ""}) async {
     DatabaseHelper dbHelper = DatabaseHelper();
     String mainUrlString = "";
     String type = widget.type;
     List<dynamic> jsonData = [];
+
+    fab = Visibility(visible: false, child: FloatingActionButton(onPressed: () {}));
 
     if (Utils.isOffline) {
       headerBar = type;
@@ -94,6 +99,22 @@ class _ListModalFormState extends State<ListModalForm> {
       } else if (type == "pelanggan") {
         mainUrlString = "${Utils.mainUrl}datapopup/pelanggan?cari=";
         headerBar = "Pelanggan";
+        fab = Visibility(
+            visible: true,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (context) {
+                    return PelangganView();
+                  },
+                ));
+                setState(() {
+                  _dataModal = _getDataModal();
+                  customSearchBar = Text("Data $headerBar");
+                });
+              },
+              child: Icon(Icons.add),
+            ));
       } else if (type == "top") {
         mainUrlString = "${Utils.mainUrl}datapopup/top?cari=";
         headerBar = "TOP";
@@ -248,6 +269,7 @@ class _ListModalFormState extends State<ListModalForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: fab,
       appBar: AppBar(
         title: customSearchBar,
         actions: [

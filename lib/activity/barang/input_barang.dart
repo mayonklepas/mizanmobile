@@ -961,15 +961,14 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                       result = await _postDetailDataBarang(mapData, "insert");
                       dynamic data = result["data"];
                       idBarangGlobal = data["NOINDEX"];
-                      Utils.showMessageAction(
-                          result["message"],
-                          context,
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                              child: Text("Ok")));
+                      Utils.showMessageAction(result["message"], context, [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text("Ok"))
+                      ]);
                     } else {
                       mapData = {
                         "noindex": idBarangGlobal,
@@ -989,15 +988,14 @@ class _InputBarangState extends State<InputBarang> with TickerProviderStateMixin
                         "harga_jual": Utils.decimalisasi(_hargaJualCtrl.text)
                       };
                       result = await _postDetailDataBarang(mapData, "edit");
-                      Utils.showMessageAction(
-                          result["message"],
-                          context,
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              },
-                              child: Text("Ok")));
+                      Utils.showMessageAction(result["message"], context, [
+                        ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text("Ok"))
+                      ]);
                     }
                   },
                   child: Text("SIMPAN"),

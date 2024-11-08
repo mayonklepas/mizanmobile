@@ -28,8 +28,9 @@ class PrinterUtils {
 
       //bluetooth.printImageBytes(imageBytesFromNetwork);
       //bluetooth.printNewLine();
-      String fmtHead = "%-20s %20s %n";
-      String fmtList = "%-13s %10s %13s %n";
+
+      List<String> formatList = Utils.strukListFormat.split(",");
+      String fmtList = "%${formatList[0]}s %${formatList[1]}s %${formatList[2]}s %n";
       String toko = Utils.connectionName;
       String tanggal = additionalInfo["tanggal"];
       String tanggalPrint = Utils.currentDateTimeString();
@@ -38,6 +39,7 @@ class PrinterUtils {
       String kodePelanggan = additionalInfo["kodePelanggan"];
       String namaPelanggan = additionalInfo["namaPelanggan"];
       double jumlahUang = additionalInfo["jumlahUang"];
+
       int fontMedium = Size.medium.val;
       int fontMediumBold = Size.boldMedium.val;
       int alignLeft = Align.left.val;
@@ -46,12 +48,12 @@ class PrinterUtils {
       try {
         bluetooth.printCustom(toko, fontMediumBold, alignCenter);
         bluetooth.printCustom(header, fontMedium, alignCenter);
-        bluetooth.printLeftRight("Kasir", kasir, fontMedium, format: fmtHead);
-        bluetooth.printLeftRight("Tanggal", tanggal, fontMedium, format: fmtHead);
-        bluetooth.printLeftRight("Tanggal Print", tanggalPrint, fontMedium, format: fmtHead);
-        bluetooth.printLeftRight("No ", additionalInfo["noref"], fontMedium, format: fmtHead);
-        bluetooth.printLeftRight("Pelanggan", "(${kodePelanggan} - ${namaPelanggan} )", fontMedium,
-            format: fmtHead);
+
+        bluetooth.printCustom(tanggal, fontMedium, alignLeft);
+        bluetooth.printCustom("No. ${additionalInfo["noref"]}", fontMedium, alignLeft);
+        bluetooth.printCustom("(${kodePelanggan} - ${namaPelanggan})", fontMedium, alignLeft);
+        bluetooth.printCustom("Kasir : $kasir", fontMedium, alignLeft);
+
         bluetooth.printNewLine();
         double result = 0.0;
         int counter = 1;
@@ -61,6 +63,7 @@ class PrinterUtils {
           double qty = d["QTY"];
           double diskon = d["DISKONNOMINAL"];
           double total = (harga * qty) - (diskon * qty);
+          String keterangan = d["KETERANGAN"];
           result = result + total;
 
           String fmtCounter = Utils.formatNumber(counter);
@@ -69,9 +72,15 @@ class PrinterUtils {
           String fmtDiskon = Utils.formatNumber(diskon);
           String fmtTotal = Utils.formatNumber(total);
 
-          bluetooth.printCustom("$fmtCounter $nama", fontMedium, alignLeft);
-          bluetooth.print3Column(fmtHarga + "x" + fmtQty, "disc:" + fmtDiskon, fmtTotal, fontMedium,
+          bluetooth.printCustom("$fmtCounter. $nama", fontMedium, alignLeft);
+          bluetooth.print3Column(
+              "  " + fmtHarga + " x " + fmtQty, "DISC:" + fmtDiskon, fmtTotal, fontMedium,
               format: fmtList);
+
+          if (keterangan.isNotEmpty) {
+            bluetooth.printCustom("  *Ket : $keterangan", fontMedium, alignLeft);
+          }
+
           counter++;
         }
         String fmtResult = Utils.formatNumber(result);
@@ -149,6 +158,37 @@ class PrinterUtils {
         bluetooth.printCustom("Thank You", Size.bold.val, Align.center.val);
         bluetooth.printNewLine();
         bluetooth.printQRcode("Insert Your Own Text to Generate", 200, 200, Align.center.val);
+        bluetooth.printNewLine();
+        bluetooth.printNewLine();
+        //bluetooth.paperCut(); //some printer not supported (sometime making image not centered)
+        //bluetooth.drawerPin2(); // or you can use bluetooth.drawerPin5();
+      }
+    });
+  }
+
+  printTestDevice2() async {
+    BlueThermalPrinter bluetooth = BlueThermalPrinter.instance;
+    var response = await http.get(Uri.parse(Utils.imageUrl + "logo.png"));
+    Uint8List bytesNetwork = response.bodyBytes;
+    Uint8List imageBytesFromNetwork =
+        bytesNetwork.buffer.asUint8List(bytesNetwork.offsetInBytes, bytesNetwork.lengthInBytes);
+
+    bool? isConnected = await bluetooth.isConnected;
+
+    if (isConnected == false) {
+      BluetoothDevice device = BluetoothDevice(Utils.bluetoothName, Utils.bluetoothId);
+      await bluetooth.connect(device);
+    }
+
+    bluetooth.isConnected.then((isConnected) {
+      if (isConnected == true) {
+        bluetooth.printNewLine();
+        bluetooth.printCustom("HEADER", Size.boldMedium.val, Align.center.val);
+        bluetooth.printNewLine();
+        bluetooth.printLeftRight("LEFT", "RIGHT", Size.medium.val);
+        bluetooth.printLeftRight("LEFT", "RIGHT", Size.bold.val);
+        bluetooth.printLeftRight("LEFT", "RIGHT", Size.bold.val,
+            format: "%-15s %15s %n"); //15 is number off character from left or right
         bluetooth.printNewLine();
         bluetooth.printNewLine();
         //bluetooth.paperCut(); //some printer not supported (sometime making image not centered)

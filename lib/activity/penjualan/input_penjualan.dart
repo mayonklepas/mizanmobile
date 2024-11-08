@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:mizanmobile/activity/pelanggan/pelanggan_view.dart';
 import 'package:mizanmobile/activity/utility/list_modal_barang.dart';
 import 'package:mizanmobile/activity/utility/printer_util.dart';
 import 'package:mizanmobile/helper/database_helper.dart';
@@ -62,11 +63,15 @@ class _InputPenjualanState extends State<InputPenjualan> {
   List<dynamic> dataPaymentMethod = [];
   double totalBiaya = 0;
 
+  bool disableSimpanButton = false;
+
   FocusNode searchBarFocus = FocusNode();
 
   bool isMultiPayment = false;
   Map<String, double> multiPaymentSendData = {};
   List<DropdownMenuEntry<dynamic>> itemList = [];
+
+  String gambarUrlString = "${Utils.mainUrl}barang/download/";
 
   Future<dynamic> getDataDetailBarang(String idBarang) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
@@ -222,7 +227,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           "DISKONNOMINAL": d["DISKONNOMINAL"],
           "IDGUDANG": idGudang,
           "IDSATUANPENGALI": d["IDSATUANPENGALI"],
-          "QTYSATUANPENGALI": d["QTYSATUANPENGALI"]
+          "QTYSATUANPENGALI": d["QTYSATUANPENGALI"],
+          "KETERANGAN": d["KETERANGAN"]
         });
 
         totalPenjualan = setTotalJual();
@@ -288,7 +294,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
           "DISKONNOMINAL": 0.0,
           "IDGUDANG": idGudang,
           "IDSATUANPENGALI": hargaUpdate["IDSATUANPENGALI"],
-          "QTYSATUANPENGALI": hargaUpdate["QTYSATUANPENGALI"]
+          "QTYSATUANPENGALI": hargaUpdate["QTYSATUANPENGALI"],
+          "KETERANGAN": ""
         });
         dataList.add(data);
         totalPenjualan = setTotalJual();
@@ -609,7 +616,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
         "DISKONNOMINAL": dataMap["DISKONNOMINAL"],
         "IDGUDANG": idGudang,
         "IDSATUANPENGALI": dataMap["IDSATUANPENGALI"],
-        "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"]
+        "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"],
+        "KETERANGAN": dataMap["KETERANGAN"] ?? ""
       });
     }
 
@@ -713,6 +721,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
     if (isTunai == 1) {
       Navigator.pop(context);
     }
+
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Utils.labelSetter("Transaksi berhasil", color: Colors.green, size: 20)));
     List<dynamic> dataListPrint = dataListShow;
@@ -739,24 +748,67 @@ class _InputPenjualanState extends State<InputPenjualan> {
       return;
     }
 
+    if (Utils.isShowDialogAfterSavePenjualan == "0") {
+      setState(() {
+        dataList.clear();
+        dataListShow.clear();
+        totalPenjualan = setTotalJual();
+        isKredit = false;
+        topCtrl.text = "";
+        idTop = "";
+        uangMukaCtrl.text = "";
+        keterangan = "Penjualan mobile";
+        keteranganCtrl.text = keterangan;
+        idPelanggan = Utils.idPelanggan;
+        kodePelanggan = Utils.kodePelanggan;
+        namaPelanggan = Utils.namaPelanggan;
+        totalBiaya = 0;
+        for (var d in dataPaymentMethod) {
+          multiPaymentSendData[d["NAMA"]] = 0;
+        }
+      });
+      return;
+    }
+
     setState(() {
-      dataList.clear();
-      dataListShow.clear();
-      totalPenjualan = setTotalJual();
-      isKredit = false;
-      topCtrl.text = "";
-      idTop = "";
-      uangMukaCtrl.text = "";
-      keterangan = "Penjualan mobile";
-      keteranganCtrl.text = keterangan;
-      idPelanggan = Utils.idPelanggan;
-      kodePelanggan = Utils.kodePelanggan;
-      namaPelanggan = Utils.namaPelanggan;
-      totalBiaya = 0;
-      for (var d in dataPaymentMethod) {
-        multiPaymentSendData[d["NAMA"]] = 0;
-      }
+      disableSimpanButton = true;
     });
+    Utils.showMessageAction(
+        "Data telah tersimpan, anda bisa memilih print untuk mencetak ulang struk atau membuat transaksi baru",
+        context, [
+      ElevatedButton(
+          onPressed: () async {
+            Map<String, String> printResult =
+                await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
+            if (printResult["status"] == "error") {
+              log(printResult["message"].toString());
+            }
+          },
+          child: Text("Cetak Struk")),
+      ElevatedButton(
+          onPressed: () {
+            setState(() {
+              dataList.clear();
+              dataListShow.clear();
+              totalPenjualan = setTotalJual();
+              isKredit = false;
+              topCtrl.text = "";
+              idTop = "";
+              uangMukaCtrl.text = "";
+              keterangan = "Penjualan mobile";
+              keteranganCtrl.text = keterangan;
+              idPelanggan = Utils.idPelanggan;
+              kodePelanggan = Utils.kodePelanggan;
+              namaPelanggan = Utils.namaPelanggan;
+              totalBiaya = 0;
+              for (var d in dataPaymentMethod) {
+                multiPaymentSendData[d["NAMA"]] = 0;
+              }
+            });
+            Navigator.pop(context);
+          },
+          child: Text("Transaksi Baru"))
+    ]);
   }
 
 // MODAL
@@ -941,10 +993,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
     TextEditingController jumlahCtrl = TextEditingController();
     TextEditingController diskonCtrl = TextEditingController();
     TextEditingController satuanCtrl = TextEditingController();
+    TextEditingController keteranganCtrl = TextEditingController();
     satuanCtrl.text = data["SATUAN"];
     String idSatuan = data["IDSATUAN"];
     jumlahCtrl.text = Utils.formatNumber(data["QTY"]);
     diskonCtrl.text = Utils.formatNumber(data["DISKONNOMINAL"]);
+    keteranganCtrl.text = data["KETERANGAN"] ?? "";
     return showModalBottomSheet(
         isScrollControlled: true,
         context: context,
@@ -1040,6 +1094,12 @@ class _InputPenjualanState extends State<InputPenjualan> {
                     keyboardType: TextInputType.number,
                   ),
                   Padding(padding: EdgeInsets.all(5)),
+                  Utils.labelForm("Keterangan"),
+                  TextField(
+                    controller: keteranganCtrl,
+                    keyboardType: TextInputType.text,
+                  ),
+                  Padding(padding: EdgeInsets.all(5)),
                   Row(
                     children: [
                       Expanded(
@@ -1059,7 +1119,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                   dataListShow[index]["SATUAN"] = satuanCtrl.text;
                                   dataListShow[index]["DISKONNOMINAL"] =
                                       double.parse(Utils.decimalisasi(diskonCtrl.text));
-
+                                  dataListShow[index]["KETERANGAN"] = keteranganCtrl.text;
                                   totalPenjualan = setTotalJual();
                                   Navigator.pop(context);
                                 });
@@ -1390,7 +1450,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                     recalculateListPenjualan();
                                   });
                                 },
-                                icon: Icon(Icons.search)))
+                                icon: Icon(Icons.search))),
                       ],
                     ),
                   ],
@@ -1409,6 +1469,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       String diskon = Utils.formatNumber(data["DISKONNOMINAL"]);
                       String qty = Utils.formatNumber(data["QTY"]);
                       String satuan = data["SATUAN"];
+                      String keterangan = data["KETERANGAN"];
                       return Container(
                         child: Card(
                           child: InkWell(
@@ -1421,7 +1482,17 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Utils.bagde((index + 1).toString()),
+                                  Image.network(
+                                    gambarUrlString + "thumbnail/" + data["IDBARANG"],
+                                    headers: {
+                                      'Authorization': 'Bearer ' + Utils.token,
+                                      'company-code': Utils.companyCode
+                                    },
+                                    height: 100,
+                                    width: 120,
+                                    fit: BoxFit.contain,
+                                  ),
+                                  //Utils.bagde((index + 1).toString()),
                                   Expanded(
                                     flex: 3,
                                     child: Padding(
@@ -1438,7 +1509,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                               Utils.labelSetter("Disc :  $diskon", bold: false),
                                               Utils.labelSetter("Qty : $qty $satuan "),
                                             ],
-                                          )
+                                          ),
+                                          Utils.widgetSetter(() {
+                                            if (keterangan == "") {
+                                              return Container();
+                                            }
+                                            return Column(children: [
+                                              SizedBox(height: 10),
+                                              Utils.labelSetter(keterangan)
+                                            ]);
+                                          }),
                                         ],
                                       ),
                                     ),

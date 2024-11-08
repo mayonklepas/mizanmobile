@@ -227,14 +227,29 @@ class _ListBarangState extends State<ListBarang> {
                                                                     if (result == 200) {
                                                                       Utils.showMessage(
                                                                           "Upload Sukses", context);
+                                                                      setState(() {
+                                                                        buttonText = "Ganti Gambar";
+                                                                      });
                                                                     }
                                                                     return;
                                                                   }
 
+                                                                  ImageSource imgsrc =
+                                                                      ImageSource.gallery;
+
+                                                                  int result = await Utils
+                                                                      .showChoiceImageSourceMessage(
+                                                                          context);
+
+                                                                  if (result == 0) {
+                                                                    Navigator.pop(context);
+                                                                    return;
+                                                                  } else if (result == 1) {
+                                                                    imgsrc = ImageSource.camera;
+                                                                  }
+
                                                                   final image = await ImagePicker()
-                                                                      .pickImage(
-                                                                          source:
-                                                                              ImageSource.camera);
+                                                                      .pickImage(source: imgsrc);
 
                                                                   if (image == null) {
                                                                     return;

@@ -29,8 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)),
+      theme: ThemeData(colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)),
       home: const MainPage(),
     );
   }
@@ -52,7 +51,7 @@ class _MainPageState extends State<MainPage> {
 
   int imageClickCount = 0;
 
-  String companyName = "";
+  String connectionName = "";
 
   Future<dynamic> _postLogin(Map<String, Object> postBody) async {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
@@ -116,14 +115,14 @@ class _MainPageState extends State<MainPage> {
     if (sp.getString("listConnection") != null) {
       await Utils.setAllPref();
       setState(() {
-        companyName = Utils.companyCode;
+        connectionName = Utils.connectionName;
       });
 
       return;
     }
 
     setState(() {
-      companyName = "retail";
+      connectionName = "default";
     });
 
     List<dynamic> _lsData = [];
@@ -138,8 +137,7 @@ class _MainPageState extends State<MainPage> {
     sp.setString("listConnection", jsData);
     sp.setString("defaultConnectionName", "default");
     sp.setString("defaultConnection", "http://app.mizancloud.com/api/");
-    sp.setString(
-        "defaultImageUrl", "http://mizancloud.com/mizan-assets/default/");
+    sp.setString("defaultImageUrl", "http://mizancloud.com/mizan-assets/default/");
     sp.setString("defaultCompanyCode", "retail");
     sp.reload();
 
@@ -148,8 +146,8 @@ class _MainPageState extends State<MainPage> {
 
   Future<String> imageUrl() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String imageUrlStr = sp.getString("defaultImageUrl") ??
-        "http://mizancloud.com/mizan-assets/default/";
+    String imageUrlStr =
+        sp.getString("defaultImageUrl") ?? "http://mizancloud.com/mizan-assets/default/";
     sp.setString("defaultImageUrl", imageUrlStr);
     return imageUrlStr;
   }
@@ -169,9 +167,7 @@ class _MainPageState extends State<MainPage> {
                 alignment: Alignment.center,
                 child: Text("LOGIN",
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold)))),
+                        color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold)))),
         body: SingleChildScrollView(
           child: Container(
             child: Column(
@@ -182,8 +178,7 @@ class _MainPageState extends State<MainPage> {
                         padding: EdgeInsets.only(top: 15),
                         child: FutureBuilder<String>(
                             future: imageUrl(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot<String> snapshot) {
+                            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                               return Column(
                                 children: [
                                   Image.network(
@@ -205,9 +200,8 @@ class _MainPageState extends State<MainPage> {
                             }))),
                 Expanded(
                     flex: 0,
-                    child: Container(
-                        padding: EdgeInsets.only(top: 15),
-                        child: Text(companyName))),
+                    child:
+                        Container(padding: EdgeInsets.only(top: 15), child: Text(connectionName))),
                 Expanded(
                   flex: 0,
                   child: Container(
@@ -254,16 +248,13 @@ class _MainPageState extends State<MainPage> {
                                   Utils.token = data["token"];
                                   Utils.namaUser = data["username"];
                                   Utils.hakAkses = data["hakakses"];
-                                  SharedPreferences sp =
-                                      await SharedPreferences.getInstance();
+                                  SharedPreferences sp = await SharedPreferences.getInstance();
                                   sp.setString("idUser", data["iduser"]);
                                   sp.setString("token", data["token"]);
                                   sp.setString("namauser", data["username"]);
-                                  sp.setString(
-                                      "hakakses", jsonEncode(data["hakakses"]));
+                                  sp.setString("hakakses", jsonEncode(data["hakakses"]));
                                   sp.reload();
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(
+                                  Navigator.pushReplacement(context, MaterialPageRoute(
                                     builder: (context) {
                                       return HomeActivity();
                                     },
@@ -304,8 +295,7 @@ class _MainPageState extends State<MainPage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                      "Internet Bermasalah atau server gangguan ?"),
+                                  Text("Internet Bermasalah atau server gangguan ?"),
                                   Padding(padding: EdgeInsets.all(3)),
                                 ],
                               ),

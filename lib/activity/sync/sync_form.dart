@@ -112,19 +112,32 @@ class _SyncFormState extends State<SyncForm> {
       return;
     }
 
+    bool withCheckDuplicate = false;
+
     var db = DatabaseHelper();
     double loopCountRaw = jumlahDataBelumTersinkron / 100;
     int loopCount = loopCountRaw.ceil();
     syncProcess = true;
 
+    int sisaPenguranganAkhir = (100 * loopCount) - jumlahDataBelumTersinkron;
+
     await db.writeDatabase("UPDATE sync_info SET status_done='0'");
+
+    List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
+    if (lsbarangTemp.isEmpty) {
+      withCheckDuplicate = true;
+    }
+
     for (int i = 0; i < loopCount; i++) {
       int currentCount = 100 * (i + 1);
+      if (i == (loopCount - 1)) {
+        currentCount = currentCount - sisaPenguranganAkhir;
+      }
       setState(() {
         message =
             "Proses Sinkronisasi ${Utils.formatNumber(currentCount)} / ${Utils.formatNumber(jumlahDataBelumTersinkron)}";
       });
-      await Utils.syncLocalData(lastUpdated, halaman: i, withCheckExists: false);
+      await Utils.syncLocalData(lastUpdated, halaman: i, withCheckExists: withCheckDuplicate);
       log("sync count : ${i + 1}");
     }
 

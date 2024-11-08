@@ -41,6 +41,9 @@ class _SetupProgramState extends State<SetupProgram> {
   String isShowStockProgramValue = "0";
   TextEditingController footerStrukCtrl = TextEditingController();
   TextEditingController headerStrukCtrl = TextEditingController();
+  TextEditingController strukListFormatCtrl = TextEditingController();
+  bool isShowDialogAfterSavePenjualan = false;
+  String isShowDialogAfterSavePenjualanValue = "0";
 
   _loadSetupProgram() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
@@ -65,6 +68,7 @@ class _SetupProgramState extends State<SetupProgram> {
       namaKelompokCtrl.text = mapSetup["defaultNamaKelompok"] ?? "";
       bluetoothDeviceCtrl.text = mapSetup["defaultBluetoothDevice"] ?? "";
       idBluetoothDevice = mapSetup["defaultIdBluetoothDevice"] ?? "";
+      strukListFormatCtrl.text = mapSetup["defaultStrukListFormat"] ?? "";
       isPdtModevalue = mapSetup["defaultIsPdtMode"] ?? "0";
       if (isPdtModevalue == "1") {
         isPdtMode = true;
@@ -73,6 +77,12 @@ class _SetupProgramState extends State<SetupProgram> {
       isShowStockProgramValue = mapSetup["defaultIsShowStockProgram"] ?? "0";
       if (isShowStockProgramValue == "1") {
         isShowStockProgram = true;
+      }
+
+      isShowDialogAfterSavePenjualanValue =
+          mapSetup["defaultIsShowDialogAfterSavePenjualan"] ?? "0";
+      if (isShowDialogAfterSavePenjualanValue == "1") {
+        isShowDialogAfterSavePenjualan = true;
       }
 
       headerStrukCtrl.text = mapSetup["defaultHeaderStruk"] ?? "";
@@ -346,6 +356,12 @@ class _SetupProgramState extends State<SetupProgram> {
                   ],
                 ),
                 Padding(padding: EdgeInsets.all(5)),
+                Utils.labelForm("Struk List Format ex: (-20,6,11)"),
+                TextField(
+                  controller: strukListFormatCtrl,
+                  enabled: true,
+                ),
+                Padding(padding: EdgeInsets.all(5)),
                 Row(
                   children: [
                     Checkbox(
@@ -382,6 +398,24 @@ class _SetupProgramState extends State<SetupProgram> {
                     Text("Tampilkan Stok Program"),
                   ],
                 ),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isShowDialogAfterSavePenjualan,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          isShowDialogAfterSavePenjualan = value!;
+                          if (value == true) {
+                            isShowDialogAfterSavePenjualanValue = "1";
+                          } else {
+                            isShowDialogAfterSavePenjualanValue = "0";
+                          }
+                        });
+                      },
+                    ),
+                    Text("Tampilkan Dialog Setelah Simpan Penjualan"),
+                  ],
+                ),
                 Utils.labelForm("Header Struk"),
                 TextField(
                   controller: headerStrukCtrl,
@@ -416,8 +450,11 @@ class _SetupProgramState extends State<SetupProgram> {
                           "defaultIdBluetoothDevice": idBluetoothDevice,
                           "defaultIsPdtMode": isPdtModevalue,
                           "defaultIsShowStockProgram": isShowStockProgramValue,
+                          "defaultIsShowDialogAfterSavePenjualan":
+                              isShowDialogAfterSavePenjualanValue,
                           "defaultHeaderStruk": headerStrukCtrl.text,
                           "defaultFooterStruk": footerStrukCtrl.text,
+                          "defaultStrukListFormat": strukListFormatCtrl.text
                         };
 
                         String jsonSetup = jsonEncode(mapSetup);
@@ -447,8 +484,11 @@ class _SetupProgramState extends State<SetupProgram> {
                           Utils.bluetoothName = bluetoothDeviceCtrl.text;
                           Utils.isPdtMode = isPdtModevalue;
                           Utils.isShowStockProgram = isShowStockProgramValue;
+                          Utils.isShowDialogAfterSavePenjualan =
+                              isShowDialogAfterSavePenjualanValue;
                           Utils.footerStruk = footerStrukCtrl.text;
                           Utils.headerStruk = headerStrukCtrl.text;
+                          Utils.strukListFormat = strukListFormatCtrl.text;
                         });
                         sp.reload();
                         ScaffoldMessenger.of(context)

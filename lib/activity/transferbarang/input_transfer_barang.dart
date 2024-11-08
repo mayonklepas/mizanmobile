@@ -585,7 +585,12 @@ class _InputTransferBarangState extends State<InputTransferBarang> {
                                           result =
                                               await _postTranferbarang(mapData, "insertheader");
                                         }
-                                        log(result.toString());
+
+                                        if (result["status"] != 0) {
+                                          Utils.showMessage(result["message"], context);
+                                          return;
+                                        }
+
                                         idTransaksiGlobal = result["data"]["NOINDEX"];
                                         setState(() {
                                           norefGlobal = result["data"]["NOREF"];

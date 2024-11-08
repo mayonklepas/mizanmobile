@@ -10,6 +10,7 @@ import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
 import '../../helper/database_helper.dart';
+import '../sync/sync_form.dart';
 
 class ListModalBarang extends StatefulWidget {
   final String keyword;
@@ -24,6 +25,7 @@ class _ListModalBarangState extends State<ListModalBarang> {
   Future<List<dynamic>>? _dataBarang;
   String inKeyword = "";
   bool isShowLoading = false;
+  String gambarUrlString = "${Utils.mainUrl}barang/download/";
 
   Future<List<dynamic>> _getDataBarang({String keyword = ""}) async {
     if (widget.isLocal) {
@@ -131,7 +133,17 @@ class _ListModalBarangState extends State<ListModalBarang> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Utils.bagde(dataList["NAMA"].toString().substring(0, 1)),
+                            Image.network(
+                              gambarUrlString + "thumbnail/" + dataList["NOINDEX"],
+                              headers: {
+                                'Authorization': 'Bearer ' + Utils.token,
+                                'company-code': Utils.companyCode
+                              },
+                              height: 70,
+                              width: 80,
+                              fit: BoxFit.contain,
+                            ),
+                            //Utils.bagde(dataList["NAMA"].toString().substring(0, 1)),
                             Expanded(
                               flex: 3,
                               child: Padding(
@@ -173,10 +185,66 @@ class _ListModalBarangState extends State<ListModalBarang> {
     );
   }
 
+  _initSync() async {
+    try {
+      var db = DatabaseHelper();
+      List<dynamic> lsSyncInfo = await db.readDatabase("SELECT * FROM sync_info LIMIT 1");
+      String lastUpdated = lsSyncInfo[0]["last_updated"];
+      String urlString =
+          "${Utils.mainUrl}barang/getitemsync?tglupdate=$lastUpdated&idgudang=${Utils.idGudang}";
+      log(urlString);
+      Uri url = Uri.parse(urlString);
+      Response response = await get(url, headers: Utils.setHeader());
+      String body = response.body;
+      var jsonData = jsonDecode(body)["data"];
+
+      int jumlahDataBelumTersinkron = jsonData["jumlah_item_sync"];
+      if (jumlahDataBelumTersinkron == 0) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Data saat ini adalah yang terbaru")));
+        return;
+      }
+      await db.writeDatabase("UPDATE sync_info SET status_done='0'");
+      double loopCountRaw = jumlahDataBelumTersinkron / 100;
+      int loopCount = loopCountRaw.ceil();
+      for (int i = 0; i < loopCount; i++) {
+        await Utils.syncLocalData(lastUpdated, halaman: i);
+      }
+      await db.writeDatabase("UPDATE sync_info SET last_updated = ?, status_done='1'",
+          params: [Utils.currentDateTimeString()]);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Data telah diperbaharui dari sinkronisasi")));
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
   Icon customIcon = Icon(Icons.search);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Utils.widgetSetter(() {
+        if (Utils.hakAkses["MOBILE_EDITDATAMASTER"] == 0) {
+          return Container();
+        }
+        return FloatingActionButton(
+          child: Icon(
+            Icons.add,
+            size: 30,
+          ),
+          onPressed: () async {
+            dynamic res = await Navigator.push(context, MaterialPageRoute(
+              builder: (context) {
+                return InputBarang(
+                  idBarang: "",
+                );
+              },
+            ));
+
+            await _initSync();
+          },
+        );
+      }),
       appBar: AppBar(
         title: Utils.appBarSearchDynamic((keyword) {
           setState(() {
@@ -199,7 +267,19 @@ class _ListModalBarangState extends State<ListModalBarang> {
                   _dataBarang = _getDataBarang(keyword: barcodeScanRes);
                 });
               },
-              icon: Icon(Icons.qr_code_scanner))
+              icon: Icon(Icons.qr_code_scanner)),
+          IconButton(
+              onPressed: () async {
+                await Navigator.push(context, MaterialPageRoute(
+                  builder: (context) {
+                    return SyncForm();
+                  },
+                ));
+                setState(() {
+                  _dataBarang = _getDataBarang(keyword: inKeyword);
+                });
+              },
+              icon: Icon(Icons.sync)),
         ],
       ),
       body: RefreshIndicator(

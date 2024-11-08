@@ -85,6 +85,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
     dynamic headerData = data["header"][0];
 
     String idPelanggan = headerData["IDPELANGGAN"];
+    String kodePelanggan = headerData["KODEPELANGGAN"];
     String namaPelanggan = headerData["NAMAPELANGGAN"];
     double jumlahBayar = headerData["JUMLAHBAYAR"] ?? 0.0;
     String idUserInput = headerData["USERINPUT"];
@@ -125,7 +126,8 @@ class _ListPenjualanState extends State<ListPenjualan> {
         "DISKONNOMINAL": d["DISKONNOMINAL"],
         "IDGUDANG": d["IDGUDANG"],
         "IDSATUANPENGALI": d["IDSATUANPENGALI"],
-        "QTYSATUANPENGALI": d["QTYSATUANPENGALI"]
+        "QTYSATUANPENGALI": d["QTYSATUANPENGALI"],
+        "KETERANGAN": d["KETERANGAN"] ?? "",
       });
     }
 
@@ -133,7 +135,7 @@ class _ListPenjualanState extends State<ListPenjualan> {
       "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
       "totalUangMuka": uangMuka,
       "tanggal": tanggal,
-      "kodePelanggan": Utils.kodePelanggan,
+      "kodePelanggan": kodePelanggan,
       "namaPelanggan": namaPelanggan,
       "kasir": namaKasir,
       "noref": noref,

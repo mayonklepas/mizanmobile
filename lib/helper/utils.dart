@@ -95,9 +95,13 @@ class Utils {
 
   static String isShowStockProgram = "0";
 
+  static String isShowDialogAfterSavePenjualan = "0";
+
   static String footerStruk = "";
 
   static String headerStruk = "";
+
+  static String strukListFormat = "";
 
   static bool isOffline = false;
 
@@ -535,8 +539,9 @@ class Utils {
         });
   }
 
-  static showMessageAction(String message, BuildContext context, ElevatedButton button) {
+  static showMessageAction(String message, BuildContext context, List<ElevatedButton> button) {
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -544,7 +549,7 @@ class Utils {
             content: Container(
               child: Text(message),
             ),
-            actions: [button],
+            actions: button,
           );
         });
   }
@@ -658,6 +663,43 @@ class Utils {
     return result;
   }
 
+  static Future<int> showChoiceImageSourceMessage(BuildContext context) async {
+    int result = 0;
+
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("KONFIRMASI"),
+            content: Container(
+              child: Text("Pilih sumber gambar"),
+            ),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    result = 2;
+                    Navigator.pop(context);
+                  },
+                  child: Text("Galeri")),
+              ElevatedButton(
+                  onPressed: () {
+                    result = 1;
+                    Navigator.pop(context);
+                  },
+                  child: Text("Kamera")),
+              ElevatedButton(
+                  onPressed: () {
+                    result = 0;
+                    Navigator.pop(context);
+                  },
+                  child: Text("Batal")),
+            ],
+          );
+        });
+
+    return result;
+  }
+
   static Map<String, String> setHeader() {
     Map<String, String> header = <String, String>{
       'Content-Type': 'application/json',
@@ -728,6 +770,7 @@ class Utils {
       Utils.namaGudang = mapSetup["defaultNamaGudang"].toString();
       Utils.idPelanggan = mapSetup["defaultIdPelanggan"].toString();
       Utils.namaPelanggan = mapSetup["defaultNamaPelanggan"].toString();
+      Utils.kodePelanggan = mapSetup["defaultKodePelanggan"].toString();
       Utils.idGolonganPelanggan = mapSetup["defaultIdGolonganPelanggan"].toString();
 
       Utils.idSatuan = mapSetup["defaultIdSatuan"].toString();
@@ -740,9 +783,12 @@ class Utils {
       Utils.bluetoothName = mapSetup["defaultBluetoothDevice"].toString();
       Utils.isPdtMode = mapSetup["defaultIsPdtMode"] ?? "0";
       Utils.isShowStockProgram = mapSetup["defaultIsShowStockProgram"] ?? "0";
+      Utils.isShowDialogAfterSavePenjualan =
+          mapSetup["defaultIsShowDialogAfterSavePenjualan"] ?? "0";
 
       Utils.footerStruk = mapSetup["defaultFooterStruk"] ?? "";
       Utils.headerStruk = mapSetup["defaultHeaderStruk"] ?? "";
+      Utils.strukListFormat = mapSetup["defaultStrukListFormat"] ?? "";
     }
   }
 
@@ -792,19 +838,16 @@ class Utils {
       List<dynamic> dataBarang = responseParsed["data"];
 
       if (withCheckExists) {
-        List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
         List<String> lsQueryDelete = [];
-
-        if (lsbarangTemp.isNotEmpty) {
-          for (var d in dataBarang) {
-            String idbarang = d["detail_barang"]["NOINDEX"].toString();
-            String query = "DELETE FROM barang_temp WHERE idbarang = '$idbarang'";
-            lsQueryDelete.add(query);
-          }
-          List<Object?> deleteResult = await db.writeBatchDatabase(lsQueryDelete);
-          log("Deleted ${Utils.formatNumber(deleteResult.length)} duplicate data");
+        for (var d in dataBarang) {
+          String idbarang = d["detail_barang"]["NOINDEX"].toString();
+          String query = "DELETE FROM barang_temp WHERE idbarang = '$idbarang'";
+          lsQueryDelete.add(query);
         }
+        List<Object?> deleteResult = await db.writeBatchDatabase(lsQueryDelete);
+        log("Deleted ${Utils.formatNumber(deleteResult.length)} duplicate data");
       }
+
       List<String> lsQueryInsert = [];
       for (var d in dataBarang) {
         String idbarang = d["detail_barang"]["NOINDEX"].toString();

@@ -31,6 +31,8 @@ import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
 
+import 'orderpenjualan/list_order_penjualan.dart';
+
 class HomeActivity extends StatefulWidget {
   const HomeActivity({Key? key}) : super(key: key);
 
@@ -758,6 +760,13 @@ class _HomeActivityState extends State<HomeActivity> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
+                setIconCard(Icons.shopping_basket, Colors.blue, "Order Penjualan", () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return ListOrderPenjualan();
+                    },
+                  ));
+                }),
                 setIconCard(Icons.shopping_cart, Colors.blue, "Penjualan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {

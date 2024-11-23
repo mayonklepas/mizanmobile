@@ -126,8 +126,10 @@ class _ListModalFormState extends State<ListModalForm> {
         mainUrlString =
             "${Utils.mainUrl}pembelian/daftarpenerimaanbarang?idsuplier=${widget.idSuplier}";
         headerBar = "Penerimaan";
-      }
-      if (type == "kelompoktransaksi") {
+      } else if (type == "orderpenjualan") {
+        mainUrlString = "${Utils.mainUrl}orderpenjualan/daftar";
+        headerBar = "Order penjualan";
+      } else if (type == "kelompoktransaksi") {
         mainUrlString = "${Utils.mainUrl}datapopup/kelompoktransaksi?cari=";
         headerBar = "Kelompok Transaksi";
       }
@@ -141,7 +143,7 @@ class _ListModalFormState extends State<ListModalForm> {
           jsonData[i]["NAMA"] = jsonData[i]["NAMASUPLIER"];
           jsonData[i]["KODE"] = jsonData[i]["NOREF"];
         }
-      }
+      } else if (type == "orderpenjualan") {}
       if (widget.withAll) {
         Map<String, dynamic> map = {"NAMA": "SEMUA", "KODE": "SEMUA", "NOINDEX": "-1"};
         jsonData.insert(0, map);

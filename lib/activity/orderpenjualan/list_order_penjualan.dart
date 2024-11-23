@@ -123,7 +123,7 @@ class _ListOrderPenjualanState extends State<ListOrderPenjualan> {
         "NAMA": d["NAMABARANG"],
         "IDSATUAN": d["IDSATUAN"],
         "SATUAN": d["KODESATUAN"],
-        "QTY": d["QTY"],
+        "QTYORDER": d["QTYORDER"],
         "HARGA": d["HARGA"],
         "DISKONNOMINAL": d["DISKONNOMINAL"],
         "IDGUDANG": d["IDGUDANG"],
@@ -134,14 +134,12 @@ class _ListOrderPenjualanState extends State<ListOrderPenjualan> {
     }
 
     dynamic additionalInfo = {
-      "kreditOrTunai": (isTunai == 0) ? "Tunai" : "Kredit",
-      "totalUangMuka": uangMuka,
       "tanggal": tanggal,
       "kodePelanggan": kodePelanggan,
       "namaPelanggan": namaPelanggan,
       "kasir": namaKasir,
       "noref": noref,
-      "jumlahUang": jumlahBayar
+      "strukTipe": "orderpenjualan"
     };
 
     Map<String, String> printResult =
@@ -197,7 +195,7 @@ class _ListOrderPenjualanState extends State<ListOrderPenjualan> {
                           }
 
                           await Navigator.push(context, MaterialPageRoute(builder: (contenxt) {
-                            return InputPenjualan(idTransaksi: noindex);
+                            return InputOrderPenjualan(idTransaksi: noindex);
                           }));
                           setState(() {
                             _dataOrderPenjualan = _getDataOrderPenjualan();
@@ -226,24 +224,6 @@ class _ListOrderPenjualanState extends State<ListOrderPenjualan> {
                             if (result["status"] == 1) {
                               Utils.showMessage(result["message"], context);
                               return;
-                            }
-
-                            List<dynamic> detailBarang = result["data"]["detail_barang"];
-
-                            for (var d in detailBarang) {
-                              List<dynamic> lsDetailBarang = await new DatabaseHelper()
-                                  .readDatabase(
-                                      "SELECT detail_barang FROM barang_temp WHERE idbarang = ? ",
-                                      params: [d["IDBARANG"].toString()]);
-
-                              dynamic detailBarang = jsonDecode(lsDetailBarang[0]["detail_barang"]);
-                              detailBarang["STOK"] = d["STOK"];
-
-                              String detailBarangStr = jsonEncode(detailBarang);
-
-                              await new DatabaseHelper().writeDatabase(
-                                  "UPDATE barang_temp SET detail_barang = ? WHERE idbarang =?",
-                                  params: [detailBarangStr, d["IDBARANG"]]);
                             }
 
                             setState(() {
@@ -312,7 +292,14 @@ class _ListOrderPenjualanState extends State<ListOrderPenjualan> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Utils.bagde((index + 1).toString()),
+                                  Utils.widgetSetter(() {
+                                    if (dataList["STATUSORDER"] == 1) {
+                                      return Utils.bagde((index + 1).toString(),
+                                          bgColor: Colors.green);
+                                    } else {
+                                      return Utils.bagde((index + 1).toString());
+                                    }
+                                  }),
                                   Expanded(
                                     flex: 2,
                                     child: Padding(

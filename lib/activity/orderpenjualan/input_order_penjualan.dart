@@ -33,7 +33,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
   String tanggalTransaksi = Utils.currentDateString();
   String idTransaksi = "";
   String noref = "";
-  String keterangan = "Penjualan mobile";
+  String keterangan = "Order Penjualan mobile";
   TextEditingController pelangganCtrl = TextEditingController();
   String idPelanggan = Utils.idPelanggan;
   String kodePelanggan = Utils.kodePelanggan;
@@ -79,6 +79,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
     Future.delayed(Duration.zero, () => Utils.showProgress(context));
     String urlString = "${Utils.mainUrl}orderpenjualan/$urlPath";
     Uri url = Uri.parse(urlString);
+    String bodySend = jsonEncode(postBody);
     Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
     Navigator.pop(context);
@@ -151,7 +152,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
           "NAMA": detailInfoBarang["NAMA"],
           "IDSATUAN": d["IDSATUAN"],
           "SATUAN": detailInfoBarang["KODE_SATUAN"],
-          "QTY": d["QTY"],
+          "QTYORDER": d["QTYORDER"] ?? 0.0,
           "HARGA": d["HARGA"],
           "DISKONNOMINAL": d["DISKONNOMINAL"],
           "IDGUDANG": idGudang,
@@ -218,7 +219,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
           "NAMA": db["NAMA"],
           "IDSATUAN": db["IDSATUAN"],
           "SATUAN": db["KODE_SATUAN"],
-          "QTY": 1.0,
+          "QTYORDER": 1.0,
           "HARGA": hargaUpdate["HARGA"],
           "DISKONNOMINAL": 0.0,
           "IDGUDANG": idGudang,
@@ -231,13 +232,13 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
       });
     } else {
       int index = getIndexBarang(db["NOINDEX"].toString());
-      double qty = dataListShow[index]["QTY"] + 1;
+      double qtyOrder = dataListShow[index]["QTYORDER"] + 1;
       String idSatuan = db["IDSATUAN"];
-      dynamic hargaUpdate = getHargaJual(data, idSatuan, qty);
+      dynamic hargaUpdate = getHargaJual(data, idSatuan, qtyOrder);
 
       setState(() {
         dataListShow[index]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
-        dataListShow[index]["QTY"] = qty;
+        dataListShow[index]["QTYORDER"] = qtyOrder;
         dataListShow[index]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
         dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
         totalPenjualan = setTotalJual();
@@ -323,9 +324,9 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
     for (var d in dataListShow) {
       log(d.toString());
       double harga = d["HARGA"];
-      double qty = d["QTY"];
+      double qtyOrder = d["QTYORDER"];
       double diskon = d["DISKONNOMINAL"];
-      double total = (harga * qty) - (diskon * qty);
+      double total = (harga * qtyOrder) - (diskon * qtyOrder);
       result = result + total;
     }
     return result;
@@ -370,7 +371,9 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
               "tanggal": tanggalCtrl.text,
               "kodePelanggan": kodePelanggan,
               "namaPelanggan": namaPelanggan,
-              "jumlahUang": jumlahBayarEdit
+              "jumlahUang": jumlahBayarEdit,
+              "noref": noref,
+              "strukTipe": "orderPenjualan"
             };
 
             Map<String, String> printResult =
@@ -398,8 +401,8 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
     for (var i = 0; i < dataList.length; i++) {
       dynamic d = dataList[i];
       dynamic dShow = dataListShow[i];
-      double qty = dShow["QTY"];
-      dynamic hargaUpdate = getHargaJual(d, dShow["IDSATUAN"], qty);
+      double qtyOrder = dShow["QTYORDER"];
+      dynamic hargaUpdate = getHargaJual(d, dShow["IDSATUAN"], qtyOrder);
       dataListShow[i]["HARGA"] = hargaUpdate["HARGA"];
       dataListShow[i]["IDSATUANPENGALI"] = hargaUpdate["IDSATUANPENGALI"];
       dataListShow[i]["QTYSATUANPENGALI"] = hargaUpdate["QTYSATUANPENGALI"];
@@ -407,7 +410,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
     totalPenjualan = setTotalJual();
   }
 
-  sendPayment() async {
+  sendOrderPenjualan() async {
     Map headerMap = {
       "IDDEPT": idDept,
       "KETERANGAN": keteranganCtrl.text,
@@ -456,48 +459,19 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
       return;
     }
 
-    var dataResult = result["data"];
-
-    List<dynamic> detailBarangPost = dataResult["detail_barang"];
-
-    DatabaseHelper dbh = DatabaseHelper();
-    for (var d in detailBarangPost) {
-      String idBarang = d["IDBARANG"];
-      double stoktambahan = d["STOK"];
-
-      List<dynamic> lsLocalUpdate = await dbh.readDatabase(
-          "SELECT detail_barang FROM barang_temp WHERE idbarang =? ",
-          params: [idBarang]);
-
-      dynamic detailBarang = jsonDecode(lsLocalUpdate[0]["detail_barang"]);
-      detailBarang["STOK"] = stoktambahan;
-      String detailBarangStr = jsonEncode(detailBarang);
-
-      await dbh.writeDatabase("UPDATE barang_temp SET detail_barang=? WHERE idbarang=?",
-          params: [detailBarangStr, idBarang]);
-
-      List<dynamic> lsLocalUpdateEnd = await dbh.readDatabase(
-          "SELECT detail_barang FROM barang_temp WHERE idbarang =? ",
-          params: [idBarang]);
-
-      //log(lsLocalUpdateEnd[0]["detail_barang"]);
-    }
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Utils.labelSetter("Transaksi berhasil", color: Colors.green, size: 20)));
     List<dynamic> dataListPrint = dataListShow;
     dynamic additionalInfo = {
-      "tanggal": dataResult["TANGGAL"],
+      "tanggal": tanggalCtrl.text,
       "kodePelanggan": kodePelanggan,
       "namaPelanggan": namaPelanggan,
       "kasir": Utils.namaUser,
-      "noref": dataResult["NOREF"].toString(),
+      "noref": result["NOREF"].toString(),
+      "strukTipe": "orderPenjualan"
     };
 
-    Map<String, String> printResult =
-        await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
-    if (printResult["status"] == "error") {
-      log(printResult["message"].toString());
-    }
+    PrinterUtils().printReceipt(dataListPrint, additionalInfo);
 
     if (widget.idTransaksi != "") {
       Navigator.pop(context);
@@ -510,7 +484,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
         dataList.clear();
         dataListShow.clear();
         totalPenjualan = setTotalJual();
-        keterangan = "Penjualan mobile";
+        keterangan = "Order Penjualan mobile";
         keteranganCtrl.text = keterangan;
         idPelanggan = Utils.idPelanggan;
         kodePelanggan = Utils.kodePelanggan;
@@ -541,7 +515,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
               dataList.clear();
               dataListShow.clear();
               totalPenjualan = setTotalJual();
-              keterangan = "Penjualan mobile";
+              keterangan = "Order Penjualan mobile";
               keteranganCtrl.text = keterangan;
               idPelanggan = Utils.idPelanggan;
               kodePelanggan = Utils.kodePelanggan;
@@ -563,7 +537,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
     TextEditingController keteranganCtrl = TextEditingController();
     satuanCtrl.text = data["SATUAN"];
     String idSatuan = data["IDSATUAN"];
-    jumlahCtrl.text = Utils.formatNumber(data["QTY"]);
+    jumlahCtrl.text = Utils.formatNumber(data["QTYORDER"]);
     diskonCtrl.text = Utils.formatNumber(data["DISKONNOMINAL"]);
     keteranganCtrl.text = data["KETERANGAN"] ?? "";
     return showModalBottomSheet(
@@ -678,7 +652,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
                                 setState(() {
                                   dataListShow[index]["IDSATUANPENGALI"] =
                                       hargaUpdate["IDSATUANPENGALI"];
-                                  dataListShow[index]["QTY"] = qty;
+                                  dataListShow[index]["QTYORDER"] = qty;
                                   dataListShow[index]["QTYSATUANPENGALI"] =
                                       hargaUpdate["QTYSATUANPENGALI"];
                                   dataListShow[index]["HARGA"] = hargaUpdate["HARGA"];
@@ -1033,7 +1007,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
                       String nama = data["NAMA"];
                       String harga = Utils.formatNumber(data["HARGA"]);
                       String diskon = Utils.formatNumber(data["DISKONNOMINAL"]);
-                      String qty = Utils.formatNumber(data["QTY"]);
+                      String qtyOrder = Utils.formatNumber(data["QTYORDER"]);
                       String satuan = data["SATUAN"];
                       String keterangan = data["KETERANGAN"];
                       return Container(
@@ -1073,7 +1047,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Utils.labelSetter("Disc :  $diskon", bold: false),
-                                              Utils.labelSetter("Qty : $qty $satuan "),
+                                              Utils.labelSetter("Qty : $qtyOrder $satuan "),
                                             ],
                                           ),
                                           Utils.widgetSetter(() {
@@ -1119,7 +1093,7 @@ class _InputOrderPenjualanState extends State<InputOrderPenjualan> {
                         height: 45,
                         child: ElevatedButton(
                           onPressed: () async {
-                            await sendPayment();
+                            await sendOrderPenjualan();
                           },
                           child: Utils.labelSetter("SIMPAN", color: Colors.white),
                         ),

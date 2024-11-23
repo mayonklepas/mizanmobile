@@ -439,7 +439,7 @@ class Utils {
     );
   }
 
-  static SizedBox bagde(String text) {
+  static SizedBox bagde(String text, {bgColor: Colors.blue, textColor: Colors.white}) {
     return SizedBox(
       width: 60,
       height: 60,
@@ -448,10 +448,10 @@ class Utils {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(100),
         ),
-        color: Colors.blue,
+        color: bgColor,
         child: Container(
           child: Center(
-            child: Utils.labelSetter(text, bold: true, size: 30, color: Colors.white),
+            child: Utils.labelSetter(text, bold: true, size: 30, color: textColor),
           ),
         ),
       ),

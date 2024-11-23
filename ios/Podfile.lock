@@ -1,6 +1,8 @@
 PODS:
   - blue_thermal_printer (0.0.1):
     - Flutter
+  - camera_avfoundation (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_barcode_scanner (2.0.0):
     - Flutter
@@ -24,6 +26,7 @@ PODS:
 
 DEPENDENCIES:
   - blue_thermal_printer (from `.symlinks/plugins/blue_thermal_printer/ios`)
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Flutter (from `Flutter`)
   - flutter_barcode_scanner (from `.symlinks/plugins/flutter_barcode_scanner/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
@@ -37,6 +40,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   blue_thermal_printer:
     :path: ".symlinks/plugins/blue_thermal_printer/ios"
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   Flutter:
     :path: Flutter
   flutter_barcode_scanner:
@@ -58,6 +63,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   blue_thermal_printer: c83405103d2c17f8d67aaa43fcff94df5d616a66
+  camera_avfoundation: 8b8d780bcfb6a4a02b0fbe2b4bd17b5b71946e68
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_barcode_scanner: 7a1144744c28dc0c57a8de7218ffe5ec59a9e4bf
   geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450

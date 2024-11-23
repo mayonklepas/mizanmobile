@@ -38,7 +38,8 @@ class PrinterUtils {
       String header = Utils.headerStruk;
       String kodePelanggan = additionalInfo["kodePelanggan"];
       String namaPelanggan = additionalInfo["namaPelanggan"];
-      double jumlahUang = additionalInfo["jumlahUang"];
+      double jumlahUang = additionalInfo["jumlahUang"] ?? 0.0;
+      String strukTipe = additionalInfo["strukTipe"] ?? "";
 
       int fontMedium = Size.medium.val;
       int fontMediumBold = Size.boldMedium.val;
@@ -46,6 +47,11 @@ class PrinterUtils {
       int alignCenter = Align.center.val;
 
       try {
+        if (strukTipe == "orderPenjualan") {
+          bluetooth.printCustom("ORDER PENJUALAN", fontMediumBold, alignLeft);
+          bluetooth.printNewLine();
+        }
+
         bluetooth.printCustom(toko, fontMediumBold, alignCenter);
         bluetooth.printCustom(header, fontMedium, alignCenter);
 
@@ -60,7 +66,7 @@ class PrinterUtils {
         for (var d in data) {
           String nama = d["NAMA"];
           double harga = d["HARGA"];
-          double qty = d["QTY"];
+          double qty = d["QTY"] ?? d["QTYORDER"];
           double diskon = d["DISKONNOMINAL"];
           double total = (harga * qty) - (diskon * qty);
           String keterangan = d["KETERANGAN"];
@@ -91,8 +97,11 @@ class PrinterUtils {
         bluetooth.printNewLine();
         bluetooth.printLeftRight("Total", fmtResult, Size.bold.val);
 
-        bluetooth.printLeftRight("Jumlah uang", fmtJumlahUang, Size.bold.val);
-        bluetooth.printLeftRight("Kembalian", fmtKembalian, Size.bold.val);
+        if (strukTipe == "") {
+          bluetooth.printLeftRight("Jumlah uang", fmtJumlahUang, Size.bold.val);
+          bluetooth.printLeftRight("Kembalian", fmtKembalian, Size.bold.val);
+        }
+
         bluetooth.printNewLine();
         bluetooth.printCustom(Utils.footerStruk, fontMedium, alignCenter);
         bluetooth.printNewLine();

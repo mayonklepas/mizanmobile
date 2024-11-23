@@ -124,7 +124,8 @@ class _SyncFormState extends State<SyncForm> {
     await db.writeDatabase("UPDATE sync_info SET status_done='0'");
 
     List<dynamic> lsbarangTemp = await db.readDatabase("SELECT * FROM barang_temp LIMIT 10");
-    if (lsbarangTemp.isEmpty) {
+
+    if (lsbarangTemp.isNotEmpty) {
       withCheckDuplicate = true;
     }
 

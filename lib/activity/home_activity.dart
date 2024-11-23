@@ -760,7 +760,7 @@ class _HomeActivityState extends State<HomeActivity> {
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               children: [
-                setIconCard(Icons.shopping_basket, Colors.blue, "Order Penjualan", () {
+                setIconCard(Icons.assignment_add, Colors.blue, "Order Penjualan", () {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListOrderPenjualan();
@@ -771,6 +771,13 @@ class _HomeActivityState extends State<HomeActivity> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPenjualan();
+                    },
+                  ));
+                }),
+                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
+                  Navigator.push(context, MaterialPageRoute(
+                    builder: (context) {
+                      return ListPiutang();
                     },
                   ));
                 }),
@@ -785,13 +792,6 @@ class _HomeActivityState extends State<HomeActivity> {
                   Navigator.push(context, MaterialPageRoute(
                     builder: (context) {
                       return ListPembelian();
-                    },
-                  ));
-                }),
-                setIconCard(Icons.playlist_add, Colors.blue, "Piutang Usaha", () {
-                  Navigator.push(context, MaterialPageRoute(
-                    builder: (context) {
-                      return ListPiutang();
                     },
                   ));
                 }),

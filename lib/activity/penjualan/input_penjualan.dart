@@ -58,6 +58,9 @@ class _InputPenjualanState extends State<InputPenjualan> {
   TextEditingController paymentTypeCtrl = TextEditingController();
   TextEditingController searchBarctrl = TextEditingController();
 
+  String orderId = "";
+  String orderNumber = "";
+
   List<dynamic> dataList = [];
   List<dynamic> dataListShow = [];
   List<dynamic> dataPaymentMethod = [];
@@ -124,6 +127,16 @@ class _InputPenjualanState extends State<InputPenjualan> {
     Uri url = Uri.parse(urlString);
     Response response = await post(url, body: jsonEncode(postBody), headers: Utils.setHeader());
     var jsonData = jsonDecode(response.body);
+    Navigator.pop(context);
+    return jsonData;
+  }
+
+  Future<dynamic> getRincianOrderPenjualan(String noindex) async {
+    Future.delayed(Duration.zero, () => Utils.showProgress(context));
+    Uri url = Uri.parse("${Utils.mainUrl}orderpenjualan/rincian?noindex=$noindex");
+    Response response = await get(url, headers: Utils.setHeader());
+    String body = response.body;
+    var jsonData = jsonDecode(body);
     Navigator.pop(context);
     return jsonData;
   }
@@ -229,6 +242,58 @@ class _InputPenjualanState extends State<InputPenjualan> {
           "IDSATUANPENGALI": d["IDSATUANPENGALI"],
           "QTYSATUANPENGALI": d["QTYSATUANPENGALI"],
           "KETERANGAN": d["KETERANGAN"]
+        });
+
+        totalPenjualan = setTotalJual();
+      });
+    }
+
+    //Navigator.pop(context);
+  }
+
+  Future getOrderPenjualanDetail(String idPelanggan) async {
+    //Future.delayed(Duration.zero, () => Utils.showProgress(context));
+
+    String urlString = "${Utils.mainUrl}penjualan/getorderbypelanggan?idpelanggan=${idPelanggan}";
+    Uri url = Uri.parse(urlString);
+    Response response = await get(url, headers: Utils.setHeader());
+    String body = response.body;
+    dynamic jsonData = jsonDecode(body)["data"];
+
+    List<dynamic> detailBarang = jsonData["detail"];
+
+    for (var d in detailBarang) {
+      String idBarang = d["IDBARANG"].toString();
+      List<dynamic> listDetailBarang = await DatabaseHelper().readDatabase(
+          "SELECT detail_barang,multi_satuan,multi_harga,harga_tanggal FROM barang_temp WHERE idbarang =? ",
+          params: [idBarang]);
+
+      dynamic detailBarang = listDetailBarang[0];
+      dynamic resultDataDetail = {
+        "detail_barang": jsonDecode(detailBarang["detail_barang"]),
+        "multi_satuan": jsonDecode(detailBarang["multi_satuan"]),
+        "multi_harga": jsonDecode(detailBarang["multi_harga"]),
+        "harga_tanggal": jsonDecode(detailBarang["harga_tanggal"]),
+      };
+
+      dynamic detailInfoBarang = jsonDecode(detailBarang["detail_barang"]);
+
+      setState(() {
+        dataList.add(resultDataDetail);
+        dataListShow.add({
+          "IDBARANG": d["IDBARANG"].toString(),
+          "KODE": detailInfoBarang["KODE"],
+          "NAMA": detailInfoBarang["NAMA"],
+          "IDSATUAN": d["IDSATUAN"],
+          "SATUAN": detailInfoBarang["KODE_SATUAN"],
+          "QTY": d["QTYORDER"],
+          "HARGA": d["HARGA"],
+          "DISKONNOMINAL": d["DISKONNOMINAL"],
+          "IDGUDANG": idGudang,
+          "IDSATUANPENGALI": d["IDSATUANPENGALI"],
+          "QTYSATUANPENGALI": d["QTYSATUANPENGALI"],
+          "KETERANGAN": d["KETERANGAN"],
+          "IDORDER": d["IDORDER"]
         });
 
         totalPenjualan = setTotalJual();
@@ -617,7 +682,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
         "IDGUDANG": idGudang,
         "IDSATUANPENGALI": dataMap["IDSATUANPENGALI"],
         "QTYSATUANPENGALI": dataMap["QTYSATUANPENGALI"],
-        "KETERANGAN": dataMap["KETERANGAN"] ?? ""
+        "KETERANGAN": dataMap["KETERANGAN"] ?? "",
+        "IDORDER": dataMap["IDORDER"] ?? ""
       });
     }
 
@@ -736,11 +802,11 @@ class _InputPenjualanState extends State<InputPenjualan> {
       "jumlahUang": Utils.strToDouble(jumlahUangCtrl.text),
     };
 
-    Map<String, String> printResult =
-        await PrinterUtils().printReceipt(dataListPrint, additionalInfo);
-    if (printResult["status"] == "error") {
+    PrinterUtils().printReceipt(dataListPrint, additionalInfo);
+
+    /*if (printResult["status"] == "error") {
       log(printResult["message"].toString());
-    }
+    }*/
 
     if (widget.idTransaksi != "") {
       Navigator.pop(context);
@@ -1439,6 +1505,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                   ));
 
                                   if (popUpResult == null) return;
+
+                                  await getOrderPenjualanDetail(popUpResult["NOINDEX"]);
 
                                   setState(() {
                                     pelangganCtrl.text = popUpResult["NAMA"];

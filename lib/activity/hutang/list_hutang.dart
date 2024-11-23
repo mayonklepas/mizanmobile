@@ -7,6 +7,7 @@ import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
 import 'package:mizanmobile/activity/hutang/list_hutang_detail.dart';
+import 'package:mizanmobile/activity/utility/bottom_modal_filter.dart';
 import 'package:mizanmobile/helper/utils.dart';
 import 'package:http/http.dart';
 
@@ -20,10 +21,15 @@ class ListHutang extends StatefulWidget {
 class _ListHutangState extends State<ListHutang> {
   Future<List<dynamic>>? _dataHutang;
 
+  TextEditingController statusLunasCtrl = TextEditingController();
+  int statusLunas = 1;
+
   Future<List<dynamic>> _getDataHutang({String keyword = ""}) async {
-    Uri url = Uri.parse("${Utils.mainUrl}hutang/daftar?iddept=${Utils.idDept}");
+    Uri url =
+        Uri.parse("${Utils.mainUrl}hutang/daftar?status_lunas=$statusLunas&iddept=${Utils.idDept}");
     if (keyword != null && keyword != "") {
-      url = Uri.parse("${Utils.mainUrl}hutang/cari?iddept=${Utils.idDept}&cari=$keyword");
+      url = Uri.parse(
+          "${Utils.mainUrl}hutang/cari?status_lunas=$statusLunas&iddept=${Utils.idDept}&cari=$keyword");
     }
     Response response = await get(url, headers: Utils.setHeader());
     log(url.toString());
@@ -129,7 +135,12 @@ class _ListHutangState extends State<ListHutang> {
                   }
                 });
               },
-              icon: customIcon)
+              icon: customIcon),
+          IconButton(
+              onPressed: () {
+                filterModal(context);
+              },
+              icon: Icon(Icons.filter_alt))
         ],
       ),
       body: RefreshIndicator(
@@ -147,5 +158,54 @@ class _ListHutangState extends State<ListHutang> {
         ),
       ),
     );
+  }
+
+  filterModal(BuildContext context) async {
+    List<DropdownMenuEntry<int>> lsentry = [];
+    lsentry.add(DropdownMenuEntry(value: 0, label: "Semua"));
+    lsentry.add(DropdownMenuEntry(value: 1, label: "Belum Lunas"));
+    lsentry.add(DropdownMenuEntry(value: 2, label: "Sudah Lunas"));
+
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        builder: (BuildContext context) {
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Container(
+              padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 70),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Utils.labelSetter("Filter Data", bold: true, size: 25),
+                  Padding(padding: const EdgeInsets.all(10)),
+                  Utils.labelSetter("Status Lunas"),
+                  SizedBox(
+                    width: double.maxFinite,
+                    child: DropdownMenu(
+                      controller: statusLunasCtrl,
+                      dropdownMenuEntries: lsentry,
+                      onSelected: (value) {
+                        statusLunas = value as int;
+                      },
+                    ),
+                  ),
+                  Padding(padding: const EdgeInsets.all(10)),
+                  SizedBox(
+                      width: double.maxFinite,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              _dataHutang = _getDataHutang();
+                            });
+                          },
+                          child: Text("Filter"))),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

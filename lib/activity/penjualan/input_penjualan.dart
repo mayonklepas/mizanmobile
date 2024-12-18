@@ -489,7 +489,7 @@ class _InputPenjualanState extends State<InputPenjualan> {
 
         if (tempResult != null) {
           String idSatuanPengali = tempResult["IDSATUANPENGALI"] ?? idSatuan;
-          double qtySatuanPengali = tempResult["QTYSATUANPENGALI"];
+          double qtySatuanPengali = tempResult["QTYSATUANPENGALI"] ?? 1.0;
           double hargaJual = tempResult["HARGA_JUAL"];
 
           if (multiSatuan.isNotEmpty) {
@@ -1538,6 +1538,8 @@ class _InputPenjualanState extends State<InputPenjualan> {
                       String qty = Utils.formatNumber(data["QTY"]);
                       String satuan = data["SATUAN"];
                       String keterangan = data["KETERANGAN"];
+                      double totalHargaRaw = (data["HARGA"] - data["DISKONNOMINAL"]) * data["QTY"];
+                      String totalHarga = Utils.formatNumber(totalHargaRaw);
                       return Container(
                         child: Card(
                           child: InkWell(
@@ -1570,12 +1572,18 @@ class _InputPenjualanState extends State<InputPenjualan> {
                                         children: [
                                           Utils.labelSetter(nama, bold: true),
                                           Utils.labelSetter(kode),
-                                          Utils.labelSetter(harga, bold: true),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Utils.labelSetter(harga, bold: false),
+                                              Utils.labelSetter("Qty : $qty $satuan "),
+                                            ],
+                                          ),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
                                               Utils.labelSetter("Disc :  $diskon", bold: false),
-                                              Utils.labelSetter("Qty : $qty $satuan "),
+                                              Utils.labelSetter("Total: $totalHarga", bold: true),
                                             ],
                                           ),
                                           Utils.widgetSetter(() {
